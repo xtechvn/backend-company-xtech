@@ -1,0 +1,87 @@
+﻿@{ ViewData["Title"] = "Chi tiết khách hàng"; }
+<section class="main-container">
+    <div class="row-main container">
+        @*Thông tin khách hàng*@
+        <h2 class="txt_16 bold mb15">Thông tin cơ bản khách hàng</h2>
+        <input id="id_userid" style="display:none" value="@ViewBag.id"></input>
+        <div id="grid_detail_Customer_Manager">
+            <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_Customer_Manager" />
+        </div>
+
+
+        <div class="white-popup" style="max-width: 400px; display:none">
+            <div class="content_lightbox">
+                <div class="head line-bottom">
+                    Chi tiết công nợ khách hàng DL100001
+                </div>
+                <div class="row">
+                    <div class="col-6 mb10">Công nợ VMB</div>
+                    <div class="col-6 mb10">: 30,000,000 vnđ</div>
+                    <div class="col-6 mb10">Công nợ KS</div>
+                    <div class="col-6 mb10">: 0/0</div>
+                    <div class="col-6 mb10">Thời gian thu hồi công nợ</div>
+                    <div class="col-6 mb10">: 15/02/2023</div>
+                    <div class="col-6 mb10">Nhân viên phụ trách</div>
+                    <div class="col-6 mb10">: Nguyễn Thanh Bình - Kinh doanh 1</div>
+                </div>
+            </div>
+            <button title="Close (Esc)" type="button" class="mfp-close">×</button>
+        </div>
+        <div class="tab-default" style="border-bottom: 1px solid #CCCCCC;">
+            <div class="row" style=" width: 100%; ">
+                <div class="tab-default col-md-9 mb0 mt10">
+                    <a href="javascript:;" onclick="_customer_manager_Detail.OnStatuse(1);_customer_manager_Detail.SetActive(1)" id="data_order" class="active">Lịch sử mua hàng</a>
+                    <a href="javascript:;" onclick="_customer_manager_Detail.OnStatuse(3);_customer_manager_Detail.SetActive(3)" id="data_deposit_history">Lịch sử ký quỹ</a>
+                    <a href="javascript:;" onclick="_customer_manager_Detail.OnStatuse(4);_customer_manager_Detail.SetActive(4)" id="data_Contract">Lịch sử hợp đồng</a>
+                    <a href="javascript:;" onclick="_customer_manager_Detail.OnStatuse(2);_customer_manager_Detail.SetActive(2)" id="data_payment_account">Thông tin thanh toán</a>
+                    <div id="bt_data_payment_account" style="display:none">
+                        <button type="button" class="btn btn-default bg-main mb10 mr-2" onclick="_customer_manager_Detail.OpenPopupPaymentAccount('')"><i class="fa fa-plus-circle"></i>Thêm thông tin thanh toán</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <div>
+            @*Lịch sử mua hàng*@
+
+            <input id="id_userid" style="display:none" value="@ViewBag.id"></input>
+            <div id="grid_data_order">
+                <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_order" />
+            </div>
+            @*Thông tin thanh toán*@
+
+            <div id="grid_data_payment_account" style="display:none">
+                <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_payment_account(" />
+            </div>
+
+            @*lịch sử ký quỹ*@
+
+
+            <div id="grid_data_deposit_history" style="display:none">
+                <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_deposit_history" />
+            </div>
+
+
+            @*lịch sử hợp đồng*@
+
+
+            <div id="grid_data_Contract" style="display:none">
+                <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_Contract" />
+            </div>
+        </div>
+
+        <div class="flex flex-end">
+            <b class="btn btn-default cancel ml-1" onclick="history.back()">Quay lại</b>
+            <button type="button" class="btn btn-default ml-1" onclick="_customer_manager.OpenPopup('@ViewBag.id')">Sửa thông tin khách hàng</button>
+            <button type="button" class="btn btn-default ml-1" onclick="_customer_manager_Detail.OpenPopupUserAgent('')">Đổi nhân viên phụ trách</button>
+        </div>
+    </div>
+</section>
+
+@section scripts {
+    <script type="text/javascript" src="/modules/customer_manager_Detail.js"></script>
+    <script type="text/javascript" src="/modules/customer_manager.js"></script>
+}

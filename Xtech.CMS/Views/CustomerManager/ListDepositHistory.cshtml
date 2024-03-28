@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+
+}
+@using Entities.ViewModels
+@using Entities.ViewModels.Funding
+@model GenericViewModel<DepositHistoryViewMdel>
+@if (Model.ListData != null)
+{
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-default table-gray">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">STT</th>
+                        <th>Mã giao dịch</th>
+                        <th>Nội dung</th>
+                        <th class="text-right">Số tiền nạp</th>
+                        <th >Loại giao dịch</th>
+                        <th >Hình thức</th>
+                        <th >Thời gian giao dịch</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Model.ListData.Count > 0)
+                    {
+                        var counter = (Model.CurrentPage - 1) * Model.PageSize;
+                        @foreach (var item in Model.ListData)
+                        {
+                            counter++;
+                            <tr>
+                                <td>@counter</td>
+                                <td>@item.TransNo</td>
+                                <td>
+                                    <div>@item.Title</div>
+                                    @if(item.Status ==(int)Utilities.DepositHistoryConstant.DEPOSIT_STATUS.TU_CHOI) {<span class="status-red">@item.statusName</span> }
+                                    @if(item.Status ==(int)Utilities.DepositHistoryConstant.DEPOSIT_STATUS.DA_DUYET) {<span class="status-green">@item.statusName</span> }
+                                    @if(item.Status != (int)Utilities.DepositHistoryConstant.DEPOSIT_STATUS.DA_DUYET && item.Status != (int)Utilities.DepositHistoryConstant.DEPOSIT_STATUS.TU_CHOI)
+                                    {<span class="status-oranger">@item.statusName</span> }
+                                        
+                                </td>
+                                <td class="text-right">@(((double)item.Price).ToString("#,###"))</td>
+                                <td >@item.paymentName</td>
+                                <td >@item.paymentName</td>
+                                <td >@((Convert.ToDateTime(item.CreateDate)).ToString("dd/MM/yyyy HH:mm:ss") )</td>
+                            </tr>
+                        }
+
+
+                    }
+
+                </tbody>
+            </table>
+        </div>
+
+        @await Component.InvokeAsync("Paging", new
+   {
+       pageModel = new Paging()
+       {
+           TotalRecord = Model.TotalRecord,
+           TotalPage = Model.TotalPage,
+           CurrentPage = Model.CurrentPage,
+           PageSize = Model.PageSize,
+           RecordName = "Hóa đơn",
+           PageAction = "_customer_manager.DepositHistoryOnPaging({0})"
+       }
+   })
+
+    </div>
+}
+else
+{
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-default table-gray">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">STT</th>
+                        <th>Mã giao dịch</th>
+                        <th>Nội dung</th>
+                        <th class="text-right">Số tiền nạp</th>
+                        <th class="text-right">Số dư cuối quỹ VMB</th>
+                        <th class="text-right">Số dư cuối quỹ KS</th>
+                        <th class="text-right">Loại giao dịch</th>
+                        <th class="text-right">Hình thức</th>
+                        <th class="text-right">Thời gian giao dịch</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+

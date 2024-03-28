@@ -1,0 +1,139 @@
+﻿@using Entities.Models
+@using Utilities.Contants
+@using Entities.ViewModels.CustomerManager
+@model CustomerManagerViewModel
+<div class="table-responsive table-white">
+    <table class="table table-nowrap">
+        <tbody>
+            <tr>
+                <td colspan="3">
+                    <strong>Khách hàng: @Model.ClientName</strong>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Thông tin cơ bản</strong></td>
+                <td style="width: 440px;"><strong>Thông tin tài chính</strong></td>
+            </tr>
+            <tr>
+                <td style="min-width: 400px;">
+                    <div class="row">
+                        <div class="col-4 mb10 gray">Mã</div>
+                        <div class="col-8 mb10">: @Model.ClientCode</div>
+                        <div class="col-4 mb10 gray">Mã số thuế/Chứng minh nhân dân</div>
+                        <div class="col-8 mb10">: @Model.TaxNo</div>
+                        <div class="col-4 mb10 gray">Điện thoại</div>
+                        <div class="col-8 mb10">: @Model.Phone</div>
+                        <div class="col-4 mb10 gray">Email</div>
+                        <div class="col-8 mb10">: @Model.Email</div>
+                        <div class="col-4 mb10 gray">Địa chỉ giao dịch</div>
+                        <div class="col-8 mb10">: @Model.BusinessAddress</div>
+                        <div class="col-4 mb10 gray">Địa chỉ xuất hóa đơn</div>
+                        <div class="col-8 mb10">: @Model.ExportBillAddress</div>
+                    </div>
+                </td>
+                <td style="min-width: 400px;">
+                    <div class="row">
+                        <div class="col-4 mb10 gray">Đối tượng</div>
+                        <div class="col-8 mb10">: @Model.AgencyType_name</div>
+                        <div class="col-4 mb10 gray">Loại</div>
+                        <div class="col-8 mb10">: @Model.client_type_name</div>
+                        <div class="col-4 mb10 gray">Nhóm</div>
+                        <div class="col-8 mb10">: @Model.PermisionType_name</div>
+
+                        <div class="col-4 mb10 gray">Người phụ trách:</div>
+                        <div class="col-8 mb10">: @Model.UserId_name</div>
+                        <div class="col-4 mb10 gray">Người Tạo:</div>
+                        <div class="col-8 mb10">: @Model.Create_name</div>
+                        <div class="col-4 mb10 gray">Ngày tạo:</div>
+                        <div class="col-8 mb10">: @Model.JoinDate.ToString("dd/MM/yyyy HH:MM:ss")</div>
+                    </div>
+                </td>
+                <td style="min-width: 400px;">
+                    <div class="row">
+                        <div class="col-5 mb10 gray">Tổng thanh toán:</div>
+                        <div class="col-7 mb10">: @Model.sum_payment.ToString("N0")</div>
+                        @if (Model.PermisionType == Utilities.Contants.PermisionType.DUOC_CN)
+                        {
+            <div class="col-5 mb10 gray">Công nợ</div>
+                            <div class="col-7 mb10 blue" data-toggle="modal" data-target="#myModal7">: @Model.TotalAmountUse.ToString("N0")/@Model.TotalDebtAmount.ToString("N0") </div>}
+
+                        <div class="col-5 mb10 gray">Số dư chưa gạch nợ </div>
+                        <div class="col-7 mb10">: @ViewBag.Amount.ToString("N0")</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div class="flex">
+                        <div class="red mr-4 underline">Ghi chú</div>
+                        <span>: @Model.Note</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+
+                <td colspan="3">
+
+                    <div><strong>Thông tin hệ thống</strong> </div>
+                    <div class="row">
+                        <div class="col-4 mb10 gray">Ngày cập nhật :</div>
+                        <div class="col-8 mb10">@Model.UpdateLast</div>
+                        <div class="col-4 mb10 gray">Người cập nhật :</div>
+                        <div class="col-8 mb10">@Model.Update_Name</div>
+
+                    </div>
+                </td>
+
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+<div class="modal fade" id="myModal7" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 600px">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Chi tiết công nợ khách hàng</h4>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    @if (Model.ServiceType != null) 
+                    { 
+                        @if (Model.ServiceType.Contains(((int)ServicesType.FlyingTicket).ToString()))
+                        {
+                            <div class="col-6 mb10">Hạn mức công nợ VMB</div>
+                            <div class="col-6 mb10">: @Model.TotalAmountFlyUse.ToString("N0")/@Model.ProductFlyTicketDebtAmount.ToString("N0") </div>
+                        }
+                        @if (Model.ServiceType.Contains(((int)ServicesType.VINHotelRent).ToString())) 
+                        {
+                            <div class="col-6 mb10">Hạn mức công nợ KS</div>
+                            <div class="col-6 mb10">: @Model.TotalAmountHotelUse.ToString("N0")/@Model.HotelDebtAmout.ToString("N0") </div>
+                        }
+                        @if (Model.ServiceType.Contains(((int)ServicesType.Tourist).ToString())) 
+                        {
+                            <div class="col-6 mb10">Hạn mức công nợ Tour</div>
+                            <div class="col-6 mb10">: @Model.TotalAmountTourUse.ToString("N0")/@Model.TourDebtAmount.ToString("N0") </div>
+                        }
+                        @if (Model.ServiceType.Contains(((int)ServicesType.VinWonder).ToString())) 
+                        {
+                            <div class="col-6 mb10">Hạn mức công nợ VinWonder</div>
+                            <div class="col-6 mb10">: @Model.TotalAmountVinWonderUse.ToString("N0")/@Model.VinWonderDebtAmount.ToString("N0") </div>
+                        }
+                        @if (Model.ServiceType.Contains(((int)ServicesType.Other).ToString())|| Model.ServiceType.Contains(((int)ServicesType.VehicleRent).ToString())) 
+                        { 
+                            <div class="col-6 mb10">Hạn mức công nợ dịch vụ khác</div>
+                            <div class="col-6 mb10">: @Model.TotalAmountOtherUse.ToString("N0")/@Model.TouringCarDebtAmount.ToString("N0") </div>
+                        }
+                    }
+                    
+
+                  
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
