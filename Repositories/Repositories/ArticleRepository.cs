@@ -1,6 +1,7 @@
 ﻿using DAL;
 using Entities.ConfigModels;
 using Entities.ViewModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
 using System;
@@ -19,15 +20,15 @@ namespace Repositories.Repositories
     {
         private readonly ArticleDAL _ArticleDAL;
         private readonly TagDAL _TagDAL;
+        private readonly IConfiguration _configuration;
 
-        private readonly string _UrlStaticImage;
 
-        public ArticleRepository(IOptions<DataBaseConfig> dataBaseConfig, IOptions<DomainConfig> domainConfig)
+        public ArticleRepository(IOptions<DataBaseConfig> dataBaseConfig, IOptions<DomainConfig> domainConfig, IConfiguration configuration)
         {
             var _StrConnection = dataBaseConfig.Value.SqlServer.ConnectionString;
-            _UrlStaticImage = domainConfig.Value.ImageStatic;
             _ArticleDAL = new ArticleDAL(_StrConnection);
             _TagDAL = new TagDAL(_StrConnection);
+            _configuration = configuration;
         }
 
         public async Task<long> ChangeArticleStatus(long Id, int Status)
@@ -138,11 +139,11 @@ namespace Repositories.Repositories
                 if (model.ArticleType == 0)
                 {
                     // upload image inside content to static site
-                    TBody=  StringHelpers.ReplaceEditorImage(model.Body, _UrlStaticImage);
+                    TBody=  StringHelpers.ReplaceEditorImage(model.Body, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
                     // upload thumb image via api
-                    var T11 = UpLoadHelper.UploadBase64Src(model.Image11, _UrlStaticImage);
-                    var T43 = UpLoadHelper.UploadBase64Src(model.Image43, _UrlStaticImage);
-                    var T169 = UpLoadHelper.UploadBase64Src(model.Image169, _UrlStaticImage);
+                    var T11 = UpLoadHelper.UploadBase64Src(model.Image11, _configuration["Setting:DomainStatic"],_configuration["DataBaseConfig:key_api:Static"]);
+                    var T43 = UpLoadHelper.UploadBase64Src(model.Image43, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
+                    var T169 = UpLoadHelper.UploadBase64Src(model.Image169, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
 
                     await Task.WhenAll(TBody, T11, T43, T169);
 
@@ -154,26 +155,26 @@ namespace Repositories.Repositories
                 else
                 {
                     // upload thumb image via api
-                    var T11 = UpLoadHelper.UploadBase64Src(model.Image11, _UrlStaticImage);
-                    var T43 = UpLoadHelper.UploadBase64Src(model.Image43, _UrlStaticImage);
-                    var T169 = UpLoadHelper.UploadBase64Src(model.Image169, _UrlStaticImage);
+                    var T11 = UpLoadHelper.UploadBase64Src(model.Image11, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
+                    var T43 = UpLoadHelper.UploadBase64Src(model.Image43, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
+                    var T169 = UpLoadHelper.UploadBase64Src(model.Image169, _configuration["Setting:DomainStatic"], _configuration["DataBaseConfig:key_api:Static"]);
                     await Task.WhenAll( T11, T43, T169);
                     model.Image11 = T11.Result;
                     model.Image43 = T43.Result;
                     model.Image169 = T169.Result;
                 }
 
-                if (!string.IsNullOrEmpty(model.Image11) && !model.Image11.Contains(_UrlStaticImage))
+                if (!string.IsNullOrEmpty(model.Image11) && !model.Image11.Contains(_configuration["Setting:DomainStatic"]))
                 {
-                    model.Image11 = _UrlStaticImage + model.Image11;
+                    model.Image11 = _configuration["Setting:DomainStatic"] + model.Image11;
                 }
-                if (!string.IsNullOrEmpty(model.Image43) && !model.Image43.Contains(_UrlStaticImage))
+                if (!string.IsNullOrEmpty(model.Image43) && !model.Image43.Contains(_configuration["Setting:DomainStatic"]))
                 {
-                    model.Image43 = _UrlStaticImage + model.Image43;
+                    model.Image43 = _configuration["Setting:DomainStatic"] + model.Image43;
                 }
-                if (!string.IsNullOrEmpty(model.Image169) && !model.Image169.Contains(_UrlStaticImage))
+                if (!string.IsNullOrEmpty(model.Image169) && !model.Image169.Contains(_configuration["Setting:DomainStatic"]))
                 {
-                    model.Image169 = _UrlStaticImage + model.Image169;
+                    model.Image169 = _configuration["Setting:DomainStatic"] + model.Image169;
                 }
                 #endregion
 
@@ -219,7 +220,7 @@ namespace Repositories.Repositories
         {
             try
             {
-               var TBody = StringVideoHelpers.ReplaceEditorVideo(model.Body, _UrlStaticImage).Result;
+               var TBody = StringVideoHelpers.ReplaceEditorVideo(model.Body, _configuration["Setting:DomainStatic"]).Result;
                 return TBody;
             }
             catch(Exception ex)

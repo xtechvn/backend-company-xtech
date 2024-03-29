@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using ENTITIES.ViewModels.Articles;
 
 namespace Repositories.IRepositories
 {

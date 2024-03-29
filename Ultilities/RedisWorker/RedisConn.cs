@@ -22,11 +22,6 @@ namespace Ultilities.RedisWorker
         {
             _redisHost = config["Redis:Host"];
             _redisPort = Convert.ToInt32(config["Redis:Port"]);
-            // _db_index = Convert.ToInt32(config["Redis:Database:db_product"]);            
-        }
-
-        public void Connect()
-        {
             try
             {
                 var configString = $"{_redisHost}:{_redisPort},connectRetry=5,allowAdmin=true";
@@ -35,10 +30,11 @@ namespace Ultilities.RedisWorker
             catch (RedisConnectionException err)
             {
 
-               // throw err;
+                // throw err;
             }
-            // Log.Debug("Connected to Redis");
         }
+
+      
 
         public void Set(string key, string value, int db_index)
         {

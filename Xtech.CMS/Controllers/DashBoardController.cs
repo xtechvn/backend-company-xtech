@@ -1,12 +1,7 @@
-﻿using Entities.ViewModels;
-using Entities.ViewModels.DashBoard;
+﻿using Entities.ViewModels.DashBoard;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Repositories.IRepositories;
-using System;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using Utilities;
 using Utilities.Contants;
 using WEB.CMS.Customize;
@@ -17,16 +12,14 @@ namespace WEB.CMS.Controllers
     public class DashBoardController : Controller
     {
         private readonly IDashboardRepository _DashboardRepository;
-        private readonly IOrderRepository _OrderRepository;
         private ManagementUser _ManagementUser;
 
         public DashBoardController(ManagementUser managementUser,
-            IDashboardRepository dashboardRepository,
-            IOrderRepository orderRepository)
+            IDashboardRepository dashboardRepository
+            )
         {
             _DashboardRepository = dashboardRepository;
             _ManagementUser = managementUser;
-            _OrderRepository = orderRepository;
         }
 
 
@@ -142,64 +135,10 @@ namespace WEB.CMS.Controllers
             {
                 var current_user = _ManagementUser.GetCurrentUser();
 
-                var searchModel = new OrderViewSearchModel();
-                if (current_user != null && !string.IsNullOrEmpty(current_user.Role))
+                return new JsonResult(new
                 {
-                    var list = current_user.Role.Split(',');
-
-                    foreach (var item in list)
-                    {
-                        switch (Convert.ToInt32(item))
-                        {
-                            case (int)RoleType.SaleOnl:
-                            case (int)RoleType.SaleTour:
-                            case (int)RoleType.SaleKd:
-                            case (int)RoleType.TPDHKS:
-                            case (int)RoleType.TPDHVe:
-                            case (int)RoleType.TPDHTour:
-                            case (int)RoleType.TPKS:
-                            case (int)RoleType.TPTour:
-                            case (int)RoleType.TPVe:
-                            case (int)RoleType.DHPQ:
-                            case (int)RoleType.DHTour:
-                            case (int)RoleType.DHVe:
-                            case (int)RoleType.DHKS:
-                            case (int)RoleType.GDHN:
-                            case (int)RoleType.GDHPQ:
-                                {
-                                    if (searchModel.SalerPermission == null || searchModel.SalerPermission.Trim() == "")
-                                    {
-                                        searchModel.SalerPermission = current_user.UserUnderList;
-                                    }
-                                    else
-                                    {
-                                        searchModel.SalerPermission += "," + current_user.UserUnderList;
-
-                                    }
-                                }
-                                break;
-                            case (int)RoleType.Admin:
-                            case (int)RoleType.KT:
-                            case (int)RoleType.GD:
-                                {
-                                    searchModel.Sale = null;
-                                }
-                                break;
-                        }
-                    }
-                    searchModel.PermisionType = null;
-                    searchModel.PaymentStatus = null;
-
-                    var dataOrder = await _OrderRepository.GetTotalCountOrder(searchModel, 1, 10);
-                    return new JsonResult(dataOrder);
-                }
-                else
-                {
-                    return new JsonResult(new
-                    {
-                        totalrecordErr = 0
-                    });
-                }
+                    totalrecordErr = 0
+                });
             }
             catch (Exception ex)
             {

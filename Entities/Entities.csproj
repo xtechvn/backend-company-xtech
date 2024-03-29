@@ -16,8 +16,4 @@
     <PackageReference Include="MongoDB.Bson" Version="2.24.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ViewModels\" />
-  </ItemGroup>
-
 </Project>

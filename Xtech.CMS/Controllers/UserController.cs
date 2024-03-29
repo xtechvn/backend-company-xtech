@@ -82,7 +82,6 @@ namespace WEB.CMS.Controllers
             {
                 var model = new User();
                 ViewBag.UserRoleList = null;
-                ViewBag.CompanyType = "";
                 if (Id != 0)
                 {
 
@@ -108,7 +107,6 @@ namespace WEB.CMS.Controllers
                     {
                         ViewBag.UserRoleList = list_role_active.Select(x => x.Id).ToList();
                     }
-                    ViewBag.CompanyType = "";
                 }
                 else
                 {

@@ -7,7 +7,6 @@
     var _DepartmentList = (List<Department>)ViewBag.DepartmentList;
     var _UserPosition = (List<UserPosition>)ViewBag.UserPosition;
     var _UserRoleList = (List<int>)ViewBag.UserRoleList;
-    string company_type= (string)ViewBag.CompanyType;
     async Task ShowDepartment(Department item, int level = 0)
     {
         var childs = _DepartmentList.Where(s => s.ParentId == item.Id);
@@ -30,7 +29,7 @@
     }
 }
 @model User
-<form id="form-create-user" data-companytype="@(company_type??"")">
+<form id="form-create-user" >
     <div class="user-popup popup-width2 white-popup flex">
         <div class="up-file mb15">
             <div class="ava default mb10">
@@ -301,39 +300,7 @@
                         <label class="radio-inline"><input type="radio" asp-for="@Model.Gender" value="1">Nam</label>
                         <label class="radio-inline"><input type="radio" asp-for="@Model.Gender" value="0">Nữ</label>
                     </div>
-                    <div class="form-group male">
-                        <label class="lbl" style="width: 120px;">Công ty</label>
-                        @if (company_type.ToLower().Contains("0"))
-                        {
-                            <label class="radio-inline"><input class="company-type" checked="checked" type="checkbox" value="0">Travel</label>
-
-                        }
-                        else
-                        {
-                            <label class="radio-inline"><input class="company-type" type="checkbox" value="0">Travel</label>
-
-                        }
-                        @if (company_type.ToLower().Contains("1"))
-                        {
-                            <label class="radio-inline"><input class="company-type" checked="checked" type="checkbox" value="1">Phú Quốc</label>
-
-                        }
-                        else
-                        {
-                            <label class="radio-inline"><input class="company-type" type="checkbox" value="1">Phú Quốc</label>
-
-                        }
-                        @if (company_type.ToLower().Contains("2"))
-                        {
-                            <label class="radio-inline"><input class="company-type" checked="checked" type="checkbox" value="2">Đại Việt</label>
-
-                        }
-                        else
-                        {
-                            <label class="radio-inline"><input class="company-type" type="checkbox" value="2">Đại Việt</label>
-
-                        }
-                    </div>
+                  
                 </div>
             }
             <div class="form-group align-right col-12 mt20 block">

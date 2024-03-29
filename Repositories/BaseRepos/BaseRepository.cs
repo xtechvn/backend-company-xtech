@@ -19,11 +19,11 @@ namespace Repositories.Repositories.BaseRepos
         protected static SysUserModel _SysUserModel;
         private RedisConn _redisConn;
 
-        public BaseRepository(IHttpContextAccessor context, IOptions<DataBaseConfig> dataBaseConfig, IConfiguration configuration,IUserRepository _UserRepository)
+        public BaseRepository(IHttpContextAccessor context, IOptions<DataBaseConfig> dataBaseConfig, IConfiguration configuration,IUserRepository _UserRepository,
+            RedisConn redisConn)
         {
             _SqlServerConnectString = dataBaseConfig.Value.SqlServer.ConnectionString;
-            _redisConn = new RedisConn(configuration);
-            _redisConn.Connect();
+            _redisConn = redisConn;
             Claim ClaimDepartmentId = context.HttpContext.User.FindFirst("DepartmentId");
             IEnumerable<PermissionData> permissions = null;
 

@@ -14,7 +14,6 @@ namespace Repositories.IRepositories
         Task<long> Update(AllCode model);
         Task<long> Delete(int id);
         List<AllCode> GetListByType(string type);
-        List<BankingAccount> GetBankingAccounts();
         AllCode GetByType(string type);
         Task<short> GetLastestCodeValueByType(string type);
         Task<short> GetLastestOrderNoByType(string type);

@@ -7,15 +7,14 @@ namespace Utilities
 {
     public class UpLoadHelper
     {
-        static string apiPrefix = "https://static-image.adavigo.com/images/upload";
-        static string apiUploadVideo = "https://localhost:44377/Video/upload-video";
-        static string key_token_api = "wVALy5t0tXEgId5yMDNg06OwqpElC9I0sxTtri4JAlXluGipo6kKhv2LoeGQnfnyQlC07veTxb7zVqDVKwLXzS7Ngjh1V3SxWz69";
+        static string apiPrefix = "/static/images/upload";
+        static string apiUploadVideo = "/static/Video/upload-video";
         /// <summary>
         /// UploadImageBase64
         /// </summary>
         /// <param name="ImageBase64">src of image</param>
         /// <returns></returns>
-        public static async Task<string> UploadImageBase64(ImageBase64 modelImage)
+        public static async Task<string> UploadImageBase64(ImageBase64 modelImage,string domain,string key)
         {
             string ImagePath = string.Empty;
             string tokenData = string.Empty;
@@ -28,10 +27,10 @@ namespace Utilities
 
                 using (HttpClient httpClient = new HttpClient())
                 {
-                    tokenData = CommonHelper.Encode(JsonConvert.SerializeObject(j_param), key_token_api);
+                    tokenData = CommonHelper.Encode(JsonConvert.SerializeObject(j_param), key);
                     var contentObj = new { token = tokenData };
                     var content = new StringContent(JsonConvert.SerializeObject(contentObj), Encoding.UTF8, "application/json");
-                    var result = await httpClient.PostAsync(apiPrefix, content);
+                    var result = await httpClient.PostAsync(domain+apiPrefix, content);
                     dynamic resultContent = Newtonsoft.Json.Linq.JObject.Parse(result.Content.ReadAsStringAsync().Result);
                     if (resultContent.status == 0)
                     {
@@ -50,7 +49,7 @@ namespace Utilities
             return ImagePath;
         }
 
-        public static async Task<string> UploadBase64Src(string ImageSrc, string StaticDomain)
+        public static async Task<string> UploadBase64Src(string ImageSrc, string domain, string key)
         {
             try
             {
@@ -60,12 +59,12 @@ namespace Utilities
                     objimage.ImageData = ResizeBase64Image(objimage.ImageData, out string FileType);
                     if (!string.IsNullOrEmpty(FileType)) objimage.ImageExtension = FileType;
 
-                    return await UploadImageBase64(objimage);
+                    return await UploadImageBase64(objimage, domain,key);
                 }
                 else
                 {
-                    if (ImageSrc.StartsWith(StaticDomain))
-                        return ImageSrc.Replace(StaticDomain, string.Empty);
+                    if (ImageSrc.StartsWith(domain))
+                        return ImageSrc.Replace(domain, string.Empty);
                     else
                         return ImageSrc;
                 }

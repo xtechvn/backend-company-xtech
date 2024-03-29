@@ -50,7 +50,7 @@ namespace DAL
             }
         }
 
-        
+       
 
         public async Task<List<District>> GetDistrictListByProvinceId(string provinceId)
         {

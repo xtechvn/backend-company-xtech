@@ -20,13 +20,11 @@ namespace Repositories.Repositories
     {
         private readonly ILogger<AllCodeRepository> _logger;
         private readonly AllCodeDAL _AllCodeDAL;
-        private readonly BankingAccountDAL bankingAccountDAL;
 
         public AllCodeRepository(IOptions<DataBaseConfig> dataBaseConfig, ILogger<AllCodeRepository> logger)
         {
             _logger = logger;
             _AllCodeDAL = new AllCodeDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
-            bankingAccountDAL = new BankingAccountDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
         }
 
         public async Task<long> Create(AllCode model)
@@ -152,9 +150,6 @@ namespace Repositories.Repositories
             return JsonConvert.DeserializeObject<T>(contents);
         }
 
-        public List<BankingAccount> GetBankingAccounts()
-        {
-            return bankingAccountDAL.GetAllBankingAccount();
-        }
+        
     }
 }

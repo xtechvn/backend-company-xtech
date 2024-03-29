@@ -1,16 +1,10 @@
-﻿using Caching.RedisWorker;
-using Entities.ConfigModels;
-using Entities.Models;
+﻿using Entities.ConfigModels;
 using Entities.ViewModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Repositories.IRepositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
+using Ultilities.RedisWorker;
 using Utilities;
 using Utilities.Contants;
 
@@ -23,11 +17,10 @@ namespace WEB.CMS.Customize
         private readonly IUserRepository _UserRepository;
         private RedisConn _redisConn;
 
-        public ManagementUser(IHttpContextAccessor context, IConfiguration configuration, IUserRepository UserRepository)
+        public ManagementUser(IHttpContextAccessor context, IConfiguration configuration, IUserRepository UserRepository, RedisConn redisConn)
         {
             _HttpContext = context;
-            _redisConn = new RedisConn(configuration);
-            _redisConn.Connect();
+            _redisConn = redisConn;
             _configuration = configuration;
             _UserRepository = UserRepository;
         }

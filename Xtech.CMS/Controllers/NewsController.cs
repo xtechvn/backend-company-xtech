@@ -1,22 +1,13 @@
 ﻿using Entities.ViewModels;
 using Entities.ViewModels.News;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Repositories.IRepositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Ultilities.RedisWorker;
 using Utilities;
 using Utilities.Contants;
 using WEB.CMS.Customize;
-using WEB.CMS.Models;
 using WEB.CMS.Service.News;
 
 namespace WEB.CMS.Controllers
@@ -24,17 +15,18 @@ namespace WEB.CMS.Controllers
     [CustomAuthorize]
     public class NewsController : Controller
     {
-        private const int NEWS_CATEGORY_ID = 39;
-        private const int VIDEO_NEWS_CATEGORY_ID = 36;
+        private const int NEWS_CATEGORY_ID = 1;
+        private const int VIDEO_NEWS_CATEGORY_ID = 1;
         private readonly IGroupProductRepository _GroupProductRepository;
         private readonly IArticleRepository _ArticleRepository;
         private readonly IUserRepository _UserRepository;
         private readonly ICommonRepository _CommonRepository;
         private readonly IWebHostEnvironment _WebHostEnvironment;
         private readonly IConfiguration _configuration;
+        private readonly RedisConn _redisService;
 
         public NewsController(IConfiguration configuration, IArticleRepository articleRepository, IUserRepository userRepository, ICommonRepository commonRepository, IWebHostEnvironment hostEnvironment,
-            IGroupProductRepository groupProductRepository)
+            IGroupProductRepository groupProductRepository, RedisConn redisService)
         {
             _ArticleRepository = articleRepository;
             _CommonRepository = commonRepository;
@@ -42,7 +34,7 @@ namespace WEB.CMS.Controllers
             _WebHostEnvironment = hostEnvironment;
             _configuration = configuration;
             _GroupProductRepository = groupProductRepository;
-
+            _redisService = redisService;
         }
 
         public async Task<IActionResult> Index()
@@ -299,17 +291,10 @@ namespace WEB.CMS.Controllers
             string token = string.Empty;
             try
             {
-                var apiPrefix = ReadFile.LoadConfig().API_ADAVIGO_URL + ReadFile.LoadConfig().API_SYNC_ARTICLE;
-                var key_token_api = ReadFile.LoadConfig().KEY_TOKEN_API;
-                HttpClient httpClient = new HttpClient();
-                var j_param = new Dictionary<string, string> {
-                    { "article_id", articleId.ToString() },
-                    { "category_id",ArrCategoryId }
-                };
-                token = CommonHelper.Encode(JsonConvert.SerializeObject(j_param), _configuration["DataBaseConfig:key_api:api_manual"]);
-                var content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("token", token) });
-                var result_post=await httpClient.PostAsync(apiPrefix, content);
-                var post_content =JObject.Parse(result_post.Content.ReadAsStringAsync().Result);
+                _redisService.clear(CacheName.ARTICLE_CATEGORY_ID + ArrCategoryId, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                _redisService.clear(CacheName.CATEGORY_NEWS + "1", Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                _redisService.clear(CacheName.CATEGORY_NEWS + ArrCategoryId, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                _redisService.clear(CacheName.ARTICLE_B2C_MOST_VIEWED, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
             }
             catch (Exception ex)
             {

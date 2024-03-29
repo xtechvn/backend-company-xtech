@@ -1,16 +1,7 @@
 ﻿using Entities.Models;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Repositories.IRepositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Utilities;
-using WEB.Adavigo.CMS.Service;
 using WEB.CMS.Customize;
 
 namespace WEB.CMS.ViewComponents

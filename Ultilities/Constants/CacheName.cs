@@ -19,6 +19,15 @@ namespace Utilities.Contants
         public const string LIST_TOUR_TYPE = "LIST_TOUR_TYPE_";
         public const string ARTICLE_B2C_CATEGORY_MENU = "ARTICLE_B2C_CATEGORY_MENU";
         public const string USER_ROLE = "USER_ROLE_";
-
+        public const int REMOVE = 0;
+        public const int REMOVE_AND_RE_LOAD = 1;
+        public const string ARTICLE_CATEGORY_ID = "ARTICLE_CATEGORY_";
+        public const string ARTICLE_B2C_FOOTER_MENU = "ARTICLE_B2C_FOOTER_MENU";
+        public const string ARTICLE_B2C_MOST_VIEWED = "ARTICLE_B2C_MOST_VIEWED";
+        public const string CATEGORY_NEWS = "CATEGORY_NEWS_";
+        public const string CATEGORY_SEARCH = "CATEGORY_SEARCH_";
+        public const string CATEGORY_TAG = "CATEGORY_TAG_";
+        public const string MENU_NEWS = "MENU_NEWS";
+        public const string ARTICLE_ID = "ARTICLE_";
     }
 }

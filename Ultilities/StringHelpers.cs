@@ -246,7 +246,7 @@ namespace Utilities
             return null;
         }
 
-        public static async Task<string> ReplaceEditorImage(string html_string, string img_domain)
+        public static async Task<string> ReplaceEditorImage(string html_string, string domain,string key)
         {
             try
             {
@@ -260,20 +260,20 @@ namespace Utilities
                         string srcImage = m.Groups[1].Value;
                         if (srcImage.StartsWith("data:image"))
                         {
-                            ImageApiLink = await UpLoadHelper.UploadBase64Src(srcImage, img_domain);
+                            ImageApiLink = await UpLoadHelper.UploadBase64Src(srcImage, domain,key);
                         }
-                        else if (!srcImage.StartsWith(img_domain))
+                        else if (!srcImage.StartsWith(domain))
                         {
                             var base64img = ConvertImageURLToBase64(WebUtility.HtmlDecode(srcImage));
                             if (!string.IsNullOrEmpty(base64img))
                             {
-                                ImageApiLink = await UpLoadHelper.UploadBase64Src(base64img, img_domain);
+                                ImageApiLink = await UpLoadHelper.UploadBase64Src(base64img, domain,key);
                             }
                         }
 
                         if (!string.IsNullOrEmpty(ImageApiLink))
                         {
-                            html_string = html_string.Replace(srcImage, img_domain + ImageApiLink);
+                            html_string = html_string.Replace(srcImage, domain + ImageApiLink);
                         }
                     }
                 }

@@ -1,8 +1,6 @@
 ﻿using Entities.ViewModels.Department;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.IRepositories;
-using System;
-using System.Threading.Tasks;
 using Utilities.Contants;
 using WEB.CMS.Customize;
 

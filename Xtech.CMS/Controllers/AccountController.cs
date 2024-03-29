@@ -25,14 +25,13 @@ namespace WEB.CMS.Controllers
         private readonly IWebHostEnvironment _WebHostEnvironment;
         private RedisConn _redisConn;
 
-        public AccountController(IUserRepository userRepository, IMFARepository mFARepository, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
+        public AccountController(IUserRepository userRepository, IMFARepository mFARepository, IConfiguration configuration, IWebHostEnvironment hostEnvironment, RedisConn redisConn)
         {
             _UserRepository = userRepository;
             _mFARepository = mFARepository;
             _configuration = configuration;
             _WebHostEnvironment = hostEnvironment;
-            _redisConn = new RedisConn(configuration);
-            _redisConn.Connect();
+            _redisConn = redisConn;
         }
         /// <summary>
         /// Function Đăng xuất
