@@ -1,7 +1,7 @@
 ﻿using DAL;
 using Entities.ConfigModels;
 using Entities.Models;
-using ENTITIES.ViewModels.Articles;
+using Entities.ViewModels.Articles;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
 using System.Text;

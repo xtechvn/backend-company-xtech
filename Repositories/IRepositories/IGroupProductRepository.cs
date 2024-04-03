@@ -1,5 +1,5 @@
 ﻿using Entities.Models;
-using ENTITIES.ViewModels.Articles;
+using Entities.ViewModels.ArticlesAPI;
 
 namespace Repositories.IRepositories
 {
@@ -19,6 +19,5 @@ namespace Repositories.IRepositories
         Task<int> GetRootParentId(int cateId);
         Task<string> GetGroupProductNameAsync(int cateID);
         Task<bool> IsGroupHeader(List<int> groups);
-        Task<List<ProductGroupViewModel>> GetProductGroupByParentID(long parent_id, string url_static);
     }
 }

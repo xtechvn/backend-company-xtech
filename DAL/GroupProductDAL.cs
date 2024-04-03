@@ -11,7 +11,22 @@ namespace DAL
         public GroupProductDAL(string connection) : base(connection)
         {
         }
+        public GroupProduct GetById(long id)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    return _DbContext.GroupProducts.Where(s => s.Id == id && s.Status == (int)ArticleStatus.PUBLISH).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetById - GroupProductDAL: " + ex);
 
+            }
+            return null;
+        }
         /// <summary>
         /// Delete Group Product
         /// </summary>

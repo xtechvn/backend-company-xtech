@@ -55,6 +55,10 @@ builder.Services.AddTransient<IArticleRepository, ArticleRepository>();
 builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();
 builder.Services.AddTransient<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddTransient<IGroupProductRepository, GroupProductRepository>();
+//-- API:
+builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
+builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
+builder.Services.AddTransient< ITagRepository, TagRepository> ();
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Entities.ViewModels.Articles
+namespace Entities.ViewModels.ArticlesAPI
 {
     public class ArticleGroupViewModel
     {

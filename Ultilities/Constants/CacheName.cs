@@ -29,5 +29,7 @@ namespace Utilities.Contants
         public const string CATEGORY_TAG = "CATEGORY_TAG_";
         public const string MENU_NEWS = "MENU_NEWS";
         public const string ARTICLE_ID = "ARTICLE_";
+        public const string B2C_PRODUCT_CATEGORY = "B2C_PRODUCT_CATEGORY_";
+
     }
 }
