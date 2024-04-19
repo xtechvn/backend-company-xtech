@@ -17,7 +17,7 @@ namespace WEB.CMS.Service.News
             configuration = _Configuration;
 
             var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
-            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog"]);
+            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog_log"]);
             this.newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
 
         }

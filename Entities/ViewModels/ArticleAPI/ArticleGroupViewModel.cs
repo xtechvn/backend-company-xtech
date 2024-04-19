@@ -11,7 +11,7 @@ namespace Entities.ViewModels.ArticlesAPI
         public string image_path { get; set; }
         public string url_path { get; set; }
         public int order_no { get; set; }
-
+      
     }
     public class ProductGroupViewModel
     {

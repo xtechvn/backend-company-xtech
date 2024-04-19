@@ -67,7 +67,8 @@ namespace API_CORE.Controllers.NEWS
                     }
                     else
                     {
-                        group_product = await groupProductRepository.GetArticleCategoryByParentID(Convert.ToInt64(configuration["Setting:NewsGroupID"]));
+                        //group_product = await groupProductRepository.GetArticleCategoryByParentID(Convert.ToInt64(configuration["Setting:NewsGroupID"]));
+                        group_product = await groupProductRepository.GetArticleCategoryByParentID(_category_id);
                         if (group_product.Count > 0)
                         {
                             try
