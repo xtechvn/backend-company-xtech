@@ -28,6 +28,7 @@
         public int AuthorId { get; set; }
         public DateTime DownTime { get; set; }
         public int Position { get; set; }
+        public string DirectLink { get; set; }
     }
 
     public class ArticleSearchModel

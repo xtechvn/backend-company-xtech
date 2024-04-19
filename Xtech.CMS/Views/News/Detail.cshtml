@@ -71,7 +71,7 @@
                         <label><strong>Nội dung</strong> <sup class="red">*</sup></label>
                         <div class="list-radio flex mb10" style="margin-left: 20px">
                             <label class="radio-inline">
-                                <input  onclick="_newsDetail.Onchen('0')" type="radio" asp-for="@Model.ArticleType" value="0">
+                                <input onclick="_newsDetail.Onchen('0')" type="radio" asp-for="@Model.ArticleType" value="0">
                                 Bài thường
                             </label>
                             <label class="radio-inline">
@@ -95,8 +95,8 @@
                     <!-- Dạng bài video -->
                     <div id="video_post" class="mb20" style="display:none">
                         <div class="border pd10">
-                            
-                            
+
+
                             <div style="max-width: 100%;margin: 0 auto;">
                                 <div>
                                     <div class="col-md">
@@ -123,10 +123,10 @@
                                         <div>
                                             @if (Model.Body != null)
                                             {
-                                            <video class="col-md" id="iframe-video" src="@Model.Body" controls></video>
-                                            <div class="choose-btn" onclick="_newsDetail.DeleteVideo()">
-                                                <div class="btn-default">Chọn video khác</div>
-                                            </div>
+                                                <video class="col-md" id="iframe-video" src="@Model.Body" controls></video>
+                                                <div class="choose-btn" onclick="_newsDetail.DeleteVideo()">
+                                                    <div class="btn-default">Chọn video khác</div>
+                                                </div>
                                             }
                                         </div>
                                         <div class="lightgallery" id="lightgallery">
@@ -147,6 +147,12 @@
                         <label class="txt-add">Add Tags</label>
                         <div class="flex">
                             <input type="text" class="form-control" id="news-tag" value="@(Model.Tags != null && Model.Tags.Count> 0 ?string.Join(",",Model.Tags) : string.Empty)" placeholder="Nhập từ khóa cho bài viết...">
+                        </div>
+                    </div>
+                    <div class="add-tags">
+                        <label class="txt-add">Link Redirect</label>
+                        <div class="flex">
+                            <input type="text" class="form-control" id="news-tag" value="@(Model.DirectLink != null ?string.Join(",",Model.DirectLink) : string.Empty)" placeholder="Nhập Link cho bài viết...">
                         </div>
                     </div>
                     <div class="add-tags" style="min-height:83px;">

@@ -101,6 +101,7 @@ namespace DAL
                     entity.UpTime = model.PublishDate == DateTime.MinValue ? (DateTime?)null : model.PublishDate;
                     entity.DownTime = model.DownTime == DateTime.MinValue ? (DateTime?)null : model.DownTime;
                     entity.Position = (short?)model.Position;
+                    entity.DirectLink = model.DirectLink;
                     await UpdateAsync(entity);
                 }
                 else
@@ -121,7 +122,8 @@ namespace DAL
                         PublishDate = model.PublishDate == DateTime.MinValue ? DateTime.Now : model.PublishDate,
                         UpTime = model.PublishDate == DateTime.MinValue ? DateTime.Now : model.PublishDate,
                         DownTime = model.DownTime == DateTime.MinValue ? (DateTime?)null : model.DownTime,
-                        Position = (short?)model.Position
+                        Position = (short?)model.Position,
+                        DirectLink = model.DirectLink
                     };
                     articleId = await CreateAsync(entity);
                 }

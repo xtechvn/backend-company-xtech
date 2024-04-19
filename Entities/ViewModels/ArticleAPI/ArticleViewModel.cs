@@ -33,6 +33,7 @@ namespace Entities.ViewModels.ArticlesAPI
         public string CategoryName { get; set; }
         public DateTime DownTime { get; set; }
         public int Position { get; set; }
+        public string DirectLink { get; set; }
     }
 
     public class ArticleSearchModel
@@ -75,6 +76,7 @@ namespace Entities.ViewModels.ArticlesAPI
         public int article_type { get; set; }
         public short? position { get; set; }
         public int status { get; set; }
+        public string directlink { get; set; }
     }
     public class ArticleFEModelPagnition
     {

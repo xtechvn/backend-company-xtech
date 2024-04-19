@@ -71,6 +71,7 @@ namespace Entities.Models
         public virtual DbSet<PolicyDetail> PolicyDetails { get; set; } = null!;
         public virtual DbSet<Position> Positions { get; set; } = null!;
         public virtual DbSet<Province> Provinces { get; set; } = null!;
+        public virtual DbSet<ReceiveProductPrice> ReceiveProductPrices { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<RolePermission> RolePermissions { get; set; } = null!;
         public virtual DbSet<Tag> Tags { get; set; } = null!;
@@ -241,6 +242,8 @@ namespace Entities.Models
                 entity.Property(e => e.Body).HasColumnType("ntext");
 
                 entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.DirectLink).HasMaxLength(1000);
 
                 entity.Property(e => e.DownTime).HasColumnType("datetime");
 
@@ -1267,6 +1270,19 @@ namespace Entities.Models
                 entity.Property(e => e.ProvinceId).HasMaxLength(5);
 
                 entity.Property(e => e.Type).HasMaxLength(30);
+            });
+
+            modelBuilder.Entity<ReceiveProductPrice>(entity =>
+            {
+                entity.ToTable("ReceiveProductPrice");
+
+                entity.Property(e => e.ClientEmail)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<Role>(entity =>

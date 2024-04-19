@@ -28,6 +28,7 @@ namespace Entities.Models
         public DateTime? DownTime { get; set; }
         public DateTime? UpTime { get; set; }
         public short? Position { get; set; }
+        public string? DirectLink { get; set; }
 
         public virtual ICollection<ArticleRelated> ArticleRelateds { get; set; }
         public virtual ICollection<ArticleTag> ArticleTags { get; set; }

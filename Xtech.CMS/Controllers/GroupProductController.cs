@@ -89,7 +89,7 @@ namespace WEB.CMS.Controllers
                         Code=entity.Code
                     };
                 }
-                _redisService.clear(CacheName.ARTICLE_B2C_CATEGORY_MENU, 0);
+                _redisService.clear(CacheName.ARTICLE_B2B_CATEGORY_MENU, 0);
             }
             catch
             {
@@ -130,7 +130,7 @@ namespace WEB.CMS.Controllers
                 var rs = await _GroupProductRepository.UpSert(upsertModel);
                 if (rs > 0)
                 {
-                    _redisService.clear(CacheName.ARTICLE_B2C_CATEGORY_MENU, 0);
+                    _redisService.clear(CacheName.ARTICLE_B2B_CATEGORY_MENU, 0);
 
                     return new JsonResult(new
                     {
@@ -177,7 +177,7 @@ namespace WEB.CMS.Controllers
 
                 if (rs > 0)
                 {
-                    _redisService.clear(CacheName.ARTICLE_B2C_CATEGORY_MENU, 0);
+                    _redisService.clear(CacheName.ARTICLE_B2B_CATEGORY_MENU, 0);
 
 
                     return new JsonResult(new
