@@ -112,7 +112,7 @@
                 </div>
                 <div class="wrap-image-preview" style="width: 150px;text-align: center;">
                     <img class="image-preview mb10"
-                         src="@(!string.IsNullOrEmpty(Model.ImagePath) ? Model.ImagePath : "/images/icons/noimage.png")"
+                         src="@(!string.IsNullOrEmpty(Model.ImagePath) ? Model.ImagePath : "~/images/icons/noimage.png")"
                          onerror="_imageError(this)" />
                     <input type="file" id="image_file" style="display:none;" />
                     <input type="hidden" asp-for="@Model.ImagePath" />
