@@ -47,8 +47,8 @@ namespace API_CORE.Controllers.NEWS
                 JArray objParr = null;
                 if (CommonHelper.GetParamWithKey(token, out objParr, configuration["DataBaseConfig:key_api:b2c"]))
                 {
-                    int _category_id = Convert.ToInt32(objParr[0]["category_id"]);
-                    string cache_name = CacheName.ARTICLE_B2B_CATEGORY_MENU;
+                    int _category_id = Convert.ToInt32(objParr[0]["confirm"]);
+                    string cache_name = CacheName.ARTICLE_B2B_CATEGORY_MENU + _category_id;
                     string j_data = null;
                     try
                     {
