@@ -59,8 +59,6 @@ namespace Entities.ViewModels.ArticlesAPI
         public string Image { get; set; }
         public DateTime publish_date { get; set; }
         public string category_name { get; set; }
-        public string body { get; set; }
-        public string directlink { get; set; }
 
     }
     public class ArticleFeModel

@@ -451,7 +451,7 @@ namespace DAL.API
                                                           image_43 = _article.Image43,
                                                           image_11 = _article.Image11,
                                                           publish_date = (DateTime)_article.PublishDate,
-                                                          body = _article.Body
+                                                          body=_article.Body
                                                       }
                                                      ).ToListAsync();
 
@@ -504,7 +504,7 @@ namespace DAL.API
                         publish_date = article.PublishDate ?? DateTime.Now,
                         author_id = (int)article.AuthorId
                     };
-
+                   
                     model.Categories = await _DbContext.ArticleCategories.Where(s => s.ArticleId == article.Id).Select(s => (int)s.CategoryId).ToListAsync();
                     model.category_id = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
                     model.MainCategory = model.Categories != null || model.Categories.Count > 0 ? model.Categories[0] : -1;
@@ -583,9 +583,7 @@ namespace DAL.API
                                                           Image = _article.Image169 ?? _article.Image43 ?? _article.Image11,
                                                           Title = _article.Title,
                                                           publish_date = _article.PublishDate ?? DateTime.Now,
-                                                          category_name = c.Name ?? "Tin tức",
-                                                          body = _article.Body,
-                                                          directlink = _article.DirectLink
+                                                          category_name = c.Name ?? "Tin tức"
                                                       }).ToListAsync();
                                 if (list_article.Count > 0)
                                     list_article = list_article.GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
@@ -665,7 +663,7 @@ namespace DAL.API
                                                           publish_date = (DateTime)_article.PublishDate,
                                                           article_type = _article.ArticleType,
                                                           update_last = (DateTime)_article.ModifiedOn,
-                                                          body = _article.Body
+                                                          body=_article.Body
                                                       }
                                                      ).ToListAsync();
                             var list_pinned = await (from a in _DbContext.ArticleCategories.AsNoTracking()
@@ -685,7 +683,7 @@ namespace DAL.API
                                                          position = _article.Position,
                                                          article_type = _article.ArticleType,
                                                          update_last = (DateTime)_article.ModifiedOn,
-                                                         body = _article.Body
+                                                          body = _article.Body
                                                      }).ToListAsync();
 
                             transaction.Commit();
@@ -737,7 +735,7 @@ namespace DAL.API
                     var list_article = await (from _article in _DbContext.Articles.AsNoTracking()
                                               join b in _DbContext.ArticleTags.AsNoTracking() on _article.Id equals b.ArticleId
                                               join c in _DbContext.Tags.AsNoTracking() on b.TagId equals c.Id
-                                              where c.TagName.ToLower().Replace("#", "") == tag.ToLower().Replace("#", "") && _article.Status == ArticleStatus.PUBLISH
+                                              where c.TagName.ToLower().Replace("#","") == tag.ToLower().Replace("#", "") && _article.Status == ArticleStatus.PUBLISH
                                               orderby _article.PublishDate descending
                                               select new ArticleFeModel
                                               {
@@ -836,7 +834,7 @@ namespace DAL.API
                     using (var transaction = _DbContext.Database.BeginTransaction())
                     {
                         var group = await _DbContext.GroupProducts.Where(x => x.Id == cate_id && x.IsShowFooter == true).FirstOrDefaultAsync();
-                        if (group == null || group.Id <= 0)
+                        if(group==null || group.Id <= 0)
                         {
                             var result = new ArticleFEModelPagnition();
                             result.list_article_fe = new List<ArticleFeModel>();
