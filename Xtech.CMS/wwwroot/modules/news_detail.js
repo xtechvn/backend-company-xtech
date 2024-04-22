@@ -340,7 +340,8 @@ var _newsDetail = {
                 RelatedArticleIds: _articleIdList,
                 PublishDate: ConvertToJSONDateTime($('#PublishDate').val()),
                 DownTime: ConvertToJSONDateTime($('#DowntimeDate').val()),
-                Position: $('#Position').val()
+                Position: $('#Position').val(),
+                DirectLink: $('#DirectLink').val(),
             }
             if (_model.ArticleType == 1) {
                 _model.Body = $('#link-video').attr('src') == undefined ? "" : $('#link-video').attr('src');
