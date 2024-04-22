@@ -583,7 +583,9 @@ namespace DAL.API
                                                           Image = _article.Image169 ?? _article.Image43 ?? _article.Image11,
                                                           Title = _article.Title,
                                                           publish_date = _article.PublishDate ?? DateTime.Now,
-                                                          category_name = c.Name ?? "Tin tức"
+                                                          category_name = c.Name ?? "Tin tức",
+                                                          body=_article.Body,
+                                                          directlink = _article.DirectLink
                                                       }).ToListAsync();
                                 if (list_article.Count > 0)
                                     list_article = list_article.GroupBy(x => x.Id).Select(x => x.First()).OrderByDescending(x => x.publish_date).ToList();
