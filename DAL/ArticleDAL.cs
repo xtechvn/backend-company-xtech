@@ -161,7 +161,8 @@ namespace DAL
                                 Image169 = article.Image169,
                                 PublishDate = article.PublishDate ?? DateTime.MinValue,
                                 DownTime = article.DownTime ?? DateTime.MinValue,
-                                Position = article.Position ?? 0
+                                Position = article.Position ?? 0,
+                                DirectLink = article.DirectLink
                             };
 
                             var TagIds = await _DbContext.ArticleTags.Where(s => s.ArticleId == article.Id).Select(s => s.TagId).ToListAsync();
@@ -717,7 +718,7 @@ namespace DAL
                             transaction.Commit();
                             return article;
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             LogHelper.InsertLogTelegram("getPinnedArticleByPostition - Transaction Rollback - ArticleDAL: " + ex);
                             transaction.Rollback();
