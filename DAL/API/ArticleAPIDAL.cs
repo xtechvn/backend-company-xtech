@@ -663,7 +663,8 @@ namespace DAL.API
                                                           publish_date = (DateTime)_article.PublishDate,
                                                           article_type = _article.ArticleType,
                                                           update_last = (DateTime)_article.ModifiedOn,
-                                                          body=_article.Body
+                                                          body=_article.Body,
+                                                          directlink=_article.DirectLink
                                                       }
                                                      ).ToListAsync();
                             var list_pinned = await (from a in _DbContext.ArticleCategories.AsNoTracking()
@@ -683,7 +684,8 @@ namespace DAL.API
                                                          position = _article.Position,
                                                          article_type = _article.ArticleType,
                                                          update_last = (DateTime)_article.ModifiedOn,
-                                                          body = _article.Body
+                                                         body = _article.Body,
+                                                         directlink = _article.DirectLink
                                                      }).ToListAsync();
 
                             transaction.Commit();
