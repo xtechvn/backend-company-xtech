@@ -28,13 +28,13 @@ namespace Repositories
                 string url = "mongodb://" + config.user_name + ":" + config.password + "@" + config.host + ":" + config.port + "/?authSource=" + config.database_name;
                 var client = new MongoClient(url);
                 IMongoDatabase db = client.GetDatabase(config.database_name);
-                var images_collection = _configuration["MongoServer:images_collection"];
+                var images_collection = _configuration["DataBaseConfig:MongoServer:images_collection"];
                 images_mongoCollection = db.GetCollection<ImagesConvertMongoDbModel>(images_collection);
 
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("BookingHotelDAL - BookingHotelDAL: " + ex);
+                LogHelper.InsertLogTelegram("ImagesConvertRepository - ImagesConvertRepository: " + ex);
                 throw;
             }
         }
@@ -48,7 +48,7 @@ namespace Repositories
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("InsertImage - ImagesConvertDAL - Cannot Excute: " + ex.ToString());
+                LogHelper.InsertLogTelegram("InsertImage - ImagesConvertRepository - Cannot Excute: " + ex.ToString());
                 return null;
             }
         }
@@ -67,7 +67,7 @@ namespace Repositories
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("GetImageByURL - ImagesConvertDAL - Cannot Excute: " + ex.ToString());
+                LogHelper.InsertLogTelegram("GetImageByURL - ImagesConvertRepository - Cannot Excute: " + ex.ToString());
             }
             return null;
         }

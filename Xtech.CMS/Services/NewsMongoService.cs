@@ -1,6 +1,9 @@
 ﻿using Entities.ViewModels.News;
+using ENTITIES.APPModels.Static;
+using ENTITIES.ViewModels.Static;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +13,26 @@ namespace WEB.CMS.Service.News
 {
     public class NewsMongoService
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
         private IMongoCollection<NewsViewCount> newsmongoCollection;
         public NewsMongoService(IConfiguration _Configuration)
         {
-            configuration = _Configuration;
 
-            var client = new MongoClient("mongodb://" + configuration["DataBaseConfig:MongoServer:Host"] + "");
-            IMongoDatabase db = client.GetDatabase(configuration["DataBaseConfig:MongoServer:catalog"]);
-            this.newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
+            _configuration = _Configuration;
+            var config = new MongoDbConfig()
+            {
+                host = _configuration["DataBaseConfig:MongoServer:Host"],
+                port = Convert.ToInt32(_configuration["DataBaseConfig:MongoServer:Port"]),
+                user_name = _configuration["DataBaseConfig:MongoServer:user"],
+                password = _configuration["DataBaseConfig:MongoServer:pwd"],
+                database_name = _configuration["DataBaseConfig:MongoServer:catalog_core"]
+            };
+            //-- "mongodb://user1:password1@localhost/test"
+            string url = "mongodb://" + config.user_name + ":" + config.password + "@" + config.host + ":" + config.port + "/?authSource=" + config.database_name;
+            var client = new MongoClient(url);
+            IMongoDatabase db = client.GetDatabase(config.database_name);
+            var images_collection = _configuration["DataBaseConfig:MongoServer:images_collection"];
+            newsmongoCollection = db.GetCollection<NewsViewCount>("ArticlePageView");
 
         }
         public async Task<string> AddNewOrReplace(NewsViewCount model)
