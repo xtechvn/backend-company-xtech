@@ -1,10 +1,12 @@
-﻿using Entities.ViewModels.Articles;
+﻿using Entities.Models;
+using Entities.ViewModels.Articles;
 using Entities.ViewModels.ArticlesAPI;
 using Entities.ViewModels.News;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Repositories.IRepositories;
+using System.Net.Http.Headers;
 using Ultilities.Constants;
 using Ultilities.RedisWorker;
 using Utilities;
@@ -1069,6 +1071,37 @@ namespace API_CORE.Controllers.NEWS
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("NewsController - GetCategoryByParentId: " + ex + "\n Token: " + token);
+                return Ok(new
+                {
+                    status = (int)ResponseType.FAILED,
+                    msg = "Error: " + ex.ToString(),
+                });
+            }
+        }
+        [HttpGet("get-price-galaxy.json")]
+        public async Task<ActionResult> GetPriceGalaxy()
+        {
+            try
+            {
+                //string j_param = "{'confirm':1}";
+                //token = CommonHelper.Encode(j_param, configuration["DataBaseConfig:key_api:b2c"]);
+                HttpClient client = new HttpClient();
+
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage response = await client.GetAsync("https://galaxycloud.vn/a_p_i/public-hosting/get-price/?type=vps&cpu=1&mem=1&ssd=20&net=100&nip=1&nMonth=1&quantity=1");
+               var stringResult = await response.Content.ReadAsStringAsync();
+                return Ok(new
+                {
+                    status = (int)ResponseType.SUCCESS,
+                    msg = "Success",
+                    data = stringResult
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("NewsController - GetAllCategory: " + ex + "\n Token: " );
                 return Ok(new
                 {
                     status = (int)ResponseType.FAILED,
