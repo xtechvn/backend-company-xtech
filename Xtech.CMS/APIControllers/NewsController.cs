@@ -1078,7 +1078,7 @@ namespace API_CORE.Controllers.NEWS
                 });
             }
         }
-        [HttpGet("get-price-galaxy.json")]
+        [HttpPost("get-price-galaxy.json")]
         public async Task<ActionResult> GetPriceGalaxy()
         {
             try
