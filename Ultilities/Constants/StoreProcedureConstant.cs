@@ -255,6 +255,7 @@ namespace Utilities.Contants
 
         public static string GetHotelPricePolicyByPrograms = "SP_GetHotelPricePolicyByPrograms";
         public static string GetHotelPricePolicyByCampaignID = "SP_GetHotelPricePolicyByCampaignID";
+        public static string sp_InsertBookingVPS = "sp_InsertBookingVPS";
 
         #region vin wonder
         public static string sp_InsertCampaign = "sp_InsertCampaign";

@@ -31,12 +31,14 @@ namespace Entities.Models
         public virtual DbSet<AttachFile> AttachFiles { get; set; } = null!;
         public virtual DbSet<BankOnePay> BankOnePays { get; set; } = null!;
         public virtual DbSet<BankingAccount> BankingAccounts { get; set; } = null!;
+        public virtual DbSet<BookingVp> BookingVps { get; set; } = null!;
         public virtual DbSet<Brand> Brands { get; set; } = null!;
         public virtual DbSet<Campaign> Campaigns { get; set; } = null!;
         public virtual DbSet<CampaignAd> CampaignAds { get; set; } = null!;
         public virtual DbSet<Cashback> Cashbacks { get; set; } = null!;
         public virtual DbSet<Client> Clients { get; set; } = null!;
         public virtual DbSet<ClientLinkAff> ClientLinkAffs { get; set; } = null!;
+        public virtual DbSet<Contact> Contacts { get; set; } = null!;
         public virtual DbSet<ContactClient> ContactClients { get; set; } = null!;
         public virtual DbSet<Contract> Contracts { get; set; } = null!;
         public virtual DbSet<ContractHistory> ContractHistories { get; set; } = null!;
@@ -92,7 +94,7 @@ namespace Entities.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=103.74.121.155;Initial Catalog=xtechdb;Persist Security Info=True;User ID=us;Password=us@585668");
+                optionsBuilder.UseSqlServer("Data Source=103.163.216.41;Initial Catalog=xtechdb;Persist Security Info=True;User ID=us;Password=us@585668");
             }
         }
 
@@ -358,6 +360,44 @@ namespace Entities.Models
                 entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             });
 
+            modelBuilder.Entity<BookingVp>(entity =>
+            {
+                entity.ToTable("BookingVPS");
+
+                entity.Property(e => e.Cpu)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Mem)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Net)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nip)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Nmonth)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("NMonth");
+
+                entity.Property(e => e.Quantity)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Ssd)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            });
+
             modelBuilder.Entity<Brand>(entity =>
             {
                 entity.ToTable("Brand");
@@ -476,6 +516,29 @@ namespace Entities.Models
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
                 entity.Property(e => e.LinkAff).IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Contact>(entity =>
+            {
+                entity.ToTable("Contact");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(500);
+
+                entity.Property(e => e.Domain).HasMaxLength(200);
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FullName).HasMaxLength(500);
+
+                entity.Property(e => e.Phone)
+                    .HasMaxLength(30)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<ContactClient>(entity =>
