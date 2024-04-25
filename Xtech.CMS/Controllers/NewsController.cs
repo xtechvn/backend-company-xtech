@@ -16,6 +16,7 @@ namespace WEB.CMS.Controllers
     public class NewsController : Controller
     {
         private const int NEWS_CATEGORY_ID = 1;
+        private const int NEWS_CATEGORY_ID2 = 1022;
         private const int VIDEO_NEWS_CATEGORY_ID = 1;
         private readonly IGroupProductRepository _GroupProductRepository;
         private readonly IArticleRepository _ArticleRepository;
@@ -80,6 +81,7 @@ namespace WEB.CMS.Controllers
                 model.Status = ArticleStatus.SAVE;
             }
             ViewBag.StringTreeViewCate = await _GroupProductRepository.GetListTreeViewCheckBox(NEWS_CATEGORY_ID, -1, model.Categories);
+            ViewBag.StringTreeViewCate2 = await _GroupProductRepository.GetListTreeViewCheckBox(NEWS_CATEGORY_ID2, -1, model.Categories);
             return View(model);
         }
 
