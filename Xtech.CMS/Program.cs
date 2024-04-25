@@ -59,6 +59,7 @@ builder.Services.AddTransient<IGroupProductRepository, GroupProductRepository>()
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
 builder.Services.AddTransient< ITagRepository, TagRepository> ();
+builder.Services.AddTransient< IBookingVPSRepository, BookingVPSRepository> ();
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
