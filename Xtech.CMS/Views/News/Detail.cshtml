@@ -9,6 +9,7 @@
 @model ArticleModel
 @{
     var _StrTreeViewCate = (string)ViewBag.StringTreeViewCate;
+    var _StrTreeViewCate2 = (string)ViewBag.StringTreeViewCate2;
 
 }
 
@@ -316,6 +317,7 @@
                                     <div class="scrollbar-inner">
                                         <ul class="user-hierarchy-ul mb0" id="detail-cate-panel">
                                             @Html.Raw(_StrTreeViewCate)
+                                            @Html.Raw(_StrTreeViewCate2)
                                         </ul>
                                     </div>
                                 </div>
