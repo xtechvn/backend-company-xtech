@@ -150,7 +150,7 @@ $('#image_file').change(function (event) {
             $(this).val('');
         }
 
-        if (_validFileExtensions.includes(fileType) && event.target.files[0].size <= (1024 * 1024)) {
+        if (_validFileExtensions.includes(fileType) && event.target.files[0].size <= (10 * 1024 * 1024)) {
             $('.wrap-croppie').show();
             $('.wrap-image-preview').hide();
             $('#btn-cropimage').show();
