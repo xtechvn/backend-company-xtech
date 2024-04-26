@@ -28,10 +28,10 @@ namespace Utilities
                 using (HttpClient httpClient = new HttpClient())
                 {
                     tokenData = CommonHelper.Encode(JsonConvert.SerializeObject(j_param), key);
-                    var contentObj = new { token = tokenData };
-                    var content = new StringContent(JsonConvert.SerializeObject(contentObj), Encoding.UTF8, "application/json");
+                    //var contentObj = new { token = tokenData };
+                    var content = new StringContent("{\"token\":\""+tokenData+"\"}", null, "application/json");
                     var result = await httpClient.PostAsync(domain+apiPrefix, content);
-                    dynamic resultContent = Newtonsoft.Json.Linq.JObject.Parse(result.Content.ReadAsStringAsync().Result);
+                    dynamic resultContent = Newtonsoft.Json.Linq.JObject.Parse(await result.Content.ReadAsStringAsync());
                     if (resultContent.status == 0)
                     {
                         return resultContent.url_path;
