@@ -28,7 +28,7 @@ namespace Repositories
                 string url = "mongodb://" + config.user_name + ":" + config.password + "@" + config.host + ":" + config.port + "/?authSource=" + config.database_name;
                 var client = new MongoClient(url);
                 IMongoDatabase db = client.GetDatabase(config.database_name);
-                var images_collection = _configuration["MongoServer:images_collection"];
+                var images_collection = _configuration["DataBaseConfig:MongoServer:images_collection"];
                 images_mongoCollection = db.GetCollection<ImagesConvertMongoDbModel>(images_collection);
 
             }
