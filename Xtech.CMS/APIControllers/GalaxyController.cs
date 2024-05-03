@@ -48,11 +48,15 @@ namespace Xtech.CMS.APIControllers
                     data.quantity= Convert.ToInt32(objParr[0]["quantity"]);
                     data.Clientid= Convert.ToInt32(objParr[0]["Clientid"]);
                     data.Amount= Convert.ToInt32(objParr[0]["Amount"]);
+                    data.Email= objParr[0]["Email"].ToString();
+                    data.Sdt= objParr[0]["Sdt"].ToString();
+                    data.Name= objParr[0]["Name"].ToString();
                     if (data != null)
                     {
                         var booking = _bookingVPSRepository.bookingVPS(data);
                         if (booking > 0)
                         {
+                            LogHelper.InsertLogTelegram("BookingGalaxy - GalaxyController: " + JsonConvert.SerializeObject(data));
                             return Ok(new
                             {
                                 status = (int)ResponseType.SUCCESS,
