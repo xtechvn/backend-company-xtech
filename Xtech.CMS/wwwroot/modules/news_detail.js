@@ -140,8 +140,8 @@ $('#image_file').change(function (event) {
     if (event.target.files && event.target.files[0]) {
         var fileType = event.target.files[0].name.split('.').pop();
 
-        if (event.target.files[0].size > (1024 * 1024)) {
-            _msgalert.error('File upload hiện tại có kích thước (' + Math.round(event.target.files[0].size / 1024 / 1024, 2) + ' Mb) vượt quá 1 Mb. Bạn hãy chọn lại ảnh khác');
+        if (event.target.files[0].size > (10 * 1024 * 1024)) {
+            _msgalert.error('File upload hiện tại có kích thước (' + Math.round(event.target.files[0].size / 1024 / 1024, 2) + ' Mb) vượt quá 10 Mb. Bạn hãy chọn lại ảnh khác');
             $(this).val('');
         }
 
@@ -150,7 +150,7 @@ $('#image_file').change(function (event) {
             $(this).val('');
         }
 
-        if (_validFileExtensions.includes(fileType) && event.target.files[0].size <= (1024 * 1024)) {
+        if (_validFileExtensions.includes(fileType) && event.target.files[0].size <= (10 * 1024 * 1024)) {
             $('.wrap-croppie').show();
             $('.wrap-image-preview').hide();
             $('#btn-cropimage').show();
