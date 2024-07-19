@@ -293,9 +293,15 @@ namespace WEB.CMS.Controllers
             string token = string.Empty;
             try
             {
-                _redisService.clear(CacheName.ARTICLE_CATEGORY_ID + ArrCategoryId, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                var list = ArrCategoryId.Split(',');
+                foreach (var item in list)
+                {
+                    _redisService.clear(CacheName.ARTICLE_CATEGORY_ID + item, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                    _redisService.clear(CacheName.CATEGORY_NEWS + item, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
+                }
+               
+
                 _redisService.clear(CacheName.CATEGORY_NEWS + "1", Convert.ToInt32(_configuration["Redis:Database:db_common"]));
-                _redisService.clear(CacheName.CATEGORY_NEWS + ArrCategoryId, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
                 _redisService.clear(CacheName.ARTICLE_B2C_MOST_VIEWED, Convert.ToInt32(_configuration["Redis:Database:db_common"]));
             }
             catch (Exception ex)
