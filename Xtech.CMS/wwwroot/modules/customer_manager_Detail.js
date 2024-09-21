@@ -28,6 +28,7 @@ var _customer_manager_Detail = {
             CreateDateFrom: null,
             CreateDateTo: null,
             Status: null,
+            PaymentStatus:'1,2',
             StatusTab: 99,
             PageIndex: 1,
             pageSize: 20,
