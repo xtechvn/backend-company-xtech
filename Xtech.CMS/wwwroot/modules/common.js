@@ -56,6 +56,13 @@ var _global_function = {
         }
         return undefined;
     },
+     ParseDateTostring: function (text) {
+        var parse_value = text.split(' ')[0].split('/')
+        if (parse_value != undefined && parse_value.length > 2) {
+            return new String(parse_value[2] + '-' + parse_value[1] + '-' + parse_value[0]);
+        }
+        return undefined;
+    },
     GetDayText: function (date, donetdate = false) {
         var text = ("0" + date.getDate()).slice(-2) + '/' + ("0" + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear() + ' ' + ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2);
         if (donetdate) {

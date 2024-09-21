@@ -257,6 +257,36 @@ namespace Utilities.Contants
         public static string GetHotelPricePolicyByCampaignID = "SP_GetHotelPricePolicyByCampaignID";
         public static string sp_InsertBookingVPS = "sp_InsertBookingVPS";
 
+        public static string SP_InsertAccountClient = "sp_InsertAccountClient";
+        public static string SP_UpdateAccountClient = "sp_UpdateAccountClient";
+
+
+        public static string SP_GetAllClient = "";
+        public static string SP_InsertClient = "sp_InsertClient";
+        public static string SP_GetListClient = "";
+        public static string SP_GetClientByEmail = "SP_GetListClientByEmailAndTaxNo";
+        public static string sp_UpdateClient = "sp_UpdateClient";
+        public static string SP_GetListClientByName = "";
+        public static string SP_GetListClientByClientType = "";
+
+        public static string SP_InsertUserAgent = "SP_InsertUserAgent";
+        public static string SP_UpdateUserAgent = "sp_UpdateUserAgent";
+        public static string SP_GetUserAgentByClientId = "SP_GetUserAgentByClientId";
+
+
+        public static string SP_GetAccountClientById = "";
+        public static string SP_GetAccountClientByClientId = "";
+        public static string SP_GetListClientByClientIds = "";
+        public static string SP_GetListClientByIdAccountClient = "";
+        public static string SP_GetClientbyClientCode = "SP_GetDetailClientByClientCode";
+
+        public static string SP_InsertPaymentAccount = "sp_InsertPaymentAccount";
+
+        public static string SP_GetBankingAccountById = "SP_GetBankingAccountById";
+
+
+
+
         #region vin wonder
         public static string sp_InsertCampaign = "sp_InsertCampaign";
         public static string sp_UpdateCampaign = "sp_UpdateCampaign";
