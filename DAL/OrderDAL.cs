@@ -112,7 +112,7 @@ namespace DAL
                     new SqlParameter("@CreateTime",DateTime.Now),
                     new SqlParameter("@PaymentStatus",PaymentStatus.UNPAID),
                     new SqlParameter("@BranchCode",model.BranchCode),
-                    new SqlParameter("@Note",model.Note),
+                    new SqlParameter("@Note",model.Note != null ? model.Note : DBNull.Value),
                     new SqlParameter("@CreatedBy",model.CreatedBy != null? model.CreatedBy : DBNull.Value),
                     new SqlParameter("@SmsContent",model.SmsContent != null? model.SmsContent : DBNull.Value),
                     new SqlParameter("@OrderStatus",OrderStatus.New),

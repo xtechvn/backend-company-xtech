@@ -263,7 +263,13 @@ namespace Xtech.CMS.Controllers
                     }
                 }
 
+                Order order = new Order()
+                {
+                    OrderId = OrderId,
+                    UserUpdateId = Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                };
 
+                await _orderRepository.UpdateOrder(order);
                 await _orderRepository.UpdateAmountOrder(OrderId);
                 return Ok(new
                 {
