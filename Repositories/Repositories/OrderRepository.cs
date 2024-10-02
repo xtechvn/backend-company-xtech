@@ -6,6 +6,7 @@ using Entities.OrderDetail;
 using Entities.ViewModels;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -39,7 +40,7 @@ namespace Repositories.Repositories
             return null;
         }
 
-        public async Task<int> CreateOrder(Order order)
+        public async Task<int> CreateOrder(Entities.Models.Order order)
         {
             try 
             {
@@ -131,6 +132,20 @@ namespace Repositories.Repositories
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("UpdateAmountOrder - OrderRepository: " + ex);
+            }
+            return -1;
+        }
+
+        public async Task<long> UpdateOrder(Entities.Models.Order model)
+        {
+            try
+            {
+                return await _OrderDal.UpdateOrder(model);
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrder - OrderRepository: " + ex);
             }
             return -1;
         }

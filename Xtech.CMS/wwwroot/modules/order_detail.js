@@ -382,11 +382,6 @@ var _order_detail_create_service = {
                         window.location.href = '/OrderDetail/' + OrderId;
                     }, 2000);
                     return;
-                },
-                error: function (error) {
-                    $('#img_loading_summit').hide();
-                    _msgalert.error("Đã xảy ra lỗi: " + error.responseText);
-                    $('#btn_summit_order').show();
                 }
             });
         }

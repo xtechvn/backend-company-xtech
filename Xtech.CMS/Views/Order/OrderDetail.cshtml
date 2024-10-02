@@ -85,7 +85,7 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <button type="button" class="btn btn-default cancel ml-1" onclick="history.back()">Quay lại</button>
-                            <button type="button" class="btn text-white ml-1" style="background-color:#6610F2" onclick=""><i class="icofont-save"></i>Lưu thông tin</button>
+                            <button type="button" class="btn text-white ml-1" style="background-color:#6610F2" onclick="_orderDetail.UpdateOrder()"><i class="icofont-save"></i>Lưu thông tin</button>
                         </div>
 
                     </div>
@@ -170,7 +170,7 @@
                                         <div class="form-group">
                                             <label class="lbl">Nhãn đơn*</label>
                                             <div class="wrap_input">
-                                                <textarea style="border-radius:2px" rows="3" class="form-control">@Model.ListData[0].Label</textarea>
+                                                <textarea style="border-radius:2px" id="Order_Label" rows="3" class="form-control">@Model.ListData[0].Label</textarea>
                                             </div>
                                         </div>
                                     </li>
@@ -191,7 +191,7 @@
                                         <div class="form-group">
                                             <label class="lbl">Ghi chú</label>
                                             <div class="wrap_input">
-                                                <textarea rows="3" style="border-radius:2px" class="form-control">@Model.ListData[0].Note</textarea>
+                                                <textarea rows="3" style="border-radius:2px" id="Order_Note" class="form-control">@Model.ListData[0].Note</textarea>
                                             </div>
                                         </div>
                                     </li>

@@ -4,9 +4,9 @@
     var SalerGroup = (List<Entities.Models.User>)ViewBag.SalerGroup;
 }
 <style>
-    .select2-search__field {
+/*     .select2-search__field {
         width: auto !important;
-    }
+    } */
 </style>
 <div class="border bg-white mb20">
     <div class="lb-form pd10">
@@ -51,7 +51,7 @@
         placeholder: "Nhân viên chính",
         maximumSelectionLength: 1,
         ajax: {
-            url: "/CustomerManger/GetSuggestionUser",
+            url: "/OrderManual/UserSuggestion",
             type: "post",
             dataType: 'json',
             delay: 250,
@@ -80,7 +80,7 @@
         theme: 'bootstrap4',
         placeholder: "Nhân viên phụ",
         ajax: {
-            url: "/CustomerManger/GetSuggestionUser",
+            url: "/OrderManual/UserSuggestion",
             type: "post",
             dataType: 'json',
             delay: 250,

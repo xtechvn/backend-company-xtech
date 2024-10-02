@@ -137,6 +137,7 @@ namespace Utilities.Contants
         public static string Sp_GetDetailPlayground = "Sp_GetDetailPlayground";
         public static string SP_GetListRolePermissionByUserAndRole = "SP_GetListRolePermissionByUserAndRole";
         public static string SP_GetListPaymentRequestByOrderId = "SP_GetListPaymentRequestByOrderId";
+        public static string Sp_UpdateOrder = "Sp_UpdateOrder";
 
 
         public static string SP_InsertHotelRoom = "SP_InsertHotelRoom";

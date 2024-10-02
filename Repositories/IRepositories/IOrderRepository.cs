@@ -12,5 +12,6 @@ namespace Repositories.IRepositories
         Task<int> CreateOrder(Order order);
         Task<int> UpdateAmountOrder(int OrderId);
         Task<string> GetOrderNo();
+        Task<long> UpdateOrder(Order model);
     }
 }

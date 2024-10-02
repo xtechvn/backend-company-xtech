@@ -1,4 +1,5 @@
 ﻿let input = 0;
+let type = 7;
 let SalerGroupId = "";
 let SalerId = 0;
 $(document).ready(function () {
@@ -7,10 +8,54 @@ $(document).ready(function () {
     SalerId = $('#Saler_Id').val();
     _orderDetail.LoadPackages(input);
     _orderDetail.LoadPersonInCharge(SalerId, SalerGroupId);
+    _orderDetail.LoadFile(input, type);
     _orderDetail.LoadContractPay(input);
     _orderDetail.LoadBillVAT(input);
 });
 var _orderDetail = {
+    UpdateOrder: function ()
+    {
+        var lstSalerGroup = $("#SalerGroup").val();
+        var SalerGroup =''; 
+        if (lstSalerGroup)
+        {
+            lstSalerGroup.forEach(item =>
+            {
+                SalerGroup = SalerGroup + item + ","
+            })
+        }
+        SalerGroup = SalerGroup.substring(0, SalerGroup.length - 1)
+        var Order =
+        {
+            OrderId : input,
+            SalerId : $("#SalerId").val(),
+            SalerGroupId: SalerGroup,
+            Label: $("#Order_Label").val(),
+            Note: $("#Order_Note").val()
+        }
+        $('.img_loading_summit').show();
+        $.ajax({
+            url: "/Order/UpdateOrder",
+            type: "Post",
+            data: {model : Order },
+            success: function (result) {
+                $('#img_loading_summit').hide();
+                if (result.status != 0) {
+                    _msgalert.error(result.msg);
+                    $('#btn_summit_order').show();
+                    return;
+                }
+                _msgalert.success(result.msg);
+                $('.toast-success').text('Cập nhật thành công')
+                $('.img_loading_summit').hide();
+
+                setTimeout(function () {
+                    window.location.href = '/OrderDetail/' + input;
+                }, 2000);
+                return;
+            }
+        });
+    },
     LoadOeederDetail: function () {
         _orderDetail.LoadPackages(input);
         _orderDetail.LoadContractPay(input);

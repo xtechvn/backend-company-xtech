@@ -298,7 +298,7 @@ namespace Xtech.CMS.Controllers
                     var client = await _clientRepository.GetClientDetailByClientId((int)model.ListData[0].ClientId);
                     ViewBag.Client = client;
                     ViewBag.SalerId = model.ListData[0].SalerId;
-                    ViewBag.SalerGroupId = model.ListData[0].SalerId;
+                    ViewBag.SalerGroupId = model.ListData[0].SalerGroupId;
                 }
                 return View(model);
             }
@@ -308,6 +308,25 @@ namespace Xtech.CMS.Controllers
             }
 
             return View();
+        }
+
+        public async Task<IActionResult> UpdateOrder(Order model)
+        {
+            try
+            {
+                model.UserUpdateId = Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                await _orderRepository.UpdateOrder(model);
+                return Ok(new
+                {
+                    status = (int)ResponseType.SUCCESS
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrder - OrderController: " + ex.ToString());
+            }
+
+            return Ok();
         }
     }
 }
