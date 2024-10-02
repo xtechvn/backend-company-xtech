@@ -12,9 +12,12 @@ namespace Entities.ViewModels
     {
         public string OrderId { get; set; }
         public string OrderNo { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string ClientName { get; set; }
+        public string Branch {  get; set; }
+        public string Description { get; set; }
+        public string Label { get; set; }
         public long? ClientId { get; set; }
         public string ClientNumber { get; set; }
         public string ClientEmail { get; set; }
@@ -33,16 +36,18 @@ namespace Entities.ViewModels
         public DateTime UpdateLast { get; set; }
         public string SalerName { get; set; }
         public string SalerUserName { get; set; }
+        public string SalerId { get; set; }
+        public string SalerGroupId { get; set; }
         public string SalerEmail { get; set; }
         public string SalerGroupName { get; set; }
         public string PaymentTypeName { get; set; }
         public string PaymentStatus { get; set; }
+        public DateTime PaymentDate { get; set; }
         public double TotalDisarmed { get; set; }
         public double TotalAmount { get; set; }
         public double TotalNeedPayment { get; set; }
         public string UsUpdateName { get; set; }
         public string CreatedName { get; set; }
-        public string ServiceType { get; set; }
         public string Vouchercode { get; set; }
         public bool IsChecked { get; set; }
         public bool IsDisabled { get; set; }
@@ -60,9 +65,9 @@ namespace Entities.ViewModels
     public class TotalValueOrder
     {
         public string TotalAmmount { get; set; }
-        public string TotalProductService { get; set; }
-        public string TotalDone { get; set; }
-        public string TotalProfit { get; set; }
+        public string TotalPaid { get; set; }
+        public string TotalUnPaid { get; set; }
+        public string TotalPaidNotEnough { get; set; }
 
     }
     public class ProductServiceName
@@ -106,13 +111,19 @@ namespace Entities.ViewModels
     }
     public class OrderViewSearchModel
     {
-        public int? Status { get; set; }
+        public string? Status { get; set; }
         public string PaymentStatus { get; set; }
-        public string CreateDateFrom { get; set; }
-        public string CreateDateTo { get; set; }
+        public string PaymentMethod { get; set; }
+        public DateTime CreateDateFrom { get; set; }
+        public DateTime CreateDateTo { get; set; }
+        public DateTime StartDate { get; set; } 
+        public DateTime EndDate { get; set; }
         public string ClientId { get; set; }
+        public string ServiceType { get; set; }
+        public string SalerId { get; set; }
         public int StatusTab { get; set; } = 99;
         public int? OrderId { get; set; }
+        public int? OrderNo { get; set; }
         public int PageIndex { get; set; }
         public int pageSize { get; set; }
     }
@@ -189,11 +200,12 @@ namespace Entities.ViewModels
         public DateTime? UpdateLast { get; set; }
         public long? UserUpdateId { get; set; }
         public long? AccountClientId { get; set; }
-        public int? OrderStatus { get; set; }
+        public string? OrderStatus { get; set; }
         public string BankCode { get; set; }
         public string Note { get; set; }
         public short? BranchCode { get; set; }
-        public int? PaymentStatus { get; set; }
+        public string? PaymentStatus { get; set; }
+        public int PaymentStatusCode { get; set; }
         public byte? ServiceType { get; set; }
         public short? SystemType { get; set; }
         public string OrderStatusName { get; set; }

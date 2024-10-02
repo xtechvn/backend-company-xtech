@@ -1,0 +1,291 @@
+﻿@using Entities.Models
+@using Entities.ViewModels
+@using Entities.ViewModels.OtherBooking
+@using Entities.ViewModels.OtherBookingPackage
+@using Ultilities.Constants
+@model List<OtherBookingPackageViewModel>
+@{
+    var BookingId = ViewBag.BookingId;
+    var ListUser = (List<User>)ViewBag.ListUser;
+    var ServiceType = (List<AllCode>)ViewBag.ServiceType;
+    var OtherBooking = (OtherBookingViewModel)ViewBag.OtherBooking;
+    var OrderId = ViewBag.OrderId;
+    var OrderDetail = (OrderDetailViewModel)ViewBag.OrderDetail;
+}
+<style>
+    #otherbooking-service {
+        overflow-y: auto;/* Điều chỉnh chiều cao theo ý muốn */
+    }
+</style>
+<div class="modal fade other_booking_service show" id="otherbooking-service" aria-modal="true" role="dialog" style="display: block;">
+    <input type="text" id="BookingId" value="@ViewBag.BookingId" style="display:none"/>
+    <input type="text" id="OrderId" value="@ViewBag.OrderId" style="display:none" />
+    <div class="modal-dialog" style="max-width: 90%;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Thêm dịch vụ khác</h4>
+                <button type="button" class="close" onclick="_order_detail_create_service.Close()">×</button>
+            </div>
+            <div id="add-service-other-form-select" data-id="0" data-code="0" data-service-code="">
+                <div class="modal-body">
+                    <form id="service-other-form">
+                        <div class="row row_min">
+                           @*  <div class="col-xl-3 col-lg-3 col-md-6 mb15">
+                                <label class="lbl mb5">Loại dịch vụ  <sup class="red">*</sup></label>
+                                <select id="add-service-other-select-service" class="form-control select" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                    @if(ServiceType != null)
+                                    {
+                                        foreach (var i in ServiceType)
+                                        {
+                                            if (1 != 1)
+                                            {
+
+                                            }
+                                            else
+                                            {
+                                                <option value="@i.Id">@i.Description</option>
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div> *@
+                            <div class="col-xl-3 col-lg-3 col-md-6 mb15">
+                                <label class="lbl mb5">Ngày bắt đầu <sup class="red">*</sup></label>
+                                <div class="datepicker-wrap" style="width:100%">
+                                    <input id="toDate" class="form-control datepicker-input service-other-date-time-single service-other-from-date" type="text" name="fromDate" placeholder="Ngày bắt đầu" value="@(OtherBooking!= null ? OtherBooking.StartDate.ToString("dd/MM/yyyy") : "ngày bắt đầu")">
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 mb15">
+                                <label class="lbl mb5">Ngày kết thúc <sup class="red">*</sup></label>
+                                <div class="datepicker-wrap" style="width:100%">
+                                    <input id="fromDate" class="form-control datepicker-input service-other-date-time-single service-other-single-date service-other-to-date" placeholder="Ngày kết thúc" type="text" name="toDate" value="@(OtherBooking != null ? OtherBooking.EndDate.ToString("dd/MM/yyyy") : "Ngày kết thúc")">
+
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 mb15">
+                                <label class="lbl mb5">Điều hành viên <sup class="red">*</sup></label>
+                                <select id="add-service-other-main-staff" class="form-control select" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                    @if (ListUser != null)
+                                    {
+                                        foreach (var i in ListUser)
+                                        {
+                                            if (OtherBooking != null)
+                                            {
+                                                if (i.Id == OtherBooking.OperatorID)
+                                                {
+                                                    <option selected value="@i.Id">@i.FullName - @i.Email</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@i.Id">@i.FullName - @i.Email</option>
+                                                }
+                                            }
+                                            <option value="@i.Id">@i.FullName - @i.Email</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-6 mb15">
+                                <label class="lbl mb5">Chi phí khác </label>
+                                <input id="servicemanual-other-other-amount" class="form-control currency text-right servicemanual-other-other-amount" oninput="_order_detail_create_service.OnchangeOthersAmount()" name="servicemanual-other-other-amount" placeholder="Nhập chi phí khác" value="@(OtherBooking != null ? OtherBooking.OthersAmount.ToString("N0") : 0)">
+
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="bold mb15 txt_14">Bảng kê dịch vụ</div>
+                            <div class="table-responsive table-gray service-other-packages" data-other-booking-id="">
+                                <table class="table table-nowrap">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 70px;">#</th>
+                                            <th style="min-width: 200px;">Dịch vụ</th>
+                                            <th class="text-right" style="min-width: 150px;">Giá trước VAT(VND)<sup class="red">*</sup></th>
+                                            <th class="text-right" style="width: 250px !important;">Số lượng</th>
+                                            <th class="text-right" style="min-width: 150px;">VAT(%)<sup class="red">*</sup></th>
+                                            <th class="text-right" style="width:150px !important;">Giá sau VAT(VND)</th>
+                                            <th class="text-right">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="service-other-packages-tbody">
+                                        @{
+                                            var stt = 1;
+                                        }
+                                        @if (Model != null)
+                                        {
+                                            
+                                            foreach (var i in Model)
+                                            {   
+                                                <tr class="service-other-packages-row" id="OtherBooingPackageID_@i.Id">
+                                                    <td class="service-other-packages-order">@stt</td>
+                                                    <td>
+                                                        <input type="text" class="form-control service-other-packages-packagename" style="width:100% !important" value="@i.Name">
+                                                    </td>
+                                                    <td> <input class="form-control text-right currency service-other-packages-baseprice" oninput="_order_detail_create_service.OnchangeBaseprice($(this))" id="baseprice_@i.Id" name="service-other-packages-baseprice" value="@i.BasePrice.ToString("N0")"></td>
+                                                    <td> <input class="form-control text-right currency service-other-packages-quantity" oninput="_order_detail_create_service.OnchangeQuantity($(this))" id="quantity_@i.Id" name="service-other-packages-quantity" value="@i.Quantity"></td>
+                                                    <td class="text-right service-other-packages-profit-row">
+                                                        <input class="form-control text-right currency service-other-packages-profit" id="profit_@i.Id" oninput="_order_detail_create_service.OnchangeVAT($(this))" style="background-color: lightgray;" value="@i.Profit">
+                                                    </td>
+
+
+                                                    <td class="text-right"> <input class="form-control text-right currency service-other-packages-amount" id="amount_@i.Id" style="background-color: lightgray;" disabled="" value="@i.Amount.ToString("N0")"></td>
+                                                    <td class="text-right">
+                                                        @if (OrderDetail.Status == (int)OrderStatus.New && OrderDetail.PaymentStatusCode != (int)PaymentStatus.PAID)
+                                                        {
+                                                            <a class="fa fa-trash-o" href="javascript:;" onclick="_order_detail_create_service.DeleteOtherBookingPackage($(this).parent().parent());"></a>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                stt = stt + 1;
+                                                ;
+                                            }
+                                        }
+
+                                        
+
+                                        <tr class="service-other-packages-summary-row">
+                                            <td></td>
+                                            <td>
+                                                @if (OrderDetail.Status == (int)OrderStatus.New && OrderDetail.PaymentStatusCode != (int)PaymentStatus.PAID)
+                                                {
+                                                    <a href="javascript:;" class="blue ml-2 mb10" onclick="_order_detail_create_service.CreateOtherBookingPackage()"><i class="fa fa-plus-circle green"></i> Thêm dịch vụ khác</a>
+                                                }
+                                            </td>
+                                            <td class="text-right">Tổng cộng</td>
+                                            <td class="text-right font-weight-bold service-other-packages-total-amount">0</td>
+                                            <td colspan="3" class="text-center font-weight-bold service-other-packages-total-profit">@(OtherBooking != null ? OtherBooking.Amount.ToString("N0") + "VND" : 0)</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="bold mb10 txt_14">Ghi chú</div>
+                            <div class="form-group">
+                                <textarea class="form-control service-other-note" style="height: 200px;" rows="6">@(OtherBooking!= null? OtherBooking.Note : "")</textarea>
+                            </div>
+                        </div>
+
+
+                    </form>
+                    <div class="attachment-file-block" style="padding-top: 20px; margin-top:10px;">
+
+                        <style>
+                            .attachment-widget .delete-file {
+                                background: #ED5C6A;
+                                color: #fff;
+                                position: absolute;
+                                right: -7px;
+                                top: -7px;
+                                z-index: 2;
+                                border: 0;
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                outline: 0;
+                                cursor: pointer;
+                            }
+
+                            .file p {
+                                overflow: hidden;
+                            }
+
+                            .file-widget-20240928115233020 .choose-ava {
+                                width: 100% !important;
+                            }
+                        </style>
+
+                        <div id="file-widget-20240928115233020" class="bg-white mb20 attachment-widget file-widget-20240928115233020" style="width:100% !important;" data-dataid="0" data-type="20">
+                            <div class="lb-form pd10">
+                                Tệp đính kèm <i class="fa fa-paperclip"></i>
+                            </div>
+                            <div class="row list-choose lightgallery attachment-file-gallery">
+                            </div>
+                            <div class="flex align-center mb20 attach-edit">
+                                <div class="flex align-center pd10 mb20">
+                                    <label class="choose mb0" style="width: 100% !important;">
+                                        <input type="file" class="attachfile-add" multiple="" style="display: none;">
+                                        <a class="btn-default" href="javascript:;" onclick="$(this).closest('.choose').find('.attachfile-add').trigger('click')" style="color: #fff;cursor: pointer; margin-top:10px;">
+                                            <i class="fa fa-upload"></i>&nbsp;&nbsp;Upload file
+                                        </a>
+                                        <a id="confirm-file" href="javascript:;" class="btn-default confirm-file mfp-hide" style="color: white; display:none;">Lưu tệp đính kèm</a>
+                                    </label>
+                                    <div class="gray txt_12" style="margin-top: 10px; width: 100% !important;">
+                                        <p style="margin-left: 3px;">Upload nhiều file cùng lúc. Định dạng: .jpg,.png, .gif,.pdf, .doc &amp; docx. Dung lượng tối đa 10Mb.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @* <script>
+                                const _attach_20240928115233020 = new AttachmentWidget('file-widget-20240928115233020', { "allow_edit": true, "allow_preview": false, "separate_confirm": false });
+                            </script> *@
+
+
+
+                        </div>
+                    </div>
+                    <div style="padding-top: 20px; margin-top:10px;">
+                        <div id="service-other-button-div" class="text-right ">
+                            <div class="btn btn-default btn btn-default cancel" onclick="_order_detail_create_service.Close()">Bỏ qua</div>
+                            @if ((OrderDetail.Status == (int)OrderStatus.Rejected_by_management || OrderDetail.Status == (int)OrderStatus.New) && OrderDetail.PaymentStatusCode != (int)(PaymentStatus.PAID))
+                            {
+                                <div class="btn btn-default btn btn-summit-service-other" onclick="_order_detail_create_service.Submit()">Thêm</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    $('#fromDate').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        showDropdowns: true,
+        autoUpdateInput: false,
+        drops: 'down',
+        minDate: '01/01/2020',
+        locale: {
+            format: 'DD/MM/YYYY',
+            cancelLabel: 'Clear'
+        }
+    });
+    $('#toDate').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        autoUpdateInput: false,
+        showDropdowns: true,
+        drops: 'down',
+        minDate: '01/01/2020',
+        locale: {
+            format: 'DD/MM/YYYY',
+            cancelLabel: 'Clear'
+        }
+    });
+
+    $('input[name="fromDate"]').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    });
+
+    $('input[name="toDate"]').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    });
+
+    $('#fromDate').on('change', function () {
+        console.log('da chon fromdate');
+    });
+
+    $('#toDate').on('change', function () {
+        
+    });
+</script>
+@section scripts {
+    <script type="text/javascript" src="~/modules/order_detail.js"></script>
+    <script type="text/javascript" src="~/js/zebra_datepicker.min.js"></script>
+}

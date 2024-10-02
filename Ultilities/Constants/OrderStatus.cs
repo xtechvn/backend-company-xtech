@@ -13,24 +13,32 @@ namespace Ultilities.Constants
         /// <summary>
         /// Mặc định trạng thái đơn khi được khởi tạo
         /// </summary>
-        [Description("Chờ thanh toán")]
-        CREATED_ORDER = 0,
+        [Description("Tạo mới")]
+        New = 0,
 
-        [Description("Đang xử lý")]
-        CONFIRMED_SALE = 1,
+        [Description("Nhận triển khai")]
+        Received_for_implementation = 1,
 
+        [Description("Điều hành duyệt")]
+        Approved_by_management = 2,
 
-        [Description("Đang giao hàng")]
-        WAITING_FOR_OPERATOR = 2,
+        [Description("Điều hành từ chối")]
+        Rejected_by_management = 3,
 
+        [Description("Kế toán duyệt")]
+        Approved_by_accounting = 4,
+
+        [Description("Kế toán từ chối")]
+        Rejected_by_accounting = 5,
 
         [Description("Hoàn thành")]
-        FINISHED = 3,
+        Completed = 6,
 
-        [Description("Đã hủy")]
-        CANCEL = 4,
+        [Description("Hủy")]
+        Canceled = 7,
 
-
+        [Description("Đơn rác")]
+        Draft = 8
     }
 
     // Trạng thái đơn

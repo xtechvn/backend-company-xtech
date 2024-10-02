@@ -68,6 +68,10 @@ builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
 builder.Services.AddTransient< ITagRepository, TagRepository> ();
 builder.Services.AddTransient< IBookingVPSRepository, BookingVPSRepository> ();
+builder.Services.AddTransient<IOtherBookingRepository, OtherBookingRepository>();
+builder.Services.AddTransient<IOtherBookingPackageRepository, OtherBookingPackageRepository>();
+builder.Services.AddTransient<IContractPayRepository, ContractPayRepository>();
+builder.Services.AddTransient<IPaymentRequestRepository, PaymentRequestRepository>();
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
@@ -94,6 +98,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllerRoute(name: "Order",
+    pattern: "/OrderDetail/{orderId?}",
+    defaults: new { controller = "Order", action = "OrderDetail" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

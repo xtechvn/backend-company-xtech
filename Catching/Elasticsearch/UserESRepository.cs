@@ -14,7 +14,7 @@ namespace Catching.Elasticsearch
 {
     public class UserESRepository : ESRepository<UserESViewModel>
     {
-        public string index_name = "users_hulotoys_store";
+        public string index_name = "users_xtech_store";
         private readonly IConfiguration configuration;
         public UserESRepository(string Host, IConfiguration _configuration) : base(Host)
         {

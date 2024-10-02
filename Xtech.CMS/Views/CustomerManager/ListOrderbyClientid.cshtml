@@ -38,7 +38,7 @@
                             <tr>
                                 <td class="center">@counter</td>
                                 <td>
-                                    <a class="blue" href="/Order/@item.OrderId" onclick="_ordersCMS.saveCookieFilter()">@item.OrderNo</a>
+                                    <a class="blue" href="/OrderDetail/@item.OrderId" onclick="_ordersCMS.saveCookieFilter()">@item.OrderNo</a>
                                 </td>
                                 <td class="text-right">
                                     @* <div class="green">@item.Payment.ToString("#,##0")</div> *@
@@ -48,27 +48,29 @@
                                 <td>
                                     @switch (item.StatusCode)
                                     {
-                                        case (int)(OrderStatus.CREATED_ORDER):
-                                        case (int)(OrderStatus.CONFIRMED_SALE):
+                                        case (int)(OrderStatus.New):
+                                        case (int)(OrderStatus.Completed):
                                             {
                                                 <span class="status-oranger">@item.Status</span>
                                             }
                                             break;
-                                        case (int)(OrderStatus.WAITING_FOR_OPERATOR):
-
+                                        case ((int)(OrderStatus.Approved_by_accounting)):
+                                        case ((int)(OrderStatus.Received_for_implementation)):
+                                        case ((int)(OrderStatus.Approved_by_management)):
                                             {
-                                                <span class="status-green">@item.Status</span>
-
+                                                <span class="status-gray">@item.Status</span>
                                             }
                                             break;
-                                        case (int)(OrderStatus.FINISHED):
-                                            {
-                                                <span class="status-green">@item.Status</span>
-                                            }
-                                            break;
-                                        case ((int)(OrderStatus.CANCEL)):
+                                        case (int)(OrderStatus.Canceled):
+                                        case (int)(OrderStatus.Rejected_by_accounting):
+                                        case (int)(OrderStatus.Rejected_by_management):
                                             {
                                                 <span class="status-red">@item.Status</span>
+                                            }
+                                            break;
+                                        case ((int)(OrderStatus.Draft)):
+                                            {
+                                                <span class="status-gray">@item.Status</span>
                                             }
                                             break;
                                     }

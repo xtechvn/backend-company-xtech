@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ultilities.Constants;
 using Utilities;
 using Utilities.Contants;
 
@@ -22,6 +23,102 @@ namespace DAL
         {
             _DbWorker = new DbWorker(connection);
         }
+
+        public async Task<OrderDetailViewModel> GetDetailOrderByOrderId(long OrderId)
+        {
+            try
+            {
+
+                SqlParameter[] objParam = new SqlParameter[1];
+                objParam[0] = new SqlParameter("@OrderId", OrderId);
+
+                DataTable dt = _DbWorker.GetDataTable(ProcedureConstants.SP_GetDetailOrderByOrderId, objParam);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var data = dt.ToList<OrderDetailViewModel>();
+                    return data[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetDetailOrderByOrderId - OrderDal: " + ex);
+            }
+            return null;
+        }
+
+        public async Task<int> UpdateAmountOrder(long OrderId)
+        {
+            try
+            {
+
+                SqlParameter[] objParam = new SqlParameter[1];
+                objParam[0] = new SqlParameter("@OrderID", OrderId);
+
+                 return _DbWorker.ExecuteNonQuery(ProcedureConstants.SP_UpdateOrderAmount, objParam);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateAmountOrder - OrderDal: " + ex);
+            }
+            return -1;
+        }
+
+        public async Task<int> InsertOrder(Order model)
+        {
+            try
+            {
+
+                SqlParameter[] objParam = new SqlParameter[]
+                {
+                    new SqlParameter("@ClientId",model.ClientId),
+                    new SqlParameter("@ServiceType",model.ServiceType != null ? model.ServiceType : DBNull.Value),
+                    new SqlParameter("@SalerId",model.SalerId),
+                    new SqlParameter("@OrderNo",model.OrderNo),
+                    new SqlParameter("@SalerGroupId",model.SalerGroupId != null ? model.SalerGroupId : DBNull.Value),
+                    new SqlParameter("@CreateTime",DateTime.Now),
+                    new SqlParameter("@PaymentStatus",PaymentStatus.UNPAID),
+                    new SqlParameter("@BranchCode",model.BranchCode),
+                    new SqlParameter("@Note",model.Note),
+                    new SqlParameter("@CreatedBy",model.CreatedBy != null? model.CreatedBy : DBNull.Value),
+                    new SqlParameter("@SmsContent",model.SmsContent != null? model.SmsContent : DBNull.Value),
+                    new SqlParameter("@OrderStatus",OrderStatus.New),
+                    new SqlParameter("@Description",model.Description != null?model.Description : DBNull.Value),
+                    new SqlParameter("@Amount",model.Amount != null ? model.Amount : DBNull.Value),
+                    new SqlParameter("@Label",model.Label != null ? model.Label : DBNull.Value),
+                };
+               
+
+                return _DbWorker.ExecuteNonQuery(ProcedureConstants.SP_InsertOrder, objParam);
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrderSaler - OrderDal: " + ex);
+                return -2;
+            }
+        }
+
+        public async Task<DataTable> GetOrderNo() 
+        {
+            int Year = DateTime.Now.Year;
+            try
+            {
+
+                SqlParameter[] objParam = new SqlParameter[]
+                {
+                    new SqlParameter("@Year",Year),
+
+                };
+                return _DbWorker.GetDataTable(ProcedureConstants.SP_GetOrderNo, objParam);
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrderSaler - OrderDal: " + ex);  
+            }
+            return null;
+        } 
+
         public async Task<DataTable> GetPagingList(OrderViewSearchModel searchModel, string proc)
         {
             try
@@ -30,11 +127,17 @@ namespace DAL
                 SqlParameter[] objParam = new SqlParameter[]
                 {
                     new SqlParameter("@status", searchModel.Status == null ? DBNull.Value : searchModel.Status),
-                    new SqlParameter("@CreateTimeFrom",(CheckDate(searchModel.CreateDateFrom) == DateTime.MinValue) ? DBNull.Value : CheckDate(searchModel.CreateDateFrom)),
-                    new SqlParameter("@CreateTimeTo",(CheckDate(searchModel.CreateDateTo) == DateTime.MinValue) ? DBNull.Value : CheckDate(searchModel.CreateDateTo).AddDays(1)),
+                    new SqlParameter("@CreateTimeFrom",(searchModel.CreateDateFrom == DateTime.MinValue) ? DBNull.Value : searchModel.CreateDateFrom),
+                    new SqlParameter("@CreateTimeTo",(searchModel.CreateDateTo == DateTime.MinValue) ? DBNull.Value : searchModel.CreateDateTo.AddDays(1)),
+                    new SqlParameter("@StartDate",(searchModel.StartDate == DateTime.MinValue) ? DBNull.Value : searchModel.StartDate),
+                    new SqlParameter("@EndDate",(searchModel.EndDate == DateTime.MinValue) ? DBNull.Value : searchModel.EndDate.AddDays(1)),
                     new SqlParameter("@PaymentStatus",searchModel.PaymentStatus != null ? searchModel.PaymentStatus : DBNull.Value),
+                    new SqlParameter("@PaymentMethod",searchModel.PaymentMethod != null ? searchModel.PaymentMethod : DBNull.Value),
                     new SqlParameter("@ClientId", searchModel.ClientId != null ? searchModel.ClientId : DBNull.Value),
                     new SqlParameter("@OrderId",searchModel.OrderId != null ? searchModel.OrderId : DBNull.Value),
+                    new SqlParameter("@SalerId",searchModel.SalerId != null ? searchModel.SalerId : DBNull.Value),
+                    new SqlParameter("@ServiceType",searchModel.ServiceType != null ? searchModel.ServiceType : DBNull.Value),
+                    new SqlParameter("@OrderNo",searchModel.OrderNo != null ? searchModel.OrderNo : DBNull.Value),
                     new SqlParameter("@PageIndex", searchModel.PageIndex),
                     new SqlParameter("@PageSize", searchModel.pageSize)
                 };
@@ -56,6 +159,25 @@ namespace DAL
             }
 
             return _date != DateTime.MinValue ? _date : DateTime.MinValue;
+        }
+
+        public async Task<object> getSumAmount(int? paymentStatus,string proc) 
+        {
+            try
+            {
+
+                SqlParameter[] objParam = new SqlParameter[]
+                {
+                    new SqlParameter("@PaymentStatus",paymentStatus != null ? paymentStatus : DBNull.Value)
+                };
+
+                return _DbWorker.ExecuteScalar(proc, objParam);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetAmountOrder - OrderDal: " + ex);
+            }
+            return null;
         }
     }
 }

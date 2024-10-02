@@ -56,6 +56,14 @@ var _global_function = {
         }
         return undefined;
     },
+    ParseJSDateToCSharpDateTime : function (jsDate) {
+        if (!(jsDate instanceof Date)) {
+            throw new Error("Invalid input: jsDate must be a Date object.");
+        }
+        const isoString = jsDate.toISOString();
+
+        return isoString;
+    },
      ParseDateTostring: function (text) {
         var parse_value = text.split(' ')[0].split('/')
         if (parse_value != undefined && parse_value.length > 2) {

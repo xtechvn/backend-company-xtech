@@ -1,0 +1,294 @@
+﻿@using Entities.Models
+@{
+    var Status = (List<AllCode>)ViewBag.Order_Status;
+    var PAYMENT_STATUS = (List<AllCode>)ViewBag.PAYMENT_STATUS;
+    var PAYMENT_TYPE = (List<AllCode>)ViewBag.PAYMENT_TYPE;
+    var SERVICE_TYPE = (List<AllCode>)ViewBag.SERVICE_TYPE;
+}
+<style>
+    .btn_reset {
+        position: absolute;
+        right: 32px;
+        top: 7px;
+        width: 20px;
+        height: 20px;
+        border: 0;
+        outline: 0;
+        border-radius: 50%;
+        cursor: pointer;
+        background: #C4C4C4
+    }
+
+    #button-filter
+    {
+        position: relative;
+    } 
+
+    #filter-body
+    {
+        position:absolute;
+        width: 450px;
+        padding: 15px;
+        border-radius: 5px;
+        top:70px;
+        left:372px;
+        z-index:20;
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<section style=" overflow-x: hidden;">
+    <div class="bg-serach-main flex row-main-head">
+        <div class="form-group mb10 mr-2 operator-saler" style="min-width: 220px;">
+            <div class="datepicker-wrap add-lbl " style="width:100%">
+                <select class="select2 client-select main-staff-select" id="OrderNo" style="width:100% !important">
+                </select>
+            </div>
+        </div>
+@*         <button class="btn btn-default mb10" type="button" onclick="_ordersCMS.Export()" id="btnExport">
+            <i class="fa fa-file-excel-o" id="icon-export" title="Xuất excel">
+            </i>
+        </button> *@
+        <div class="form-group mb10 mr-2" style="min-width: 260px;">
+            <select class="select2 client-select main-staff-select" id="txtNguoiPhuTrach" style="width:100% !important">
+            </select>
+        </div>
+        <button type="button" class="btn btn-default bg-main mb10" style="margin-left:10px" onclick="_ordersCMS.SearchData()">
+            <svg class="icon-svg" style="vertical-align: sub;">
+                <use xlink:href="/images/icons/icon.svg#search"></use>
+            </svg>
+            Tìm kiếm
+        </button>
+
+        <div class="fillter-wrap mb10" id="button-filter" @* onclick="_ordersCMS.displayForm()" *@>
+            <a class="btn btn-outline-primary color-main blue" href="javascript:;" style="outline: 0;display: inline-block;">
+                Tìm kiếm nâng cao
+            </a>
+        </div>
+
+
+        <div class="fillter-search dropdown-content" id="filter-body">
+            <div class="form-default row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <span class="mr-2 ">Hình thức</span>
+                        <label class="radio mr-2">
+                            <input type="radio" name="SysTemType" value="-1" checked="" onclick="_ordersCMS.SearchData()">
+                            <span class="checkmark"></span>
+                            Tất cả
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <div class="datepicker-wrap" style="width:100%">
+                            <input class="form-control date text-left filter_date_daterangepicker" id="filter_date_daterangepicker" type="text" name="datetimeOrder"
+                                   placeholder="Ngày tạo" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="datepicker-wrap" style="width:100%">
+                            <input class="form-control date-range-filter" id="fromDate" type="text" name="fromDate" placeholder="Ngày bắt đầu">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="multiple-select" id="multiple-select-status" style="width:100% !important">
+                            <div class="select-btn select-btn-status" id="Status" style="width:100% !important">
+                                <span class="btn-text-status">Tất cả trạng thái</span>
+                                <span class="arrow-dwn">
+                                    <i class="fa fa-angle-down"></i>
+                                </span>
+                            </div>
+
+                            <ul class="list-items list-item-status" id="list-item-status">
+
+                                @foreach (var item in Status)
+                                {
+                                    <li class="item item-status" id="status_data_@item.CodeValue">
+                                        <span class="checkbox" id="checkbox_status_@item.CodeValue">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                        <span class="item-text" id="status_text_@item.CodeValue">@item.Description</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div> 
+                    <div class="form-group"> 
+                        <div class="multiple-select" disabled id="multiple-select-serviceType" style="width:100% !important">
+                            <div class="select-btn select-btn-serviceType" id="serviceType" style="width:100% !important">
+                                <span class="btn-text-serviceType">Tất cả dịch vụ</span>
+                                <span class="arrow-dwn">
+                                    <i class="fa fa-angle-down"></i>
+                                </span>
+                            </div>
+
+                            <ul class="list-items list-item-serviceType" id="list-item-serviceType">
+
+                                @foreach (var item in SERVICE_TYPE)
+                                {
+                                    <li class="item item-serviceType" id="serviceType_data_@item.CodeValue">
+                                        <span class="checkbox" id="checkbox_serviceType_@item.CodeValue">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                        <span class="item-text" id="serviceType_text_@item.CodeValue">@item.Description</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group" style="margin-top: 31px;"></div>
+                    <div class="form-group">
+                        <div class="datepicker-wrap" style="width:100% !important">
+                            <select class="select2 client-select main-staff-select" id="ClientId" style="width:100% !important">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="datepicker-wrap" style="width:100%">
+                            <input class="form-control date-range-filter" id="toDate" type="text" name="toDate" placeholder="Ngày kết thúc">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="multiple-select" id="multiple-select-PaymentType" style="width:100% !important">
+                            <div class="select-btn select-btn-HINHTHUCTT" id="HINHTHUCTT" style="width:100% !important">
+                                <span class="btn-text-HINHTHUCTT">Tất cả hình thức thanh toán</span>
+                                <span class="arrow-dwn">
+                                    <i class="fa fa-angle-down"></i>
+                                </span>
+                            </div>
+
+                            <ul class="list-items list-item-HINHTHUCTT" id="list-item-HINHTHUCTT">
+
+                                @foreach (var item in PAYMENT_TYPE)
+                                {
+
+
+                                    <li class="item item-HINHTHUCTT" id="HINHTHUCTT_data_@(item.CodeValue)">
+                                        <span class="checkbox" id="checkbox_HINHTHUCTT_@(item.CodeValue)">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                        <span class="item-text" id="HINHTHUCTT_text_@item.Description - @item.Description">@item.Description</span>
+                                    </li>
+
+                                }
+
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="multiple-select" id="multiple-select-PaymentStatus" style="width:100% !important">
+                            <div class="select-btn select-btn-PaymentSTT" id="PaymentSTT" style="width:100% !important">
+                                <span class="btn-text-PaymentSTT">Tất cả trạng thái thanh toán</span>
+                                <span class="arrow-dwn">
+                                    <i class="fa fa-angle-down"></i>
+                                </span>
+                            </div>
+
+                            <ul class="list-items list-item-PayemtSTT" id="list-item-PaymentSTT">
+
+                                @foreach (var item in PAYMENT_STATUS)
+                                {
+
+
+                                    <li class="item item-PaymentSTT" id="PaymentSTT_data_@(item.CodeValue)">
+                                        <span class="checkbox" id="checkbox_PaymentSTT_@(item.CodeValue)">
+                                            <i class="fa fa-check"></i>
+                                        </span>
+                                        <span class="item-text" id="PaymentSTT_text_@item.Description - @item.Description">@item.Description</span>
+                                    </li>
+
+                                }
+
+                            </ul>
+                        </div>
+                    </div>
+                </div> 
+                <div class="form-group text-center col-12 mt20 block">
+                    <a class="text-primary" href="javascript:;" onclick="_ordersCMS.ResetParams()">
+                        Khôi phục mặc định
+                    </a>
+                    <button type="submit" class="btn btn-default bg-main" onclick="_ordersCMS.SearchData()">
+                        <svg class="icon-svg" style="vertical-align: sub;">
+                            <use xlink:href="/images/icons/icon.svg#search"></use>
+                        </svg>
+                        Tìm kiếm
+                    </button>
+                    <a class="btn btn-default cancel" href="javascript:;">
+                        Bỏ tìm kiếm nâng cao
+                        <i class="fa fa-caret-up"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row-main container">
+
+
+        <div class="">
+            <div id="grid-data">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+
+
+@section scripts {
+    <script type="text/javascript" src="~/js/zebra_datepicker.min.js"></script>
+    <script type="text/javascript" src="~/modules/orderCMS.js"></script>
+    <script type="text/javascript" src="~/modules/order_detail.js"></script>
+    <script type="text/javascript" src="~/modules/order_detail_common.js"></script>
+    <script type="text/javascript" src="~/modules/order_detail_html.js"></script>
+}
+
+<style>
+    .row-main-head .down-up .form-down {
+        width: 370px !important;
+    }
+
+    .token-input-input-token {
+        min-width: 150px !important;
+    }
+
+        .token-input-input-token input {
+            background: #fff !important;
+            width: 100% !important;
+            font-size: 13px !important;
+            height: 30px !important;
+            line-height: 30px !important;
+            border: 1px solid #ccc !important;
+            padding: 0 5px !important;
+            outline: 0 !important;
+            box-shadow: none !important;
+            color: #000 !important;
+            border-radius: 0.25rem !important;
+        }
+
+    .grid-slide {
+        display: grid;
+        grid-template-columns: auto auto;
+    }
+
+    .loading {
+        position: fixed !important;
+        left: calc( 50% - 50px);
+        top: calc( 50% - 50px);
+    }
+
+    .hide-element {
+        display: none;
+    }
+
+    .onblur {
+        opacity: 0.5;
+    }
+
+    .list-item-status {
+        height: 250px !important;
+        overflow: scroll !important;
+    }
+</style>

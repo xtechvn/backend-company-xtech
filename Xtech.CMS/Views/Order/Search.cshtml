@@ -1,0 +1,163 @@
+﻿@{
+    Layout = null;
+}
+@using Ultilities.Constants
+@using Utilities.Contants
+@* @using Entities.ViewModels.Invoice; *@
+@using Entities.ViewModels
+@using Entities.Models
+@model GenericViewModel<OrderViewModel>
+@{
+    var AmountOrder = (TotalValueOrder)ViewBag.Amounts;
+}
+<div class="bg-white pd-16 radius10">
+    <div id="List-Order-Status" class="line-bottom mb15" style="padding-bottom: 0;">
+        <div class="row" style=" width: 100%; ">
+            <input id="countOrder" value="@Model.TotalRecord" style="display:none" />
+            <div class="tab-default col-md-9 mb0 mt10">
+                <a href="javascript:;" onclick="_ordersCMS.OnSearchStatus(99)" id="countSttAll" class="active">Tất cả đơn hàng (@Model.TotalRecord) </a>
+            </div>
+            <div class="col-md-3 text-right mt10">
+                <button type="submit" class="btn btn-default" style="" onclick="_order_manual.CreateOrderManual()">Tạo đơn hàng</button>
+            </div>
+        </div>
+    </div>
+    <div id="List-Order-Amount" class="flex mb15">
+        <div class="mb10 mr-4">Tổng giá trị: <strong>@(AmountOrder.TotalAmmount != null? AmountOrder.TotalAmmount : "Chưa có")</strong></div>
+        <div class="mb10 mr-4">Đã thanh toán: <strong>@(AmountOrder.TotalPaid != null ? AmountOrder.TotalPaid : "Chưa có")</strong></div>
+        <div class="mb10 mr-4">Thanh toán thiếu: <strong>@(AmountOrder.TotalPaidNotEnough != null ? AmountOrder.TotalPaidNotEnough : "Chưa có")</strong></div>
+        <div class="mb10 mr-4">Chưa thanh toán: <strong>@(AmountOrder.TotalUnPaid != null ? AmountOrder.TotalUnPaid : "Chưa có")</strong></div>
+    </div>
+
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-scroll mb20">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã đơn</th>
+                        <th style="max-width:150px;">
+                            Tổng đơn
+                        </th>
+                        <th > Mô tả </th>
+                        <th > Trạng thái đơn </th> 
+                        <th > Ngày bắt đầu</th>
+                        <th > Ngày kêt thúc</th>
+                        <th > Trạng thái thanh toán </th>
+                        <th > Phương thức thanh toán </th>
+                        <th > Tên khách hàng</th>
+                        <th > Ngày tạo </th> 
+                        <th> Người phụ trách </th>
+                    </tr>
+                </thead>
+                <tbody id="body-order-search">
+                    @if (Model.ListData != null && Model.ListData.Count > 0)
+                    {
+                        var counter = (Model.CurrentPage - 1) * Model.PageSize;
+                        foreach (var item in Model.ListData)
+                        {
+                            counter++;
+                            <tr>
+                                <td class="center">@counter</td>
+                                <td>
+                                    <a class="blue" href="/OrderDetail/@item.OrderId" onclick="_ordersCMS.saveCookieFilter()">@item.OrderNo</a>
+                                </td>
+                                <td class="text-right">
+                                    <div class="red">@(item.Amount == 0 ? "0" : item.Amount.ToString("#,##"))</div>
+                                </td>
+                                <td class="text-left">
+                                    <div>@(item.Description != null ? item.Description : "Chưa có")</div>
+                                </td>
+                                <td>
+                                    @switch (item.StatusCode)
+                                    {
+                                        case (int)(OrderStatus.New):
+                                        case (int)(OrderStatus.Completed):
+                                            {
+                                                <span class="status-green">@item.Status</span>
+                                            }
+                                            break;
+                                        case ((int)(OrderStatus.Approved_by_accounting)):
+                                        case ((int)(OrderStatus.Received_for_implementation)):
+                                        case ((int)(OrderStatus.Approved_by_management)):
+                                            {
+                                                <span class="status-blue">@item.Status</span>
+                                            }
+                                            break;
+                                        case (int)(OrderStatus.Canceled):
+                                        case (int)(OrderStatus.Rejected_by_accounting):
+                                        case (int)(OrderStatus.Rejected_by_management):
+                                            {
+                                                <span class="status-red">@item.Status</span>
+                                            }
+                                            break;
+                                        case ((int)(OrderStatus.Draft)):
+                                            {
+                                                <span class="status-gray">@item.Status</span>
+                                            }
+                                            break;
+                                    }
+                                </td>
+                                <td>@(item.StartDate != DateTime.MinValue ? item.StartDate : "Chưa có")</td>
+                                <td>@(item.EndDate != DateTime.MinValue ? item.EndDate : "Chưa có")</td>
+                                <td>
+                                    @if (item.PaymentStatus != "")
+                                    {
+                                        @if (Convert.ToInt32(item.PaymentStatus) == (int)PaymentStatus.UNPAID)
+                                        {
+                                            <div class="status-oranger">
+                                                @item.PaymentStatusName
+                                            </div>
+                                        }
+                                        @if (Convert.ToInt32(item.PaymentStatus) == (int)PaymentStatus.PAID)
+                                        {
+                                            <div class="status-green">
+                                                @item.PaymentStatusName
+                                            </div>
+                                        }
+                                        @if (Convert.ToInt32(item.PaymentStatus) == (int)PaymentStatus.PAID_NOT_ENOUGH)
+                                        {
+                                            <div class="status-blue">
+                                                @item.PaymentStatusName
+                                            </div>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    @(item.PaymentTypeName != null? item.PaymentTypeName : "Chưa có")
+                                </td>
+                                <td>
+                                    <a class="blue" href="/CustomerManager/Detail/@(item.ClientId)">@item.ClientName</a>
+
+                                    <div>@item.ClientNumber</div>
+                                    <div>@item.ClientEmail</div>
+                                </td>
+                                <td>
+                                    <div>@item.CreateTime </div>
+                                </td>
+                                <td>
+                                    <div>@(item.SalerName != null ? item.SalerName : "Chưa có") </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+        @await Component.InvokeAsync("PagingNew", new
+        {
+           pageModel = new Paging()
+           {
+           TotalRecord = Model.TotalRecord,
+           TotalPage = Model.TotalPage,
+           CurrentPage = Model.CurrentPage,
+           PageSize = Model.PageSize,
+           RecordName = "hợp đồng",
+           PageAction = "_ordersCMS.OnPaging({0})",
+           PageSelectPageSize = "_ordersCMS.onSelectPageSize()"
+           }
+        })
+    </div>
+
+</div>
