@@ -139,6 +139,8 @@ namespace Utilities.Contants
         public static string SP_GetListPaymentRequestByOrderId = "SP_GetListPaymentRequestByOrderId";
         public static string Sp_UpdateOrder = "Sp_UpdateOrder";
 
+        public static string SP_GetAccountClientByUserName = "SP_GetAccountClientByUserName";
+
 
         public static string SP_InsertHotelRoom = "SP_InsertHotelRoom";
         public static string SP_UpdateHotelRoom = "SP_UpdateHotelRoom";

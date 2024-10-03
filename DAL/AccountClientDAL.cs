@@ -1,12 +1,7 @@
 ﻿using DAL.StoreProcedure;
 using Entities.Models;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities;
 using Utilities.Contants;
 
@@ -67,6 +62,29 @@ namespace DAL
             }
             return -1;
 
+        }
+
+        public AccountClient GetAccountClientByUserName(string usernmae)
+        {
+            try
+            {
+                SqlParameter[] sqlParameter = new SqlParameter[]
+                {
+                    new SqlParameter("@UserName", usernmae)
+                };
+                DataTable dataTable = _DbWorker.GetDataTable(StoreProcedureConstant.SP_GetAccountClientByUserName, sqlParameter);
+                if (dataTable != null && dataTable.Rows.Count > 0)
+                {
+                    var data = dataTable.ToList<AccountClient>();
+                    return data[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetAccountClientByUserName - AccountClientDAL: " + ex.ToString());
+
+            }
+            return null;
         }
 
         public int CreateAccountClient(AccountClient model)

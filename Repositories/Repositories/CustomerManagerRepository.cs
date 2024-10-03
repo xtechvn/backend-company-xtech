@@ -13,6 +13,7 @@ using Utilities;
 using System.Drawing;
 using Entities.ViewModels;
 using Catching.Elasticsearch;
+using SharpCompress.Common;
 
 namespace Repositories.Repositories
 {
@@ -296,6 +297,26 @@ namespace Repositories.Repositories
             }
         }
 
+        public async Task<Client> CheckExistAccount(AccountModel model) 
+        {
+            try
+            {
+                var _encryptPassword = EncodeHelpers.MD5Hash(model.Password);
+                var _model = _AccountClientDAL.GetAccountClientByUserName(model.UserName);
+                if (_model != null)
+                {
+                    if (_encryptPassword == _model.Password && _encryptPassword == _model.PasswordBackup)
+                    {
+                        return await _ClientDAL.GetClientByID((int)_model.ClientId);
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex) 
+            {
+                return null;
+            }
+        }
         public async Task<string> ExportDeposit(CustomerManagerViewSearchModel searchModel, string FilePath, field field)
         {
             var pathResult = string.Empty;
