@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 using Entities.ViewModels.Login;
 using Ultilities.Constants;
 using Entities.ViewModels.CustomerManager;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Xtech.CMS.APIControllers
 {
@@ -40,7 +41,7 @@ namespace Xtech.CMS.APIControllers
 
         [HttpPost("ConfirmLogin.json")]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmLogin(AccountModel model)
+        public async Task<IActionResult> ConfirmLogin([FromForm]AccountModel model)
         {
             try
             {
@@ -60,16 +61,14 @@ namespace Xtech.CMS.APIControllers
                 model.Password = CommonHelper.RemoveAllSpecialCharacterLogin(model.Password);
                 //-- Kiểm tra user/pass
                 var client = await _customerManagerRepository.CheckExistAccount(model);
-                DataClientReturnViewModel datareturn = new DataClientReturnViewModel() 
-                {
-                    Id = (int)client.Id,
-                    ClientName = client.ClientName,
-                    Email = client.Email,
-                    ReturnUrl = model.ReturnUrl ?? "/",
+                DataClientReturnViewModel datareturn = new();
 
-                };
-                if (client == null || client.Id <= 0)
+                if (client != null)
                 {
+                    datareturn.Id = (int)client.Id;
+                    datareturn.ClientName = client.ClientName;
+                    datareturn.Email = client.Email;
+                    datareturn.ReturnUrl = model.ReturnUrl ?? "/";
                     //-- Nếu tài khoản bị khóa
                     if (client.Status != 0)
                     {
