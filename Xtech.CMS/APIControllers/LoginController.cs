@@ -40,8 +40,7 @@ namespace Xtech.CMS.APIControllers
 
 
         [HttpPost("ConfirmLogin.json")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ConfirmLogin([FromForm]AccountModel model)
+        public async Task<IActionResult> ConfirmLogin(AccountModel model)
         {
             try
             {
@@ -60,17 +59,14 @@ namespace Xtech.CMS.APIControllers
                 model.UserName = model.UserName.Replace("+", "").Replace("//", "").Replace("=", "");
                 model.Password = CommonHelper.RemoveAllSpecialCharacterLogin(model.Password);
                 //-- Kiểm tra user/pass
-                var client = await _customerManagerRepository.CheckExistAccount(model);
-                DataClientReturnViewModel datareturn = new();
+                var Rs = await _customerManagerRepository.CheckExistAccount(model);
 
-                if (client != null)
+                if (Rs != null)
                 {
-                    datareturn.Id = (int)client.Id;
-                    datareturn.ClientName = client.ClientName;
-                    datareturn.Email = client.Email;
-                    datareturn.ReturnUrl = model.ReturnUrl ?? "/";
+
+                    Rs.ReturnUrl = model.ReturnUrl != null? model.ReturnUrl : "/";
                     //-- Nếu tài khoản bị khóa
-                    if (client.Status != 0)
+                    if (Rs.status != 0)
                     {
                         return Ok(new
                         {
@@ -82,7 +78,7 @@ namespace Xtech.CMS.APIControllers
                     {
                         status = (int)ResponseType.SUCCESS,
                         msg = "Đăng nhập thành công",
-                        data = datareturn
+                        data = Rs
                     });
                 }
             }

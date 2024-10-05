@@ -36,15 +36,10 @@ namespace Entities.ViewModels
 
     public class AccountModel
     {
-        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
         public string UserName { get; set; }
-
-        [DataType(DataType.Password)]
-        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
         public string Password { get; set; }
-
         public bool RememberMe { get; set; }
-        public string ReturnUrl { get; set; }
+        public string? ReturnUrl { get; set; }
     }
 
     public class UserPasswordModel

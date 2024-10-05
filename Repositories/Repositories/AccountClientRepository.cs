@@ -30,5 +30,10 @@ namespace Repositories.Repositories
         {
             return accountClientDAL.AccountClientByClientId(client_id);
         }
+
+        public async Task<int> InsertAccountClient(AccountClient model)
+        {
+            return accountClientDAL.CreateAccountClient(model);
+        }
     }
 }

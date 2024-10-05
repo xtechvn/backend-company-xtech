@@ -297,17 +297,27 @@ namespace Repositories.Repositories
             }
         }
 
-        public async Task<Client> CheckExistAccount(AccountModel model) 
+        public async Task<DataClientReturnViewModel> CheckExistAccount(AccountModel model) 
         {
             try
             {
+                DataClientReturnViewModel rs = new();
                 var _encryptPassword = EncodeHelpers.MD5Hash(model.Password);
                 var _model = _AccountClientDAL.GetAccountClientByUserName(model.UserName);
                 if (_model != null)
                 {
                     if (_encryptPassword == _model.Password && _encryptPassword == _model.PasswordBackup)
                     {
-                        return await _ClientDAL.GetClientByID((int)_model.ClientId);
+                        var client = await _ClientDAL.GetClientByID((int)_model.ClientId);
+                        if (client != null) 
+                        {
+                            rs.IdClient = (int)client.Id;
+                            rs.IdAccount = _model.Id;
+                            rs.Email = client.Email;
+                            rs.UserName = model.UserName;
+                            rs.status = client.Status;
+                            return rs;
+                        }
                     }
                 }
                 return null;

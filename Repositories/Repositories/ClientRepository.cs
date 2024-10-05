@@ -1,6 +1,7 @@
 ﻿using DAL;
 using Entities.ConfigModels;
 using Entities.Models;
+using Entities.ViewModels.CustomerManager;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
 using System;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Repositories.Repositories
 {
@@ -58,6 +60,19 @@ namespace Repositories.Repositories
             {
                 LogHelper.InsertLogTelegram("GetClientByEmail - ClientRepository: " + ex);
                 return null;
+            }
+        }
+
+        public async Task<int> SetUpClient(Client client)
+        {
+            try
+            {
+                return _ClientDAL.SetUpClient(client);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("SetUpClient - ClientRepository: " + ex);
+                return -1;
             }
         }
     }

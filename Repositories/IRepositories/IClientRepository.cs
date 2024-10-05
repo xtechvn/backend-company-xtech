@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.ViewModels.CustomerManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Repositories.IRepositories
     {
         Task<Client> GetClientDetailByClientId(int clientId);
         List<Client> GetAllClient();
+        Task<int> SetUpClient(Client client);
         Client GetClientByEmail(string email);
     }
 }

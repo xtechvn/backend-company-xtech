@@ -11,5 +11,6 @@ namespace Repositories.IRepositories
     {
         long GetMainAccountClientByClientId(long client_id);
         AccountClient AccountClientByClientId(long client_id);
+        Task<int> InsertAccountClient(AccountClient model);
     }
 }
