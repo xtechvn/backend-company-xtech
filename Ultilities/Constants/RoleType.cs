@@ -2,11 +2,11 @@
 {
     public enum RoleType
     {
-        SaleOnl = 1,//Sale online
+         Admin = 1,//Sale online
         SaleKd = 2,//Sale kinh doanh phòng khách sạn
         SaleTour = 3,//Sale Tour
         TPVe = 4,//Trưởng phòng vé máy bay
-        Admin = 6,//Admin
+        SaleOnl = 6,//Admin
         TPKS = 7,//Trưởng phòng kinh doanh khách sạn
         TPTour = 8,//Trưởng phòng kinh doanh Tour
         GDHN = 9,//Giám đốc chi nhánh Hà Nội

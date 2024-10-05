@@ -43,6 +43,11 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddSingleton<IAllCodeRepository, AllCodeRepository>();
 builder.Services.AddSingleton<ICommonRepository, CommonRepository>();
+builder.Services.AddTransient<ICustomerManagerRepository, CustomerManagerRepository>();
+builder.Services.AddTransient<IAccountClientRepository, AccountClientRepository>();
+builder.Services.AddTransient<IClientRepository, ClientRepository>();
+builder.Services.AddTransient<IBankingAccountRepository, BankingAccountRepository>();
+builder.Services.AddTransient<IUserAgentRepository, UserAgentRepository>();
 builder.Services.AddSingleton<IMenuRepository, MenuRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IRoleRepository, RoleRepository>();
@@ -55,11 +60,18 @@ builder.Services.AddTransient<IArticleRepository, ArticleRepository>();
 builder.Services.AddTransient<IDashboardRepository, DashboardRepository>();
 builder.Services.AddTransient<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddTransient<IGroupProductRepository, GroupProductRepository>();
+builder.Services.AddTransient<IIdentifierServiceRepository, IdentifierServiceRepository>();
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
+builder.Services.AddTransient<IPaymentAccountRepository, PaymentAccountRepository>();
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
 builder.Services.AddTransient< ITagRepository, TagRepository> ();
 builder.Services.AddTransient< IBookingVPSRepository, BookingVPSRepository> ();
+builder.Services.AddTransient<IOtherBookingRepository, OtherBookingRepository>();
+builder.Services.AddTransient<IOtherBookingPackageRepository, OtherBookingPackageRepository>();
+builder.Services.AddTransient<IContractPayRepository, ContractPayRepository>();
+builder.Services.AddTransient<IPaymentRequestRepository, PaymentRequestRepository>();
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
@@ -86,6 +98,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllerRoute(name: "Order",
+    pattern: "/OrderDetail/{orderId?}",
+    defaults: new { controller = "Order", action = "OrderDetail" });
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

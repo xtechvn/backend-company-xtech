@@ -5,13 +5,15 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtech.CMS", "Xtech.CMS\Xtech.CMS.csproj", "{BDAB7044-A78B-4D71-8E67-BA35D34566B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{A3952E43-7BE2-4151-B918-61F2DD6AB4AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{A3952E43-7BE2-4151-B918-61F2DD6AB4AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{81ADBD00-4343-4AF7-AD6B-E4FA5286CA55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entities.csproj", "{81ADBD00-4343-4AF7-AD6B-E4FA5286CA55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ultilities", "Ultilities\Ultilities.csproj", "{1847BD29-CA7B-49F4-9DE8-14FFA09FF526}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ultilities", "Ultilities\Ultilities.csproj", "{1847BD29-CA7B-49F4-9DE8-14FFA09FF526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{CD959498-AC53-4E0F-9780-89AFD8CBCB74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{CD959498-AC53-4E0F-9780-89AFD8CBCB74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Catching", "Catching\Catching.csproj", "{335A6414-1DC9-4F1A-A82B-63F9E55195CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{CD959498-AC53-4E0F-9780-89AFD8CBCB74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD959498-AC53-4E0F-9780-89AFD8CBCB74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD959498-AC53-4E0F-9780-89AFD8CBCB74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{335A6414-1DC9-4F1A-A82B-63F9E55195CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335A6414-1DC9-4F1A-A82B-63F9E55195CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335A6414-1DC9-4F1A-A82B-63F9E55195CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335A6414-1DC9-4F1A-A82B-63F9E55195CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

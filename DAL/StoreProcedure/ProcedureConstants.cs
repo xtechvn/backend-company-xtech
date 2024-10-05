@@ -19,6 +19,7 @@ namespace DAL.StoreProcedure
         //public const string GETALLORDERSTATUS = "SP_GetOrderStatusDetail";
         public const string GETGetAllClient_Search = "SP_GetClientData";
         public const string GET_TOTALCOUNT_ORDER = "SP_CountTotalOrderHeader";
+        public const string GET_TotalAmountByPaymentStatus = "SumAmountOrderByPaymentStatus";
         public const string SP_GetListContract = "SP_GetListContract";
         public const string SP_GetListContractPay = "SP_GetListContractPay";
         public const string SP_GetAllOrder_Debt = "SP_GetAllOrder_Debt";
@@ -58,6 +59,19 @@ namespace DAL.StoreProcedure
         public const string SP_GetListInvoiceRequest = "SP_GetListInvoiceRequest";
         public const string SP_GetListInvoice = "SP_GetListInvoice";
         public const string SP_GetListUserByUserId = "SP_GetListUserByUserId";
+        public static string SP_InsertOrder = "SP_InsertOrder";
+        public static string SP_GetOrderNo = "SP_GetOrderNo";
+        public static string SP_GetDetailOrderByOrderId = "SP_GetDetailOrderByOrderId";
+        public static string SP_UpdateOrderAmount = "SP_UpdateOrderAmount";
+        public static string SP_GetListOtherBookingByOrderId = "SP_GetListOtherBookingByOrderId";
+        public static string sp_InsertOtherBooking = "sp_InsertOtherBooking";
+        public static string sp_UpdateOtherBooking = "sp_UpdateOtherBooking";
+        public static string sp_GetOtherBookingById = "SP_GetOtherBookingbyId";
+        public static string SP_GetListOtherBookingPackagesByBookingId = "SP_GetListOtherBookingPackagesByBookingId";
+        public static string sp_InsertOtherBookingPackages = "sp_InsertOtherBookingPackages";
+        public static string sp_UpdateOtherBookingPackages = "sp_UpdateOtherBookingPackages";
+        public static string SP_Delete_OtherBookingPackage = "SP_Delete_OtherBookingPackage";
+
     }
     
 }
