@@ -140,7 +140,7 @@ namespace Utilities.Contants
         public static string Sp_UpdateOrder = "Sp_UpdateOrder";
 
         public static string SP_GetAccountClientByUserName = "SP_GetAccountClientByUserName";
-
+        public static string SP_UpdateApproachType_Client = "SP_UpdateApproachType_Client";
 
         public static string SP_InsertHotelRoom = "SP_InsertHotelRoom";
         public static string SP_UpdateHotelRoom = "SP_UpdateHotelRoom";

@@ -5,6 +5,8 @@
 @model CustomerManagerViewModel
 @{
     var data_UserAgent = (List<UserAgentViewModel>)ViewBag.userAgent;
+    var ApproachStatus = (AllCode)ViewBag.ApproachStatus;
+    var lstApproachType = (List<AllCode>)ViewBag.lstApproachType;
 }
 <style>
     .main-customer .btn-default {
@@ -21,6 +23,11 @@
     {
         border-radius: 5px;
         box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+
+    .select2-selection__arrow
+    {
+        display:none;
     }
 </style>
 <div class="bg-white rounded p-3 side-left">
@@ -93,6 +100,37 @@
         <div class="col-6">
             <p class="m-0"><i class="icofont-birthday-cake mr-2"></i>Mối quan hệ</p>
         </div>
+        @if (ApproachStatus != null)
+        {
+            <input id="Id_Approach" value="@ApproachStatus.Id" style="display:none" />
+        }
+        @if (Model.Email != null)
+        {
+            <input id="Email_item" value="@Model.Email" style="display:none" />
+        }
+        <div class="col-6">
+            <select class="select2 form-control no-arrow" id="approach_status" style="width:100% !important">
+                @* @if (lstApproachType != null && ApproachStatus != null)
+                {
+                    foreach (var i in lstApproachType)
+                    {
+                        if (i.Id == ApproachStatus.Id)
+                        {
+                            <option class="select2-results__option" selected="selected" value="@i.CodeValue">@i.Description</option>
+                        }
+                        else
+                        {
+                            <option class="select2-results__option"  value="@i.CodeValue">@i.Description</option>
+                        }
+                    }
+                } *@
+            </select>
+        </div>
+    </div>
+    <div class="row align-items-center mb-3">
+        <div class="col-6">
+            <p class="m-0"><i class="icofont-birthday-cake mr-2"></i>Nhóm khách hàng</p>
+        </div>
         <div class="col-6">
             <div class="select-list">
                 <div class="relative select-user">
@@ -104,94 +142,8 @@
             </div>
         </div>
     </div>
-   @*  <div class="row align-items-center mb-3">
-        <div class="col-6">
-            <p class="m-0"><i class="icofont-user-alt-7 mr-"></i>Người phụ trách</p>
-        </div>
-        <div class="col-6">
-            <div class="select-list">
-                <div class="relative select-user">
-                    <a href="#" class="btn-default white">
-                        <i class="icofont-user"></i>
-                        @if (data_UserAgent != null && data_UserAgent.Count > 0)
-                        {
-                            <span>@data_UserAgent[0].UserId_Name </span>
-                            data_UserAgent.Remove(data_UserAgent[0]);
-                        }
-
-                        <svg class="icon-svg ml-1">
-                            <use xlink:href="#CaretDown"></use>
-                        </svg>
-                    </a>
-                    <div class="select-option w-100 p-2" style="display: none">
-                        <ul class="scroll-inner">
-                            <li>
-                                <label class="flex flex-nowrap mb-3">
-                                    <span class="avatar_inner">
-                                        <svg class="icon-svg">
-                                            <use xlink:href="#user2"></use>
-                                        </svg>
-                                    </span>
-                                    Chưa có người phụ trách
-                                </label>
-                            </li>
-
-                            <li>
-                                <label class="flex flex-nowrap mb-3">
-                                    <span class="avatar_inner">
-                                        <svg class="icon-svg">
-                                            <use xlink:href="#user2"></use>
-                                        </svg>
-                                    </span>
-                                    Admin HT
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> *@
-    @* <div class="row align-items-center mb-3">
-        <div class="col-6">
-            <p class="m-0"><i class="icofont-users mr-2"></i>Người liên quan</p>
-        </div>
-        <div class="col-6">
-            <div class="flex align-items-center justify-content-end gap10">
-                <div class="list-avt pl-4">
-                    @if (data_UserAgent != null && data_UserAgent.Count > 0)
-                    {
-                        foreach (var item in data_UserAgent)
-                        {
-                            <img onclick="_customer_manager_Detail.OpenPopupUserAgent('@item.Id',@Model.Id)" class="rounded-circle" width="30" title="@item.UserId_Name" height="30" src="@(item.Avata != "" ? item.Avata:"/images/graphics/no-avt.png")">
-                        }
-                    }
-
-
-                </div>
-                <a href="javascripts:;" onclick="_customer_manager_Detail.OpenPopupUserAgent('0',@Model.Id)" title="Thêm nhân viên phụ trách" class="btn-add-user"><i class="icofont-ui-add"></i></a>
-            </div>
-        </div>
-    </div> *@
+   
     <div class="row mb-3 mx-0">
-        @*<div class="col-4 px-1">
-        <div class="item-thongke text-center p-2">
-        <div class="icon rounded-circle text-white" style="background: #4A80B8">
-        <i class="icofont-book-alt"></i>
-        </div>
-        <p class="mb-0">Liên hệ lần cuối</p>
-        <b style="font-size: 24px;">10</b>
-        </div>
-        </div>
-        <div class="col-4  px-1">
-        <div class="item-thongke text-center p-2">
-        <div class="icon rounded-circle  text-white" style="background: #B87F4A">
-        <i class="icofont-ui-rate-blank"></i>
-        </div>
-        <p class="mb-0">Liên hệ lần cuối</p>
-        <b style="font-size: 24px;">10</b>
-        </div>
-        </div>*@
         <div class="col-4  px-1 box-3d-css">
             <div class="item-thongke text-center p-2">
                 <div class="icon rounded-circle  text-white" style="background: #4AB88A;font-size:xx-large;height:60px"><i class="icofont-money"></i></div>

@@ -6,7 +6,6 @@ $(document).ready(function () {
     if (user_Id != null) {
         _customer_manager_Detail.Loaddata();
     }
-
 });
 
 var _customer_manager_Detail = {
@@ -104,6 +103,41 @@ var _customer_manager_Detail = {
             }
         });
     },
+    ApproachSuggesstion: function () {
+        var IdChosen = $("#Id_Approach").val();
+        $.ajax({
+            url: "/CustomerManager/getApproachType",
+            type: "post",
+            success: function (result) {
+                if (result != undefined && result.length > 0) {
+                    $("#approach_status").empty(); // Clear existing options
+
+                    result.forEach(function (item) {
+                        var option = $('<option>', {
+                            value: item.codeValue,
+                            text: item.description
+                        });
+
+                        if (IdChosen !== null && item.id == IdChosen) {
+                            option.prop('selected', true); // Set the selected property
+                        }
+
+                        $("#approach_status").append(option);
+                    });
+                } else {
+                    // No data received, clear options
+                    $("#approach_status").empty();
+                }
+
+                // Đặt giá trị mặc định là null nếu IdChosen là null
+                if (!IdChosen) {
+                    $("#approach_status").val(null).trigger('change');
+                } else {
+                    $("#approach_status").trigger('change');
+                }
+            }
+        });
+    },
     SearchDetailCustomerManager: function (input) {
 
         $.ajax({
@@ -113,6 +147,27 @@ var _customer_manager_Detail = {
             success: function (result) {
                 $('#imgLoading_Customer_Manager').hide();
                 $('#grid_detail_Customer_Manager').html(result);
+                $("#approach_status").select2();
+                _customer_manager_Detail.ApproachSuggesstion();
+                $("#approach_status").select2().on("change", function (e) {
+                    var selectedValue = $(this).val();
+                    var email = $("#Email_item").val();
+                    var object_summit = {
+                        Id: $('#id_userid').val(),
+                        ApproachType: selectedValue,
+                        email: email
+                    }
+                   
+
+                    $.ajax({
+                        url: "/CustomerManager/UpdateApproachStatus",
+                        type: "Post",
+                        data:  object_summit,
+                        success: function (result) {
+                           
+                        }
+                    });
+                });
             }
         });
     },
@@ -130,6 +185,17 @@ var _customer_manager_Detail = {
         let _searchModel = {
             id: $('#id_userid').val(),
             currentPage: value,
+            pageSize: $("#selectPaggingOptions").val()
+        };
+        var objSearch = this.SearchParam
+        objSearch = _searchModel
+        this.SearchOrder(objSearch);
+    },
+    OrederOnPageSize: function () {
+        let _searchModel = {
+            id: $('#id_userid').val(),
+            currentPage: 1,
+            pageSize: $("#selectPaggingOptions").val()
         };
         var objSearch = this.SearchParam
         objSearch = _searchModel
