@@ -22,6 +22,25 @@ namespace DAL
             _DbWorker = new DbWorker(connection);
         }
 
+        public async Task<int> UpdateApproachStatus(Client client)
+        {
+            try
+            {
+                SqlParameter[] sqlParameter = new SqlParameter[]
+                {
+                    new SqlParameter("@Id", client.Id),
+                    new SqlParameter("@ApproachType", client.ApproachType),
+                };           
+                return _DbWorker.ExecuteNonQuery(StoreProcedureConstant.SP_UpdateApproachType_Client, sqlParameter); 
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateApproachStatus - ClientDAL: " + ex.ToString());
+                return -1;
+            }
+        }
+
+
 
         public async Task<Client> GetClientByID(int Id) 
         {
@@ -67,6 +86,7 @@ namespace DAL
                         new SqlParameter("@SaleMapId", model.SaleMapId != null ? model.SaleMapId : DBNull.Value),
                         new SqlParameter("@ClientType", model.ClientType != null ? model.ClientType : DBNull.Value),
                         new SqlParameter("@ClientName", model.ClientName != null ? model.ClientName : DBNull.Value),
+                        new SqlParameter("@ApproachType", model.ApproachType != null ? model.ApproachType : DBNull.Value),
                         new SqlParameter("@Email", model.Email != null ? model.Email : DBNull.Value),
                         new SqlParameter("@Gender", model.Gender != null ? model.Gender : DBNull.Value),
                         new SqlParameter("@Status", status),
@@ -103,32 +123,33 @@ namespace DAL
                     if (data2 != null && data2.Id == model.Id)
                     {
 
-                        SqlParameter[] objParam = new SqlParameter[23];
-                        objParam[0] = new SqlParameter("@Id ", model.Id);
-                        objParam[1] = new SqlParameter("@ClientMapId", model.ClientMapId);
-                        objParam[2] = new SqlParameter("@SaleMapId", model.SaleMapId);
-                        objParam[3] = new SqlParameter("@ClientType", model.ClientType);
-                        objParam[4] = new SqlParameter("@ClientName", model.ClientName);
-                        objParam[5] = new SqlParameter("@Email", model.Email);
-                        objParam[6] = new SqlParameter("@Gender", model.Gender);
-                        objParam[7] = new SqlParameter("@Status", model.Status);
-                        objParam[8] = new SqlParameter("@Note", model.Note);
-                        objParam[9] = new SqlParameter("@Avartar", model.Avartar);
-                        objParam[10] = new SqlParameter("@JoinDate", model.JoinDate);
-                        objParam[11] = new SqlParameter("@isReceiverInfoEmail  ", model.IsReceiverInfoEmail);
-                        objParam[12] = new SqlParameter("@Phone", model.Phone);
-                        objParam[13] = new SqlParameter("@Birthday", model.Birthday);
-                        objParam[14] = new SqlParameter("@UpdateTime", model.UpdateTime);
-                        objParam[15] = new SqlParameter("@TaxNo", model.TaxNo);
-                        objParam[16] = new SqlParameter("@AgencyType", model.AgencyType);
-                        objParam[17] = new SqlParameter("@PermisionType", model.PermisionType);
-                        objParam[18] = new SqlParameter("@BusinessAddress", model.BusinessAddress);
-                        objParam[19] = new SqlParameter("@ExportBillAddress", model.ExportBillAddress);
-                        objParam[20] = new SqlParameter("@ClientCode", model.ClientCode);
-                        objParam[21] = new SqlParameter("@IsRegisterAffiliate", model.IsRegisterAffiliate);
-                        objParam[22] = new SqlParameter("@ReferralId", model.ReferralId);
-
-
+                        SqlParameter[] objParam = new SqlParameter[] 
+                        {
+                            new SqlParameter("@Id", model.ClientMapId != null ? model.ClientMapId : DBNull.Value),
+                            new SqlParameter("@ClientMapId", model.ClientMapId != null ? model.ClientMapId : DBNull.Value),
+                        new SqlParameter("@SaleMapId", model.SaleMapId != null ? model.SaleMapId : DBNull.Value),
+                        new SqlParameter("@ClientType", model.ClientType != null ? model.ClientType : DBNull.Value),
+                        new SqlParameter("@ClientName", model.ClientName != null ? model.ClientName : DBNull.Value),
+                        new SqlParameter("@ApproachType", model.ApproachType != null ? model.ApproachType : DBNull.Value),
+                        new SqlParameter("@Email", model.Email != null ? model.Email : DBNull.Value),
+                        new SqlParameter("@Gender", model.Gender != null ? model.Gender : DBNull.Value),
+                        new SqlParameter("@Status", model.Status),
+                        new SqlParameter("@Note", model.Note != null ? model.Note : DBNull.Value),
+                        new SqlParameter("@Avartar", model.Avartar != null ? model.Avartar : DBNull.Value),
+                        new SqlParameter("@JoinDate", model.JoinDate != DateTime.MinValue ? model.JoinDate : DBNull.Value),
+                        new SqlParameter("@isReceiverInfoEmail  ", model.IsReceiverInfoEmail != null ? model.IsReceiverInfoEmail : DBNull.Value),
+                        new SqlParameter("@Phone", model.Phone != null ? model.Phone : DBNull.Value),
+                        new SqlParameter("@Birthday", model.Birthday != null ? model.Birthday : DBNull.Value),
+                        new SqlParameter("@UpdateTime", DateTime.Now),
+                        new SqlParameter("@TaxNo", model.TaxNo != null ? model.TaxNo : DBNull.Value),
+                        new SqlParameter("@AgencyType", model.AgencyType != null ? model.AgencyType : DBNull.Value),
+                        new SqlParameter("@PermisionType", model.PermisionType != null ? model.PermisionType : DBNull.Value),
+                        new SqlParameter("@BusinessAddress", model.BusinessAddress != null ? model.BusinessAddress : DBNull.Value),
+                        new SqlParameter("@ExportBillAddress", model.ExportBillAddress != null ? model.ExportBillAddress : DBNull.Value),
+                        new SqlParameter("@ClientCode", model.ClientCode != null ? model.ClientCode : DBNull.Value),
+                        new SqlParameter("@IsRegisterAffiliate", model.IsRegisterAffiliate != null ? model.IsRegisterAffiliate : DBNull.Value),
+                        new SqlParameter("@ReferralId", model.ReferralId != null ? model.ReferralId : DBNull.Value)
+                        };
                         var dt = _DbWorker.ExecuteNonQuery(StoreProcedureConstant.sp_UpdateClient, objParam);
 
                     }

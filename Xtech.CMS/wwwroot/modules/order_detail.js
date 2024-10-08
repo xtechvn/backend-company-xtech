@@ -66,6 +66,7 @@
         });
 
         if ($('#client-select').find(':selected').val() == undefined || parseInt($('#client-select').find(':selected').val()) <= 0) {
+            $("#btn_summit_order").prop("disabled", false);
             _msgalert.error("Vui lòng nhập / chọn đúng khách hàng cho đơn hàng này");
             return;
         }
@@ -76,11 +77,13 @@
         }
         if (order_label.trim().length > 60) {
             _msgalert.error("Nhãn đơn của đơn hàng không được vượt quá 60 ký tự");
+            $("#btn_summit_order").prop("disabled", false);
             debugger;
             return;
         }
         var selected_branch = $('#branch').find(":selected").val();
         if (selected_branch == undefined || parseInt(selected_branch) <= 0) {
+            $("#btn_summit_order").prop("disabled", false);
             _msgalert.error("Vui lòng chọn đúng chi nhánh cho đơn hàng");
             return;
         }
@@ -97,11 +100,13 @@
             Label: $('#order_label').val()
         };
 
-        lstSubId.forEach(item =>
+        if (lstSubId != null && lstSubId.length > 0)
         {
-            summit_model.SalerGroupId = summit_model.SalerGroupId + item + ","
-        })
-        summit_model.SalerGroupId = summit_model.SalerGroupId.substring(0,summit_model.SalerGroupId.length - 1)
+            lstSubId.forEach(item => {
+                summit_model.SalerGroupId = summit_model.SalerGroupId + item + ","
+            })
+            summit_model.SalerGroupId = summit_model.SalerGroupId.substring(0, summit_model.SalerGroupId.length - 1)
+        }
 
         $.ajax({
             url: "/OrderManual/CreateOrder",
@@ -114,7 +119,7 @@
                     $('#btn_summit_order').show();
                     return;
                 }
-                _msgalert.success(result.msg);
+                _msgalert.success("Tạo đơn hàng thành công","thông báo");
                 $('#btn_summit_order').prop("onclick", null).off("click");;
                 $('#btn_summit_order').text('Tạo đơn hàng thành công');
                 $('#btn_summit_order').show();

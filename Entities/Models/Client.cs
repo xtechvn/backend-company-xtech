@@ -28,6 +28,7 @@ namespace Entities.Models
         public string? TaxNo { get; set; }
         public int? AgencyType { get; set; }
         public int? PermisionType { get; set; }
+        public int? ApproachType { get; set; }
         public string? BusinessAddress { get; set; }
         public string? ExportBillAddress { get; set; }
         public string? ClientCode { get; set; }
