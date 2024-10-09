@@ -78,7 +78,7 @@ namespace Repositories.Repositories
             {
                 if (model.Id == 0)
                 {
-                    //tạo mới
+                    //tạo mớ
                     var a = 1;
                     var CreateAccount = 1;
                     var CreatePaymentAccount_type = 1;
