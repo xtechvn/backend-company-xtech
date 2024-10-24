@@ -1,5 +1,5 @@
 ﻿var _order_detail_create = {
-    //No Message
+    //No MSG
     Initialization: function () {
         _order_detail_create.ClientSuggesstion()
         _order_detail_common.Select2WithFixedOptionAndNoSearch($("#branch"))
