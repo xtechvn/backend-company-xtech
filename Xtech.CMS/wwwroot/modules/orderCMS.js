@@ -557,6 +557,7 @@ var _order_manual = {
             data: {},
             success: function (result) {
                 $('body').append(result);
+                _order_detail_create.Initialization();
                 setTimeout(function () {
                     $('#create_order_manual').addClass('show')
                 }, 300);
