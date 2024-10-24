@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-
+    //No Msg
     $('body').on('click', '.onclick', function () {
         if (!$(this).hasClass("onclick-active")) {
             $(this).addClass("onclick-active");
