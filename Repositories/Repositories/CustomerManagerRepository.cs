@@ -39,13 +39,46 @@ namespace Repositories.Repositories
             _clientESRepository = new ClientESRepository(_configuration["DataBaseConfig:Elastic:Host"]);
         }
 
+        public async Task<AllCode> getApproachTypeCodeValue(int Id) 
+        {
+            try
+            {
+                var lstAllCode = _allCodeRepository.GetListByType("APPROACH_TYPE");
+                if (lstAllCode != null) 
+                {
+                    AllCode ApproachType = lstAllCode.FirstOrDefault(x => x.CodeValue == Id);
+                    return ApproachType;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("getApproachTypeById - CustomerManagerRepository: " + ex);
+                return null;
+            }
+        }
+
+        public async Task<List<AllCode>> getApproachType()
+        {
+            try
+            {
+                var lstAllCode = _allCodeRepository.GetListByType("APPROACH_TYPE");
+                return lstAllCode;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("getApproachTypeById - CustomerManagerRepository: " + ex);
+                return null;
+            }
+        }
+
         public int SetUpClient(CustomerManagerView model)
         {
             try
             {
                 if (model.Id == 0)
                 {
-                    //tạo mới
+                    //tạo mớ
                     var a = 1;
                     var CreateAccount = 1;
                     var CreatePaymentAccount_type = 1;
@@ -68,6 +101,7 @@ namespace Repositories.Repositories
                         TaxNo = model.Maso_Id,
                         ClientCode = model.ClientCode,
                         SaleMapId = (int?)model.UserId,
+                        ApproachType = model.ApproachType,
 
                     };
                     var CreateClient = _ClientDAL.SetUpClient(Client);
@@ -161,7 +195,8 @@ namespace Repositories.Repositories
                         BusinessAddress = model.DiaChi_giaodich,
                         ExportBillAddress = model.DC_hoadon,
                         TaxNo = model.Maso_Id,
-                        ClientCode = model.ClientCode
+                        ClientCode = model.ClientCode,
+                        ApproachType = model.ApproachType,
                     };
 
                     var CreateClient = _ClientDAL.SetUpClient(Client);
@@ -217,6 +252,7 @@ namespace Repositories.Repositories
                                     Email = !row["Email"].Equals(DBNull.Value) ? row["Email"].ToString() : "",
                                     Phone = !row["Phone"].Equals(DBNull.Value) ? row["Phone"].ToString() : "",
                                     client_type_name = !row["ClienType"].Equals(DBNull.Value) ? row["ClienType"].ToString() : "",
+                                    ApproachType = !row["ApproachType"].Equals(DBNull.Value) ? row["ApproachType"].ToString() : "",
                                     AgencyType_name = !row["AgencyType"].Equals(DBNull.Value) ? row["AgencyType"].ToString() : "",
                                     PermisionType_name = !row["PermisionType"].Equals(DBNull.Value) ? row["PermisionType"].ToString() : "",
                                     UserId = !row["UserId"].Equals(DBNull.Value) ? Convert.ToInt32(row["UserId"]) : 0,
@@ -560,6 +596,26 @@ namespace Repositories.Repositories
                 LogHelper.InsertLogTelegram("ExportDeposit - CustomerManagerRepository: " + ex);
             }
             return pathResult;
+        }
+
+        public async Task<int> UpdateApproachStatus(Client client)
+        {
+            try
+            {
+                var Client = new Client
+                {
+                    Id = client.Id,
+                    ApproachType = client.ApproachType,
+                    Email = client.Email,
+                };
+
+                return await _ClientDAL.UpdateApproachStatus(Client);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateApproachStatus - CustomerManagerRepository: " + ex);
+                return -1;
+            }
         }
     }
 }

@@ -216,6 +216,20 @@ namespace Xtech.CMS.Controllers
             return View();
         }
 
+        public async Task<IActionResult> UpdateApproachStatus(Client client) 
+        {
+            try
+            {
+                var rs = _customerManagerRepositories.UpdateApproachStatus(client);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateApproachStatus - CustomerManagerController: " + ex);
+                return BadRequest();
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Setup(string data)
         {
@@ -224,6 +238,7 @@ namespace Xtech.CMS.Controllers
             try
             {
                 var DataModel = JsonConvert.DeserializeObject<CustomerManagerView>(data);
+                DataModel.ApproachType = (int)ApproachType.khach_hang_moi;
                 DataModel.UserId = Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
                 Regex regexemail = new Regex(@"^(\s*)([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)(\s*)|((\.(\w){2,})+)(\s*)$");
@@ -336,6 +351,13 @@ namespace Xtech.CMS.Controllers
                 var Amount = await _customerManagerRepositories.GetAmountRemainOfContractByClientId(id);
                 var data = await _customerManagerRepositories.GetDetailClient(id);
                 var model = _userAgentRepository.UserAgentByClient((int)id, 0);
+                var lstApproachType = _allCodeRepository.GetListByType("APPROACH_TYPE");
+                if (data.ApproachStatus != null) 
+                {
+                    var ApproachStatus = await _customerManagerRepositories.getApproachTypeCodeValue((int)data.ApproachStatus);
+                    ViewBag.ApproachStatus = ApproachStatus;
+                }
+                ViewBag.lstApproachType = lstApproachType;
                 ViewBag.userAgent = model;
                 if (Amount != null) { ViewBag.Amount = Amount.AmountRemain; }
                 else
@@ -351,6 +373,20 @@ namespace Xtech.CMS.Controllers
             {
                 LogHelper.InsertLogTelegram("DetailCustomerManager - CustomerManagerController: " + ex);
                 return PartialView();
+            }
+        }
+
+        public async Task<List<AllCode>> getApproachType()
+        {
+            try
+            {
+                var lst = await _customerManagerRepositories.getApproachType();
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("getApproachType - CustomerManagerController: " + ex.ToString());
+                return null;
             }
         }
         public async Task<string> GetSuggestionUser(string name)

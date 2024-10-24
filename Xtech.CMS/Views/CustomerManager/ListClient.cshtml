@@ -27,6 +27,7 @@ else
                     <th class="" style="width: 80px;">Đối tượng</th>
                     <th class="" style="width: 100px;">Loại khách hàng</th>
                     <th class="" style="width: 130px;">Nhóm khách hàng</th>
+                    <th class="" style="width: 130px;">Mối quan hệ</th>
 
                     <th class=" text-right" style="width: 100px;">Tổng thanh toán</th>
 
@@ -63,7 +64,7 @@ else
                             <td class="">@(item.AgencyType_name != "" ? item.AgencyType_name : "Cá nhân")</td>
                             <td class="">@item.client_type_name</td>
                             <td class="">@(item.PermisionType_name != "" ? item.PermisionType_name : "Không được công nợ")</td>
-
+                            <td class="">@(item.ApproachType != "" ? item.ApproachType : "chưa có")</td>
                             <td class=" text-right">@item.sum_payment.ToString("###,###,###")</td>
                             <td class="">@(item.UserId_name == null ? "N/A" : item.UserId_name)</td>
 

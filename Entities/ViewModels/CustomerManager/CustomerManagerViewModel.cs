@@ -14,6 +14,8 @@ namespace Entities.ViewModels.CustomerManager
         public string Create_name { get; set; }
         public string create_payment { get; set; }
         public string AgencyType_name { get; set; }
+        public string ApproachType {  get; set; }
+        public int? ApproachStatus { get; set; }
         public string PermisionType_name { get; set; }
         public string CreateDate_UserAgent { get; set; }
         public string UpdateLast { get; set; }
@@ -52,7 +54,7 @@ namespace Entities.ViewModels.CustomerManager
     {
         public long Id { get; set; }
         public long UserId { get; set; }
-        public int AgencyType { get; set; }
+        public int? AgencyType { get; set; }
         public string Client_name { get; set; }
         public string Maso_Id { get; set; }
         public string phone { get; set; }
@@ -60,7 +62,8 @@ namespace Entities.ViewModels.CustomerManager
         public string diachi_chinhanh { get; set; }
         public string DC_hoadon { get; set; }
         public string DiaChi_giaodich { get; set; }
-        public int PermisionType { get; set; }
+        public int? PermisionType { get; set; }
+        public int ApproachType { get; set; }
         public string id_loaikhach { get; set; }
         public string id_nhomkhach { get; set; }
         public string id_ClientType { get; set; }
