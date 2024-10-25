@@ -34,6 +34,7 @@ var _orderDetail = {
             Note: $("#Order_Note").val()
         }
         $('.img_loading_summit').show();
+        _global_function.ConfirmFileUpload($("#grid_data_File"),input)
         $.ajax({
             url: "/Order/UpdateOrder",
             type: "Post",
