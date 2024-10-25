@@ -363,10 +363,10 @@ var _order_detail_create_service = {
     {
         var OrderId = $("#OrderId").val();
         this.GetListObjSumbit();
-        this.Close();
         if (OtherBookingUpdate.StartDate < OtherBookingUpdate.EndDate) {
             $('.img_loading_summit').show();
             _global_function.ConfirmFileUpload($("#attachment-file-block"), BookingId)//
+            this.Close();
             $.ajax({
                 url: "/Order/SubmitChange",
                 type: "post",
