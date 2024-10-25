@@ -202,6 +202,7 @@ var _order_detail_create_service = {
                     TotalQuantity = TotalQuantity + parseFloat(row_item.find('.service-other-packages-quantity').val());
                 });
                 $(".service-other-packages-total-amount").text(TotalQuantity);
+                _global_function.RenderFileAttachment($("#attachment-file-block"), Id, 20);
             }
         });
     },
@@ -365,6 +366,7 @@ var _order_detail_create_service = {
         this.Close();
         if (OtherBookingUpdate.StartDate < OtherBookingUpdate.EndDate) {
             $('.img_loading_summit').show();
+            _global_function.ConfirmFileUpload($("#attachment-file-block"), BookingId)//
             $.ajax({
                 url: "/Order/SubmitChange",
                 type: "post",
