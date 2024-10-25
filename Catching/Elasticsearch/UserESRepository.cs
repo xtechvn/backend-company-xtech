@@ -19,7 +19,7 @@ namespace Catching.Elasticsearch
         public UserESRepository(string Host, IConfiguration _configuration) : base(Host)
         {
             configuration = _configuration;
-            index_name = _configuration["DataBaseConfig:Elastic:index_users"];
+            index_name = configuration["DataBaseConfig:Elastic:index_users"];
         }
 
         public async Task<List<UserESViewModel>> GetUserSuggesstion(string txt_search)
