@@ -746,6 +746,15 @@ namespace Xtech.CMS.Controllers
                 }
                 if (txt_search == null) txt_search = "";
                 var data = await _userESRepository.GetUserSuggesstion(txt_search);
+                if (data == null || data.Count <= 0)
+                {
+                    var data_sql = await _userRepository.GetUserSuggesstion(txt_search);
+                    data = new List<UserESViewModel>();
+                    if (data_sql != null && data_sql.Count > 0)
+                    {
+                        data.AddRange(data_sql.Select(x => new UserESViewModel() { email = x.Email, fullname = x.FullName, id = x.Id, phone = x.Phone, username = x.UserName, _id = x.Id }));
+                    }
+                }
                 return Ok(new
                 {
                     status = (int)ResponseType.SUCCESS,

@@ -14,7 +14,7 @@ namespace Catching.Elasticsearch
         public OrderESRepository(string Host, IConfiguration _configuration) : base(Host)
         {
             configuration = _configuration;
-            index_name = _configuration["DataBaseConfig:Elastic:index_Orders"];
+            index_name = configuration["DataBaseConfig:Elastic:index_Orders"];
         }
         public async Task<List<OrderElasticsearchViewModel>> GetOrderNoSuggesstion(string txt_search)
         {
