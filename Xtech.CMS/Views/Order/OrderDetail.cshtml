@@ -16,6 +16,7 @@
             <div class="row">
                 <input id="order_Id" value="@ViewBag.OrderId" style="display:none" />
                 <input id="Saler_Id" value="@ViewBag.SalerId" style="display:none" />
+                <input id="Client_Id" value="@(ViewBag.client != null? ViewBag.client.Id : null)" style="display:none" />
                 <input id="Saler_GroupId" value="@ViewBag.SalerGroupId" style="display:none" />
                 <input id="ProductService" value="@ViewBag.ProductService" style="display:none" />
                 <div class="col-xl-9">
@@ -260,7 +261,7 @@
 <div class="mask-content"></div>
 
 @section scripts {
-
+    <script type="text/javascript" src="~/modules/invoice_request.js"></script>
     <script type="text/javascript" src="~/modules/orderCMSDetail.js" asp-append-version="true"></script>
     <script type="text/javascript" src="~/modules/order_detail.js"></script>
 }

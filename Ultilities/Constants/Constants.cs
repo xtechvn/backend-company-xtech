@@ -29,12 +29,19 @@ namespace Utilities.Contants
             PHIEU_YEU_CAU_CHI = 64,//yêu cầu chi
             PHIEU_CHI = 62,//phiếu chi
             NAP_QUY = 46,//NẠP QUỸ
-            QL_KHACH_HANG = 2,//Quản lý khách hàng
+            QL_KHACH_HANG = 1008,//Quản lý khách hàng
             PHIEU_THU = 57,//quản lý phiếu thu
-            YEU_CAU_XUAT_HOA_DON = 77,//quản lý phiếu thu
+            YEU_CAU_XUAT_HOA_DON = 2008,//quản lý phiếu thu
             CHUONG_TRINH = 90,//quản chương trình qc
                               //CHUONG_TRINH = 82,//quản chương trình pro
 
+        }
+        public enum Payment_Request_Status 
+        {
+            CHUA_DUYET = 0,
+            DA_DUYET = 1,
+            BI_TU_CHOI = 2,
+            LUU_NHAP = 3
         }
         public enum NoteType
         {
