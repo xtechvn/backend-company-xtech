@@ -102,3 +102,9 @@
         </ul>
     }
 </div>
+<script>
+    $(document).ready(function () {
+        // Set the selected option based on the current page size
+        $('#selectPaggingOptions').val('@Model.PageSize');
+    });
+</script>

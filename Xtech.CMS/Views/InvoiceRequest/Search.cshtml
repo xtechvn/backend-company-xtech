@@ -1,0 +1,175 @@
+﻿@using Entities.ViewModels;
+@using Entities.ViewModels.InvoiceRequest
+@using static Utilities.Contants.Constants
+@{
+    Layout = null;
+}
+@model GenericViewModel<InvoiceRequestViewModel>
+<div class="table-responsive table-default table-gray">
+    <table class="table table-nowrap">
+        <thead>
+            <tr>
+                <th style="width: 30px;">STT</th>
+                <th style="width: 100px;">Mã phiếu</th>
+                <th style="width: 140px;">Ngày dự kiến xuất</th>
+                <th style="width: 100px;">Mã hóa đơn</th>
+                <th style="width: 100px;">Ngày xuất</th>
+                <th style="width: 100px;">Khách hàng</th>
+                <th style="width: 100px;" class="text-right">Tổng tiền</th>
+                <th style="width: 100px;" class="text-right">Xuất thêm</th>
+                <th style="width: 100px;" class="text-right">Thu thêm</th>
+                <th style="width: 200px;">Đơn hàng liên quan</th>
+                <th style="width: 200px;">Trạng thái</th>
+                <th style="width: 140px;">Ngày tạo</th>
+                <th style="width: 140px;">Người tạo</th>
+                <th style="width: 140px;">Ngày duyệt</th>
+                <th style="width: 140px;">Người duyệt</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="background:#f9dab0">
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class="text-right "></td>
+                <td class="text-right "></td>
+                <td class="text-right "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+                <td class=" "></td>
+            </tr>
+            @if (Model != null && Model.ListData.Count > 0)
+            {
+                var STT = (Model.CurrentPage - 1) * Model.PageSize;
+                foreach (var item in Model.ListData)
+                {
+                    STT++;
+                    <tr>
+                        <td class="text-nowrap">
+                            @STT
+                        </td>
+                        <td class="text-nowrap">
+                            <a class="blue" style="color:#0c8ce9;cursor:pointer" onclick="_invoiceRequest.ShowForm('@item.Id','@item.ClientId','@item.OrderId')">
+                                @item.InvoiceRequestNo
+                            </a>
+                        </td>
+                        <td class="text-break">
+                            <div style="color: red">
+                                @(item.PlanDate != DateTime.MinValue ? item.PlanDate.ToString("dd/MM/yyyy") : "N/A")
+                            </div>
+                        </td>
+                        <td class="text-break">
+                            <div>
+                                @(item.OrderNo != null ? item.OrderNo : "N/A")
+                            </div>
+                        </td>
+                        <td class="text-break">
+                            <div>@(item.ExportDate != DateTime.MinValue ? item.ExportDate.ToString("dd/MM/yyyy") : "N/A")</div>
+                        </td>
+                        <td class="text-break">
+                            <a href="/CustomerManager/Detail/@item.ClientId"><span class="blue">@(item.ClientName != null ? item.ClientName : "N/A")</span></a>
+                        </td>
+                        <td class="text-right">
+                            <div>@(item.TotalPrice != 0 ? item.TotalPrice.ToString("N0") : "N/A")</div>
+                        </td>
+                        <td class="text-right">
+                            <div>@(item.PriceExtraExport != 0 ? item.PriceExtraExport.ToString("N0") : "N/A")</div>
+                        </td>
+                        <td class="text-right">
+                            <div>@(item.PriceExtra != 0 ? item.PriceExtra.ToString("N0") : "N/A")</div>
+                        </td>
+                        <td class="text-break">
+                            <a href="/OrderDetail/@item.OrderId"><div class="blue">@(item.OrderNo != null ? item.OrderNo : "N/A")</div></a>
+                        </td>
+                        <td class=" text-break" style="min-width: 130px;">
+                            @if (item.Status == (int)Payment_Request_Status.DA_DUYET)
+                            {
+                                <span class="status-approve">@(item.InvoiceRequestStatus != null ? item.InvoiceRequestStatus : "N/A")</span>
+                            }
+                            else if (item.Status == (int)Payment_Request_Status.BI_TU_CHOI)
+                            {
+                                <span class="status-reject">@(item.InvoiceRequestStatus != null ? item.InvoiceRequestStatus : "N/A")</span>
+                            }
+                            else if (item.Status == (int)Payment_Request_Status.CHUA_DUYET)
+                            {
+                                <span class="status-oranger">@(item.InvoiceRequestStatus != null ? item.InvoiceRequestStatus : "N/A")</span>
+                            }
+                            else if (item.Status == (int)Payment_Request_Status.LUU_NHAP)
+                            {
+                                <span class="status-blue">@(item.InvoiceRequestStatus != null ? item.InvoiceRequestStatus : "N/A")</span>
+                            }
+                        </td>
+                        <td class=" text-break">@(item.CreatedDate != DateTime.MinValue ? item.CreatedDate.ToString("dd/MM/yyyy") : "N/A")</td>
+                        <td class=" text-break">@(item.UserName != null ? item.UserName : "N/A")</td>
+                        <td class=" text-break">
+                            @(item.VerifyDate != DateTime.MinValue ? item.VerifyDate.ToString("dd/MM/yyyy") : "N/A")
+                        </td>
+                        <td class=" text-break">
+                            @(item.UserVerifyName != null ? item.UserVerifyName : "N/A")
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+@if(Model != null && Model.ListData != null)
+{
+    @await Component.InvokeAsync("PagingNew", new
+        {
+
+            pageModel = new Paging()
+    {
+        TotalRecord = Model.TotalRecord,
+        TotalPage = Model.TotalPage,
+        CurrentPage = Model.CurrentPage,
+        PageSize = Model.PageSize,
+        RecordName = "Phiếu xuất hóa đơn",
+        PageAction = "_invoiceRequest.OnPaging({0})",
+        PageSelectPageSize = "_invoiceRequest.onSelectPageSize()"
+    }
+        })
+}
+
+<style>
+    .status-wait {
+        background: #EEB442 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-approve {
+        background: #5CB566 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-draft {
+        background: #C9C9C9 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-reject {
+        background: #FF0000 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+</style>
+
+
+

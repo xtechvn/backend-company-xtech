@@ -303,7 +303,10 @@ var _order_detail_create_service = {
                     Amount: row_item.find('.service-other-packages-amount').val().replaceAll(',', ''),
                     BasePrice: row_item.find('.service-other-packages-baseprice').val().replaceAll(',', ''),
                 }
-                lstUpdate.push(obj);
+                if (obj.Amount != 0 && obj.Amount != '')
+                {
+                    lstUpdate.push(obj);
+                }
             })
 
             OtherBookingUpdate =
@@ -363,10 +366,8 @@ var _order_detail_create_service = {
     {
         var OrderId = $("#OrderId").val();
         this.GetListObjSumbit();
-        if (OtherBookingUpdate.StartDate < OtherBookingUpdate.EndDate) {
+        if (OtherBookingUpdate.StartDate < OtherBookingUpdate.EndDate && lstUpdate.length > 0) {
             $('.img_loading_summit').show();
-            _global_function.ConfirmFileUpload($("#attachment-file-block"), BookingId)//
-            this.Close();
             $.ajax({
                 url: "/Order/SubmitChange",
                 type: "post",
@@ -385,7 +386,8 @@ var _order_detail_create_service = {
                     _msgalert.success(result.msg);
                     $('.toast-success').text('Cập nhật thành công')
                     $('.img_loading_summit').hide();
-
+                    _global_function.ConfirmFileUpload($("#attachment-file-block"), result.idBooking)//
+                    _order_detail_create_service.Close();
                     setTimeout(function () {
                         window.location.href = '/OrderDetail/' + OrderId;
                     }, 2000);
@@ -398,7 +400,7 @@ var _order_detail_create_service = {
             
             lstUpdate = [];
             lstDelete = [];
-            _msgalert.error("Ngày bắt đầu và ngày kết thúc không hợp lệ");
+            _msgalert.error("Cập nhật thất bại");
         }
     },
     
@@ -432,5 +434,7 @@ var _order_detail_create_service = {
         });
     },
 }
+
+
 
 

@@ -5,7 +5,7 @@
 @model List<Entities.ViewModels.Funding.ContractPayDetaiByOrderIdlViewModel>
 <div class="border bg-white mb20">
     <div class="flex space-between row-main-head pd10">
-        <div class="bold">Thanh toán</div>
+        <h6 class="bold">Thanh toán</h6>
         <div style="display:none">
             <a class="btn btn-default" href="javascript:;">Thanh toán</a>
             <a class="btn btn-default" href="javascript:;">Đơn hàng công nợ</a>
@@ -33,7 +33,7 @@
                             <tr>
                                 <td>@(i++)</td>
                                 <td>
-                                    <a class="blue" href="/Receipt/Detail?contractPayId=@item.PayId">
+                                    <a class="blue" @* href="/Receipt/Detail?contractPayId=@item.PayId" *@>
                                         @item.BillNo
                                     </a>
                                 </td>

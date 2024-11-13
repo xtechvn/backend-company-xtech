@@ -1,0 +1,152 @@
+﻿@using Entities.Models
+<style>
+    #body-filter {
+        width: 600px;
+        position: absolute;
+        background-color: white;
+        z-index: 20;
+        padding: 10px;
+        margin-top: 4px;
+        border-radius: 5px;
+        box-shadow: 1px 2px 2px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .hidden-filter {
+        display: none;
+    }
+
+    #button-filter {
+        position: relative;
+    }
+
+    .date-filter {
+        display: none;
+    }
+
+    .data-filter-style {
+        position: absolute;
+        background: white;
+        border-radius: 3px;
+        padding: 8px;
+        margin-top: 7px;
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+        z-index: 20;
+    }
+</style>
+@{
+    var PAYMENT_REQUEST_STATUS = (List<AllCode>)ViewBag.PAYMENT_REQUEST_STATUS;
+}
+
+<div class="row-main container bg-white rounded p-3" style="overflow-x: hidden;">
+    <div class="line-bottom" style="padding-bottom: 0;">
+        <div class="tab-default mb0" data-tab-container="tab-container-1">
+            <a href="#" class="active" data-lbl="danh-sach-phong">Danh sách yêu cầu xuất hóa đơn</a>
+
+        </div>
+    </div>
+
+    <div class="flex fillter-donhang">
+        <div class="datepicker-wrap add-lbl mb10 mr-2" style="min-width: 150px;">
+            <select class="select2 client-select main-staff-select" id="InvoiceRequestNo" style="width:100% !important">
+            </select>
+        </div>
+        <div class="form-group mb10 mr-2" style="min-width: 300px;">
+
+            <select class="select2 client-select main-staff-select" id="client" multiple="multiple" style="width:100% !important">
+            </select>
+        </div>
+
+        <div class="datepicker-wrap form-group mb10 mr-2" style="min-width: 150px;">
+            <input class="form-control date text-left filter_date_daterangepicker" id="filter_Created_Date" type="text" name="datetimeOrder"
+                   placeholder="Ngày tạo" />
+        </div>
+   
+        <div class="form-group mb10 mr-2">
+            <select class="form-control select" id="PaymentRequestStatus" name="" style="width: 220px; height: 30px;">
+                <option value="-1" selected>Tất cả trạng thái</option>
+                @if (PAYMENT_REQUEST_STATUS != null)
+                {
+                    foreach (var item in PAYMENT_REQUEST_STATUS)
+                    {
+                        <option value="@item.CodeValue">@item.Description</option>
+                    }
+                } 
+            </select>
+        </div>
+
+        <div class="form-group mb10 mr-2" style="min-width: 260px;">
+            <select class="select2 client-select main-staff-select" id="txtNguoiTao" multiple="multiple" style="width:100% !important">
+            </select>
+        </div>
+
+        <div class="datepicker-wrap form-group mb10 mr-2" style="min-width: 150px;">
+            <input class="form-control date text-left filter_date_daterangepicker" id="filter_PlainDate" type="text" name="PlainDate"
+                   placeholder="Ngày dự kiến" />
+        </div>
+
+        <div class="datepicker-wrap form-group mb10 mr-2" style="min-width: 150px;">
+            <input class="form-control date text-left filter_date_daterangepicker" id="filter_Export_Date" type="text" name="datetimeOrder"
+                   placeholder="Ngày xuất" />
+        </div>
+
+        <div class="form-group mb10 mr-2" style="min-width: 260px;">
+            <select class="select2 client-select main-staff-select" id="txtNguoiDuyet" multiple="multiple" style="width:100% !important">
+            </select>
+        </div>
+
+       
+        <div class="form-group mb10 mr-2" style="display:none">
+            <select class="select2" name="" style="width: 180px;">
+                <option value="">Tất cả bộ phận phụ trách</option>
+                <option value="">Đại lý</option>
+                <option value="">Cộng tác viên</option>
+                <option value="">Mice/Corp/Doanh nghiệp</option>
+            </select>
+        </div>
+
+        <div class="datepicker-wrap form-group mb10 mr-2" style="min-width: 150px;">
+            <input class="form-control date text-left filter_date_daterangepicker" id="filter_Verify_Date" type="text" name="datetimeOrder"
+                   placeholder="Ngày duyệt" />
+        </div>
+
+        <div class="form-group mb10 mr-2">
+            @*<button class="btn-search btn-default" type="button" onclick="_customer_manager.Export()" id="btnExport">
+            <i class="fa fa-file-excel-o" id="icon-export" title="Xuất excel">
+            </i>
+            </button>*@
+            <button type="button" class="btn btn-default bg-main" onclick="_invoiceRequest.GetParams()">
+                <svg class="icon-svg" style="vertical-align: sub;">
+                    <use xlink:href="/images/icons/icon.svg#search"></use>
+                </svg>
+                Tìm kiếm
+            </button>
+        </div>
+    </div>
+
+    <div class="flex gap10 mb10 align-items-center justify-content-between">
+        <div class="flex gap10 left-button">
+
+            <div class="relative filter-nguonkh">
+            </div>
+
+        </div>
+        <div class="right-button flex gap10 ">
+            @if (ViewBag.buttomThem == 1)
+            {
+                <button class="btn btn-add mb-2 btn-default text-white" onclick="_invoiceRequest.ShowForm()" style="">
+                    <i class="icofont-plus"></i>Thêm yêu cầu
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div id="grid_data_invoice">
+            <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" id="imgLoading_client" />
+        </div>
+    </div>
+
+</div>
+@section scripts {
+    <script type="text/javascript" src="~/modules/invoice_request.js"></script>
+}

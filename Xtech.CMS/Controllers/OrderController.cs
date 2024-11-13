@@ -18,6 +18,7 @@ namespace Xtech.CMS.Controllers
     {
         private readonly IAllCodeRepository _allCodeRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IInvoiceRequestRepository _invoiceRequestRepository;
         private readonly IOtherBookingRepository _otherBookingRepository;
         private readonly IClientRepository _clientRepository;
         private readonly IUserRepository _userRepository;
@@ -25,6 +26,7 @@ namespace Xtech.CMS.Controllers
         private readonly IPaymentRequestRepository _paymentRequestRepository;
         private readonly IOtherBookingPackageRepository _otherBookingPackageRepository;
         public OrderController(IAllCodeRepository allCodeRepository,
+            IInvoiceRequestRepository invoiceRequestRepository,
             IOrderRepository orderRepository, 
             IClientRepository clientRepository, 
             IUserRepository userRepositor, 
@@ -34,6 +36,7 @@ namespace Xtech.CMS.Controllers
         {
             _paymentRequestRepository = paymentRequestRepository;
             _contractPayRepository = contractPayRepository;
+            _invoiceRequestRepository = invoiceRequestRepository;
             _otherBookingRepository = otherBookingRepository;
             _userRepository = userRepositor;
             _allCodeRepository = allCodeRepository;
@@ -180,17 +183,15 @@ namespace Xtech.CMS.Controllers
                 if (orderId != 0)
                 {
 
-                    var dataOrder = await _orderRepository.GetOrderDetailByOrderId(orderId);
+                  /*var dataOrder = await _orderRepository.GetOrderDetailByOrderId(orderId);
                     if (dataOrder != null)
-                    {
-                        var data = _paymentRequestRepository.GetListPaymentRequestByOrderId(Convert.ToInt32(dataOrder.OrderId));
+                    {*/
+                        var data = await _invoiceRequestRepository.GetListInvoiceRequestByOrderId(Convert.ToInt32(orderId));
                         if (data != null)
                         {
-                            ViewBag.listPayment = data;
-                            ViewBag.paymentAmount = data.Sum(s => s.Amount);
                             return PartialView(data);
                         }
-                    }
+                  /*}*/
                 }
                 return PartialView();
             }
@@ -240,9 +241,10 @@ namespace Xtech.CMS.Controllers
                 int OrderId = (int)OtherBooking.OrderId;
                 OrderDetailViewModel orderDetail = new OrderDetailViewModel();
                 orderDetail = await _orderRepository.GetOrderDetailByOrderId(OrderId);
+                var IdBooking = 0;
                 if (orderDetail.Status == (int)OrderStatus.New)//Đơn mới được thêm,sửa xóa
                 {
-                    var IdBooking = await _otherBookingRepository.SetUpOtherBooking(OtherBooking);
+                    IdBooking = await _otherBookingRepository.SetUpOtherBooking(OtherBooking);
                     foreach (var item in lstUpdate)
                     {
                         item.BookingId = IdBooking;
@@ -255,7 +257,7 @@ namespace Xtech.CMS.Controllers
                 }
                 if (orderDetail.Status == (int)OrderStatus.Rejected_by_management)//đơn điều hành từ chối chỉ được sửa
                 {
-                    var IdBooking = await _otherBookingRepository.SetUpOtherBooking(OtherBooking);
+                    IdBooking = await _otherBookingRepository.SetUpOtherBooking(OtherBooking);
                     foreach (var item in lstUpdate)
                     {
                         item.BookingId = IdBooking;
@@ -273,7 +275,8 @@ namespace Xtech.CMS.Controllers
                 await _orderRepository.UpdateAmountOrder(OrderId);
                 return Ok(new
                 {
-                    status = (int)ResponseType.SUCCESS
+                    status = (int)ResponseType.SUCCESS,
+                    IdBooking = IdBooking
                 });
             }
             catch (Exception ex)

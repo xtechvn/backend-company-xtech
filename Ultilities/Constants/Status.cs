@@ -25,18 +25,6 @@ namespace Utilities.Contants
         public const string ERROR = "error";
     }
 
-    
-
-    public enum PAYMENT_REQUEST_STATUS
-    {
-        LUU_NHAP = 0,
-        TU_CHOI = 1,
-        CHO_TBP_DUYET = 2,
-        CHO_KTT_DUYET = 3,
-        CHO_CHI = 4, //cho tao phieu chi
-        DA_CHI = 5, //da tao phieu chi
-    }
-
     public enum DEBT_STATISTIC_STATUS
     {
         LUU_NHAP = 0,

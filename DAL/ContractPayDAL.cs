@@ -16,11 +16,29 @@ namespace DAL
     public class ContractPayDAL
     {
         private static DbWorker _DbWorker;
+        private static string _connection;
         public ContractPayDAL(string connection)
         {
             _DbWorker = new DbWorker(connection);
+            _connection = connection;
         }
 
+        public async Task<long> CountInvoiceRequest()
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    return _DbContext.InvoiceRequests.Count();
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("CountInvoiceRequest - ContractPayDAL. " + ex);
+                return 0;
+            }
+        }
 
         public async Task<DataTable> GetContractPayByOrderId(long OrderId)
         {
