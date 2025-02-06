@@ -23,6 +23,7 @@ namespace Repositories.Repositories
         private readonly MailConfig _MailConfig;
         private readonly MFADAL _MFADAL;
         private readonly IHttpContextAccessor _HttpContext;
+        private readonly TenantDAL _tenantDAL;
         private readonly UserRoleDAL _userRoleDAL;
         private readonly IConfiguration _configuration;
 
@@ -37,6 +38,7 @@ namespace Repositories.Repositories
             _MFADAL = new MFADAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _userPositionDAL = new UserPositionDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _userRoleDAL = new UserRoleDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+            _tenantDAL = new TenantDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
           
         }
 
@@ -675,14 +677,14 @@ namespace Repositories.Repositories
                 if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
 
                 // Check exist User Name or Email
-                var _UserDAL= new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
+              
                 var userList = await _UserDAL.GetAllAsync();
                 var exmodel = userList.Where(s => s.Status == 0 && (s.UserName == model.UserName/* || s.Email == model.Email*/));
                 if (exmodel != null && exmodel.Count() > 0)
                 {
                     return -1;
                 }
-                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                //var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
                 return _tenantDAL.UpsertUser(model);
             }
             catch (Exception ex)

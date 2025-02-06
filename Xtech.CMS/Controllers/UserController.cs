@@ -184,17 +184,17 @@ namespace WEB.CMS.Controllers
                 else
                 {
                    //var Tenanid= await _UserRepository.InsertTenant(model);
-                    model.TenantId= 0;
-                    var id= await _UserRepository.UpsertUserTenant(model);
+                    //model.TenantId= 0;
+                    //var id= await _UserRepository.UpsertUserTenant(model);
                   
-                    if (id <= 0)
-                    {
-                        return new JsonResult(new
-                        {
-                            isSuccess = false,
-                            message = "Tên đăng nhập hoặc email đã tồn tại"
-                        });
-                    }
+                    //if (id <= 0)
+                    //{
+                    //    return new JsonResult(new
+                    //    {
+                    //        isSuccess = false,
+                    //        message = "Tên đăng nhập hoặc email đã tồn tại"
+                    //    });
+                    //}
                   
                     rs = await _UserRepository.Create(model);
                     
