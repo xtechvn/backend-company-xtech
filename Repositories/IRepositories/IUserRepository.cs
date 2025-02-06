@@ -40,6 +40,7 @@ namespace Repositories.IRepositories
         bool IsHeadOfAccountant(long userId);
         bool IsAccountant(long userId);
         List<User> GetHeadOfAccountantUser2();
-
+        Task<int> InsertTenant(UserViewModel model);
+        Task<int> UpsertUserTenant(UserViewModel model);
     }
 }

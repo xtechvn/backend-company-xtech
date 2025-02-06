@@ -3,9 +3,11 @@ using Entities.ConfigModels;
 using Entities.Models;
 using Entities.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
+using SixLabors.ImageSharp;
 using System.Globalization;
 using System.Security.Claims;
 using Utilities;
@@ -22,10 +24,12 @@ namespace Repositories.Repositories
         private readonly MFADAL _MFADAL;
         private readonly IHttpContextAccessor _HttpContext;
         private readonly UserRoleDAL _userRoleDAL;
+        private readonly IConfiguration _configuration;
 
         public UserRepository(IHttpContextAccessor context, IOptions<DataBaseConfig> dataBaseConfig,
-            IOptions<MailConfig> mailConfig, ILogger<UserRepository> logger)
+            IOptions<MailConfig> mailConfig, ILogger<UserRepository> logger, IConfiguration configuration)
         {
+            _configuration = configuration;
             _HttpContext = context;
             _logger = logger;
             _MailConfig = mailConfig.Value;
@@ -33,6 +37,7 @@ namespace Repositories.Repositories
             _MFADAL = new MFADAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _userPositionDAL = new UserPositionDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _userRoleDAL = new UserRoleDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+          
         }
 
         public async Task<UserDetailViewModel> CheckExistAccount(AccountModel entity)
@@ -174,6 +179,7 @@ namespace Repositories.Repositories
         {
             try
             {
+                var _UserDAL = new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
                 var user_claim_id = _HttpContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
                 var user_id = 0;
                 if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
@@ -215,7 +221,7 @@ namespace Repositories.Repositories
                     return -1;
                 }
 
-                var userId = (int)await _UserDAL.CreateAsync(entity);
+                var userId = _UserDAL.UpsertUser(entity);
 
                 if (!string.IsNullOrEmpty(model.RoleId))
                 {
@@ -646,6 +652,44 @@ namespace Repositories.Repositories
                 LogHelper.InsertLogTelegram("GetHeadOfAccountantUser2 - UserRepository: " + ex);
             }
             return new List<User>();
+        }
+        public async Task<int> InsertTenant(UserViewModel model)
+        {
+            try
+            {
+               var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                return await _tenantDAL.InsertTenant(model);
+            }
+            catch(Exception ex)
+            {
+                LogHelper.InsertLogTelegram("InsertTenant - UserRepository: " + ex);
+            }
+            return -1;
+        }
+        public async Task<int> UpsertUserTenant(UserViewModel model)
+        {
+            try
+            {
+                var user_claim_id = _HttpContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var user_id = 0;
+                if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
+
+                // Check exist User Name or Email
+                var _UserDAL= new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
+                var userList = await _UserDAL.GetAllAsync();
+                var exmodel = userList.Where(s => s.Status == 0 && (s.UserName == model.UserName/* || s.Email == model.Email*/));
+                if (exmodel != null && exmodel.Count() > 0)
+                {
+                    return -1;
+                }
+                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                return _tenantDAL.UpsertUser(model);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("InsertTenant - UserRepository: " + ex);
+            }
+            return -1;
         }
     }
 }

@@ -291,6 +291,11 @@ namespace Utilities.Contants
 
         public static string SP_GetBankingAccountById = "SP_GetBankingAccountById";
 
+        public static string sp_InsertTenant = "sp_InsertTenant";
+        public static string sp_UpdateTenant = "sp_UpdateTenant";
+        public static string UpsertUser = "sp_UpsertUser";
+        public static string sp_InsertUser = "sp_InsertUser";
+
 
 
 
