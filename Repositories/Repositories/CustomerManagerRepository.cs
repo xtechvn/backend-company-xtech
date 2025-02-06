@@ -104,6 +104,11 @@ namespace Repositories.Repositories
                         ApproachType = model.ApproachType,
 
                     };
+
+            
+                    var _ClientDAL2 = new ClientDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                    _ClientDAL2.SetUpClient(Client);
+                    var _ClientDAL = new ClientDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
                     var CreateClient = _ClientDAL.SetUpClient(Client);
                     var data2 = _ClientDAL.GetClientByEmail(model.email);
                     if (CreateClient > 0 && CreateClient != 2)
@@ -172,6 +177,7 @@ namespace Repositories.Repositories
                 }
                 else
                 {
+                    var _ClientDAL = new ClientDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
                     var data = _UserAgentDAL.GetUserAgentByClientId((int)model.Id);
                     var data2 = _ClientDAL.GetClientByID((int)model.Id).Result;
                     if (data != null)
@@ -198,7 +204,9 @@ namespace Repositories.Repositories
                         ClientCode = model.ClientCode,
                         ApproachType = model.ApproachType,
                     };
-
+                    var _ClientDAL2 = new ClientDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                    _ClientDAL2.SetUpClient(Client);
+                    _ClientDAL = new ClientDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString"]);
                     var CreateClient = _ClientDAL.SetUpClient(Client);
 
 
