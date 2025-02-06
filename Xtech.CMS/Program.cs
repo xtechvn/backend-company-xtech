@@ -63,6 +63,8 @@ builder.Services.AddTransient<IGroupProductRepository, GroupProductRepository>()
 builder.Services.AddTransient<IIdentifierServiceRepository, IdentifierServiceRepository>();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IPaymentAccountRepository, PaymentAccountRepository>();
+builder.Services.AddTransient<IInvoiceRequestRepository, InvoiceRequestRepository>();
+builder.Services.AddTransient<IInvoiceRequestDetailRepository, InvoiceRequestDetailRepository>();
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();

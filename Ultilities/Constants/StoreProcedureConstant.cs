@@ -156,11 +156,13 @@ namespace Utilities.Contants
        /* public static string SP_UpdateServiceStatusByOrderId = "SP_UpdateServiceStatusByOrderId";*/
         public static string SP_GetListHotelBookingCodeByOrderId = "SP_GetListHotelBookingCodeByOrderId";
         public static string sp_InsertInvoiceRequest = "sp_InsertInvoiceRequest";
+        public static string SP_GetInvoiceRequestById = "SP_GetInvoiceRequestById";
         public static string sp_InsertInvoice = "sp_InsertInvoice";
         public static string sp_InsertInvoiceFormNo = "sp_InsertInvoiceFormNo";
         public static string sp_UpdateInvoiceFormNo = "sp_UpdateInvoiceFormNo";
         public static string sp_InsertInvoiceSign = "sp_InsertInvoiceSign";
         public static string sp_UpdateInvoiceSign = "sp_UpdateInvoiceSign";
+        public static string SP_DeleteInvoiceRequestDetailById = "SP_DeleteInvoiceRequestDetailById";
         public static string sp_InsertInvoiceRequestDetail = "sp_InsertInvoiceRequestDetail";
         public static string sp_InsertInvoiceDetail = "sp_InsertInvoiceDetail";
         public static string sp_UpdateInvoiceRequest = "sp_UpdateInvoiceRequest";
@@ -173,6 +175,8 @@ namespace Utilities.Contants
         public static string sp_GetListInvoiceRequestByClientId = "sp_GetListInvoiceRequestByClientId";
         public static string sp_GetListInvoiceRequestByInvoiceId = "sp_GetListInvoiceRequestByInvoiceId";
         public static string sp_GetListInvoiceRequestByOrderId = "sp_GetListInvoiceRequestByOrderId";
+        public static string SP_GetListInvoiceRequest = "SP_GetListInvoiceRequest";
+        public static string SP_GetListInvoiceRequestDetailByInvoiceRequestId = "SP_GetListInvoiceRequestDetailByInvoiceRequestId";
         public static string sp_GetDetailInvoice = "sp_GetDetailInvoice";
         public static string InsertFlyBookingPackagesOptional = "SP_InsertFlyBookingPackagesOptional";
         public static string UpdateFlyBookingPackagesOptional = "SP_UpdateFlyBookingPackagesOptional";

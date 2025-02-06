@@ -1,0 +1,232 @@
+﻿@using Entities.Models
+@using Entities.ViewModels;
+@using Entities.ViewModels.InvoiceRequest
+@using static Utilities.Contants.Constants
+@model List<InvoiceRequestViewModel>
+@{
+    Layout = null;
+    var Note = ViewBag.Note;
+    var ClientName = ViewBag.ClientName;
+    var PlanDate = ViewBag.PlanDate;
+    var TaxNo = ViewBag.TaxNo;
+    var CompanyName = ViewBag.CompanyName;
+    var Address = ViewBag.Address;
+}
+<style>
+    #invoice-form {
+        overflow-y: auto; /* Điều chỉnh chiều cao theo ý muốn */
+    }
+</style>
+<div class="modal fade show" id="invoice-form" aria-modal="true" role="dialog" style="display: block;">
+    <input type="text" id="InvoiceRequest_Id" value="@ViewBag.Invoice_Id" style="display:none" />
+    <input type="text" id="Order_Id" value="@ViewBag.OrderId" style="display:none" />
+    <div class="modal-dialog" style="max-width: 90%;">
+        <div class="modal-dialog" id="xuathoadon" style="max-width: 100%">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header line-bottom mb0">
+                    <h4 class="modal-title">Thêm yêu cầu xuất hóa đơn</h4>
+                    <button type="button" class="close" onclick="_invoiceRequest.CloseForm() " data-dismiss="modal">×</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="row row_min">
+                        <div class="col-md-10 form-group">
+                            <label class="lbl">Tên khách hàng <sup class="red">*</sup></label>
+                            @* <div class="wrap_input">
+                                <input type="text" class="form-control" id="client_name" value="@ViewBag.ClientName">
+                            </div> *@
+                            <select class="form-control select2" id="Client_select" style="width: 100%;">
+                                @if (ViewBag.ClientId != 0)
+                                {
+                                    <option value="@ViewBag.ClientId">@ViewBag.ClientName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label class="lbl">Ngày dự kiến xuất <sup class="red">*</sup></label>
+                            <div class="wrap_input">
+                                <input class="form-control datepicker-input" style="cursor:pointer" value="@(ViewBag.PlanDate != null ? ViewBag.PlanDate.ToString("dd/MM/yyyy") : "")" id="plan_date" type="text" name="plan_date" placeholder="Ngày bắt đầu">
+                            </div>
+                        </div>
+                        <div class="col-12 bold mb10 txt_14">Thông tin công ty cần xuất hóa đơn</div>
+                        <div class="col-md-2 form-group">
+                            <label class="lbl">Mã số thuế <sup class="red">*</sup></label>
+                            <div class="wrap_input">
+                                <input type="text" class="form-control" id="tax_no" value="@ViewBag.TaxNo">
+                            </div>
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="lbl">Tên công ty <sup class="red">*</sup></label>
+                            <div class="wrap_input">
+                                <input type="text" class="form-control" id="company_name" value="@ViewBag.CompanyName">
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="lbl">Địa chỉ  <sup class="red">*</sup></label>
+                            <div class="wrap_input">
+                                <input type="text" class="form-control" id="address" value="@ViewBag.Address">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="bold mb10 txt_14">Nội dung dịch vụ cần xuất</div>
+                    <div class="table-responsive table-default table-gray bg-white mb15">
+                        <table class="table table-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th style="min-width: 250px;">Tên hàng hóa, dịch vụ <sup class="red">*</sup></th>
+                                    <th>Đơn vị tính <sup class="red">*</sup></th>
+                                    <th class="text-right">Số lượng  <sup class="red">*</sup></th>
+                                    <th class="text-right">Đơn giá <sup class="red">*</sup></th>
+                                    <th class="text-right">Thành tiền</th>
+                                    <th class="text-right">Xuất thêm</th>
+                                    <th>Thu thêm</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="invoice_request_detail_tbody">
+                                @if (Model != null)
+                                {
+                                    var STT = 1;
+                                    foreach (var i in Model)
+                                    {
+                                        <tr id="@i.InvoiceRequestDetailId">
+                                            <td class="invoice_request_detail_number">@STT</td>
+                                            <td><input type="text" class="form-control invoice_rq_detail_pruductname" value="@i.ProductName" id="@("product_name_" + i.InvoiceRequestDetailId)"></td>
+                                            <td>
+                                                <input class="form-control invoice_rq_detail_unit" id="@("unit_" + i.InvoiceRequestDetailId)" value="@i.Unit" />
+                                            </td>
+                                            <td><input type="number" class="form-control text-right invoice_rq_detail_quantity" min="0" oninput="_invoiceRequest.OnchangeQuantity('@i.InvoiceRequestDetailId')" value="@i.Quantity" id="@("quantity_" + i.InvoiceRequestDetailId)"></td>
+                                            <td><input type="text" class="form-control text-right invoice_rq_detail_price" min="0" oninput="_invoiceRequest.OnchangePrice('@i.InvoiceRequestDetailId')" id="@("price_" + i.InvoiceRequestDetailId)" value="@i.Price.ToString("N0")"></td>
+                                            <td><input type="text" class="form-control text-right invoice_rq_detail_amount" disabled value="@(i.TotalPrice.ToString("N0"))" id="@("total_price_" + i.InvoiceRequestDetailId)" /></td>
+                                            <td><input type="text" class="form-control text-right invoice_rq_detail_extra_export" oninput="_invoiceRequest.OnchangeExTraExport('@i.InvoiceRequestDetailId')" min="0" id="@("price_extra_export_" + i.InvoiceRequestDetailId)" value="@i.PriceExtraExport.ToString("N0")"></td>
+                                            <td><input type="text" class="form-control text-right invoice_rq_detail_extra" min="0" oninput="_invoiceRequest.OnchangeExTra('@i.InvoiceRequestDetailId')" id="@("price_extra_" + i.InvoiceRequestDetailId)" value="@i.PriceExtra.ToString("N0")"></td>
+                                            <td>
+                                                <a class="delete" onclick="_invoiceRequest.DeleteInvoiceRequestDetail('@i.InvoiceRequestDetailId')"><i class="fa fa-trash-o"></i></a>
+                                            </td>
+                                        </tr>
+                                        STT += 1;
+                                    }
+                                }
+                                <tr class="invoice_request_detail_sumary_row">
+                                    <td></td>
+                                    <td>
+                                        <div class="flex space-between">
+                                            <a onclick="_invoiceRequest.CreateInvoiceRequestDetail()" class="add blue">
+                                                <i class="fa fa-plus"></i> Thêm mới
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="text-right"><strong>Tổng</strong></td>
+                                    <td class="text-right" id="invoice_request_totalAmount">0</td>
+                                    <td class="text-right invoice_request_extraExport" >0</td>
+                                    <td class="text-right invoice_request_extra" >0</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mb15" style="max-width: 300px;margin-left: auto;">
+                        <ul class="bold txt_14">
+                            <li class="flex space-between mb10">
+                                <div>Tổng tiền cần xuất</div>
+                                <div class="invoice_request_extraExport" style="color:#00a86b">0</div>
+                            </li>
+                            <li class="flex space-between mb10">
+                                <div>Tổng tiền thu thêm</div>
+                                <div class="invoice_request_extra" style="color:#00a86b">0</div>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <div class="border-bottom mb15"></div>
+                    <div class="bold mb10 txt_14">Đơn hàng liên quan <sup class="red">*</sup></div>
+                    <div class="table-responsive table-default table-gray table-modal mb20">
+                        <table class="table table-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Mã đơn hàng</th>
+                                    <th style="min-width: 130px;">Ngày bắt đầu - Ngày kết thúc</th>
+                                    <th style="min-width: 130px;">Nhân viên chính</th>
+                                    <th class="text-right" style="min-width: 130px;">Số tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list_related_order">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bold mb10 txt_14">Thông tin thêm</div>
+                    <div class="row row_min">
+                        <div class="form-group col-md-6">
+                            <label class="lbl">Ghi chú (0/3,000 ký tự)</label>
+                            <div class="wrap_input">
+                                <textarea id="Note_Invoice_rq" class="form-control" style="height: 90px;">@ViewBag.Note</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" id="invoice_rq_files">
+@*                             <label class="lbl choose-file">Tệp đính kèm <i class="fa fa-paperclip"></i><input type="file" name="myFile"></label>
+                            <div class="gray">Upload nhiều file cùng lúc. Định dạng: .jpg,.png, .gif,.pdf, .doc &amp; docx. Dung lượng tối đa 10Mb.</div> *@
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6 p-0">
+                        <label class="lbl gray">Lý do từ chối(nếu có)</label>
+                        <textarea id="Decline_reason" class="form-control" style="height: 50px;">@(Model != null ? Model[0].DeclineReason : "")</textarea>
+                    </div>
+                    <div class="text-right border-top pt-3">
+                        <button type="submit" class="btn btn-default btn btn-default cancel" onclick="_invoiceRequest.CloseForm()">Bỏ qua</button>
+
+                        @if (Model != null)
+                        {
+                            if (Model[0].Status != (int)Payment_Request_Status.DA_DUYET)
+                            {
+                                if (ViewBag.buttonDuyet == 1)
+                                {
+                                    <button type="submit" class="btn btn-danger" onclick="_invoiceRequest.Reject()">Từ chối</button>
+                                    <button type="submit" class="btn btn-success" onclick="_invoiceRequest.Approve()">Duyệt</button>
+                                }
+                                if (ViewBag.buttonThem == 1)
+                                {
+                                    <button type="submit" class="btn btn-default" onclick="_invoiceRequest.Onsubmit('3')">Lưu nháp</button>
+                                    <button type="submit" class="btn btn-default" onclick="_invoiceRequest.Onsubmit()">Gửi đi</button>
+                                } 
+                            }
+                        }
+                        else
+                        {
+                            if (ViewBag.buttonThem == 1)
+                            {
+                                <button type="submit" class="btn btn-default" onclick="_invoiceRequest.Onsubmit('3')">Lưu nháp</button>
+                                <button type="submit" class="btn btn-default" onclick="_invoiceRequest.Onsubmit()">Gửi đi</button>
+                            }
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $('#plan_date').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        showDropdowns: true,
+        autoUpdateInput: false,
+        drops: 'down',
+        minDate: '01/01/2020',
+        locale: {
+            format: 'DD/MM/YYYY',
+            cancelLabel: 'Clear'
+        }
+    });
+
+    $('input[name="plan_date"]').on('apply.daterangepicker', function (ev, picker) {
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
+    });
+</script>
