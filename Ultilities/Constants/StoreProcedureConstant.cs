@@ -293,6 +293,8 @@ namespace Utilities.Contants
 
         public static string sp_InsertTenant = "sp_InsertTenant";
         public static string sp_UpdateTenant = "sp_UpdateTenant";
+        public static string SP_GetListTenant = "SP_GetListTenant";
+        public static string SP_GetDetailTenantByTenantId = "SP_GetDetailTenantByTenantId";
         public static string UpsertUser = "sp_UpsertUser";
         public static string sp_InsertUser = "sp_InsertUser";
 

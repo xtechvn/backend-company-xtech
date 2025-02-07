@@ -14,6 +14,9 @@ namespace Entities.ViewModels
         public string OldCompanyType { get; set; }
         public int TenantId { get; set; }
         public int Type { get; set; }
+        public int PageIndex { get; set; }
+        public int PageSize { get; set; }
+        public int? IsDelete { get; set; }
     }
 
     public class UserDataViewModel : User

@@ -1,4 +1,6 @@
-﻿using Entities.Models;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.VariantTypes;
+using Entities.Models;
 using Entities.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -38,16 +40,16 @@ namespace Xtech.CMS.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Search(string userName, string strRoleId, int status = -1, int currentPage = 1, int pageSize = 20)
+        public async Task<IActionResult> Search(TenantSearchModel searchModel)
         {
-            var model = new GenericViewModel<UserGridModel>();
+            var model = new GenericViewModel<TenantViewModel>();
             try
             {
-                model = _UserRepository.GetPagingList(userName, strRoleId, status, currentPage, pageSize);
+                model =await _UserRepository.GetListTenant(searchModel);
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("Search - UserController: " + ex);
+                LogHelper.InsertLogTelegram("Search - TenantController: " + ex);
             }
             return PartialView(model);
         }
@@ -102,16 +104,14 @@ namespace Xtech.CMS.Controllers
                 if (model.Address == null) model.Address = "";
 
 
-                if (model.Id != 0)
+                if (model.TenantId != 0)
                 {
-                    rs = await _UserRepository.Update(model);
+                    rs = await _UserRepository.UpdateTenant(model);
                 }
                 else
                 {
                      rs = await _UserRepository.InsertTenant(model);
-                    //model.TenantId = 0;
-                    //rs = await _UserRepository.UpsertUserTenant(model);
-
+                   
                     if (rs <= 0)
                     {
                         return new JsonResult(new
@@ -120,8 +120,6 @@ namespace Xtech.CMS.Controllers
                             message = "Tên đăng nhập hoặc email đã tồn tại"
                         });
                     }
-
-                    //rs = await _UserRepository.Create(model);
 
                 }
 
@@ -166,42 +164,14 @@ namespace Xtech.CMS.Controllers
         {
             try
             {
-                var model = new User();
-                ViewBag.UserRoleList = null;
+                var model = new TenantViewModel();
                 if (Id != 0)
                 {
+                    var detail = await _UserRepository.GetDetailTenantByTenantId(Id);
 
-                    model = await _UserRepository.FindById(Id);
-                    if (IsClone)
-                    {
-                        model = new User
-                        {
-                            FullName = model.FullName,
-                            UserName = model.UserName,
-                            Email = model.Email,
-                            Address = model.Address,
-                            BirthDay = model.BirthDay,
-                            Gender = model.Gender,
-                            Status = model.Status,
-                            Note = model.Note,
-                            DepartmentId = model.DepartmentId,
-                            Phone = model.Phone,
-                        };
-                    }
-                    var list_role_active = await _UserRepository.GetUserActiveRoleList(model.Id);
-                    if (list_role_active != null && list_role_active.Count > 0)
-                    {
-                        ViewBag.UserRoleList = list_role_active.Select(x => x.Id).ToList();
-                    }
+                    return View(detail);
                 }
-                else
-                {
-                    model.Gender = 1;
-                }
-
-                ViewBag.DepartmentList = await _DepartmentRepository.GetAll(String.Empty);
-                ViewBag.RoleList = await _RoleRepository.GetAll();
-                ViewBag.UserPosition = _UserRepository.GetUserPositions();
+               
                 return View(model);
             }
             catch (Exception ex)
@@ -210,6 +180,64 @@ namespace Xtech.CMS.Controllers
                 return Content("");
             }
 
+        }
+        public async Task<IActionResult> GetDetail(int Id)
+        {
+            try
+            {
+              var  model= await _UserRepository.GetDetailTenantByTenantId(Id);
+                return PartialView(model);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetDetail - UserController: " + ex);
+                ViewBag.IsMFAEnabled = false;
+            }
+            return PartialView();
+        }
+        public async Task<IActionResult> ChangeStatus(int id)
+        {
+            try
+            {
+                var detail = await _UserRepository.GetDetailTenantByTenantId(id);
+                var model = new UserViewModel();
+                model.Id=id;
+                if (detail.Status == 0)
+                {
+                    model.Status = 1;
+                }
+                else
+                {
+                    model.Status = 0;
+                }
+                var rs = await _UserRepository.UpdateTenant(model);
+                if (rs != -1)
+                {
+                    return new JsonResult(new
+                    {
+                        isSuccess = true,
+                        message = "Cập nhật thành công",
+                        status = rs
+                    });
+                }
+                else
+                {
+                    return new JsonResult(new
+                    {
+                        isSuccess = false,
+                        message = "Cập nhật thất bại"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("ChangeUserStatus - UserController: " + ex);
+                return new JsonResult(new
+                {
+                    isSuccess = false,
+                    message = ex.Message.ToString()
+                });
+            }
         }
     }
 }

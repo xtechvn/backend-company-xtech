@@ -1,9 +1,9 @@
 ﻿$(document).ready(function () {
     var _searchData = {
-        userName: '',
-        strRoleId: '',
+        UserName: null,
+        SurrogateName: null,
         status: -1,
-        currentPage: 1,
+        PageIndex: 1,
         pageSize: 20
     };
     _tenant.Init(_searchData);
@@ -117,7 +117,7 @@ $('#grid-data').on('click', '.btn-change-user-status', function () {
     let description = 'Bạn có chắc chắn muốn đổi trạng thái hoạt động nhân viên này?';
     _msgconfirm.openDialog(title, description, function () {
         $.ajax({
-            url: "/Tenant/ChangeUserStatus",
+            url: "/Tenant/ChangeStatus",
             type: "post",
             data: { id: userid },
             success: function (result) {
@@ -172,33 +172,36 @@ var _tenant = {
     },
 
     OnChangeUser: function (value) {
-        var searchobj = this.SearchParam;
-        searchobj.userName = value;
-        searchobj.currentPage = 1;
-        this.SearchParam = searchobj;
+        var searchobj = {
+            UserName: value,
+            SurrogateName: null,
+            status: -1,
+            PageIndex: 1,
+            pageSize: 20
+        };
         this.Search(searchobj);
     },
 
     OnChangeStatus: function (value) {
-        var searchobj = this.SearchParam;
-        searchobj.status = value;
-        searchobj.currentPage = 1;
-        this.SearchParam = searchobj;
+        var searchobj = {
+            UserName: $('#ip-kup-search-user').val(),
+            SurrogateName: null,
+            status: value,
+            PageIndex: 1,
+            pageSize: 20
+        };
         this.Search(searchobj);
     },
 
-    OnChangeRoleId: function (value) {
-        var searchobj = this.SearchParam;
-        searchobj.strRoleId = value;
-        searchobj.currentPage = 1;
-        this.SearchParam = searchobj;
-        this.Search(searchobj);
-    },
 
     OnPaging: function (value) {
-        var searchobj = this.SearchParam;
-        searchobj.currentPage = value;
-        this.SearchParam = searchobj;
+        var searchobj = {
+            UserName: $('#ip-kup-search-user').val(),
+            SurrogateName: null,
+            status: value,
+            PageIndex: value,
+            pageSize: 20
+        };
         this.Search(searchobj);
     },
 
@@ -281,47 +284,9 @@ var _tenant = {
         //let param = { Id: id };
         //_magnific.OpenLargerPopup(title, url, param);
     },
-    OnOpenGenQrFrom: function (id) {
-        let url = '/Tenant/ViewConfirm';
-        let param = {
-            id: id
-        };
-        _magnific.OpenSmallPopup('', url, param);
 
-    },
-    ConfirmQRCodeUser: function (id) {
-        _global_function.AddLoading()
-        $.ajax({
-            url: '/Tenant/ConfirmPassQr',
-            type: 'POST',
-            data: {
-                id: id,
-                pass: $('#ConfirmUserPass').val()
-            },
-            success: function (result) {
 
-                if (result.isSuccess) {
-                    _global_function.RemoveLoading()
-                    _tenant.GenQRCodeUser(id)
 
-                } else {
-                    _global_function.RemoveLoading()
-                    _msgalert.error(result.message);
-
-                }
-            },
-        });
-    },
-    GenQRCodeUser: function (id) {
-        let url = '/Tenant/QrCodeUser';
-        let param = {
-            id: id
-        };
-        _magnific.OpenSmallPopup('', url, param);
-        setTimeout(function () {
-            $('#QrCode').removeClass('placeholder placeholderqr')
-        }, 10)
-    },
     OnOpenCopyForm: function (id) {
         let title = 'Thêm người dùng';
         let url = '/Tenant/AddOrUpdate';
@@ -374,7 +339,7 @@ var _tenant = {
         FromCreate.validate({
             rules: {
                 UserName: "required",
-                Email: {
+                SurrogateEmail: {
                     required: true,
                     email: true
                 },
@@ -389,7 +354,7 @@ var _tenant = {
             },
             messages: {
                 UserName: "Vui lòng nhập tên đăng nhập",
-                Email: {
+                SurrogateEmail: {
                     required: 'Vui lòng nhập email',
                     email: 'Email không đúng định dạng'
                 },
@@ -401,33 +366,14 @@ var _tenant = {
                     required: 'Vui lòng nhập lại mật khẩu',
                     equalTo: 'Mật khẩu không chính xác'
                 },
-                RoleId: {
-                    required: 'Vui lòng chọn vai trò cho người dùng',
-                },
-                DepartmentId: {
-                    required: 'Vui lòng chọn phòng ban cho người dùng',
-                },
-                Level: {
-                    required: 'Vui lòng chọn chức vụ của người dùng',
-                }
+              
             }
         });
 
         if (FromCreate.valid()) {
             let form = document.getElementById('form-create-user');
             var formData = new FormData(form);
-            let roles = $('#RoleId').val();
-            let UserPositionId = $('#UserPositionId').val();
-            let Rank = $('#UserPositionId').find(':selected').attr('data-lvl');
-            formData.set("RoleId", roles != null ? roles.join(',') : "");
-            formData.set("UserPositionId", UserPositionId != null ? UserPositionId : 0);
-            formData.set("Rank", Rank != null ? Rank : 0);
-
             formData.set("UserName", $('#UserName').val());
-            formData.set("BirthDay", _global_function.GetDayText($('#datepicker').data('daterangepicker').startDate._d, true));
-            formData.set("OldCompanyType", $('#form-create-user').attr('data-companytype'))
-
-
             $.ajax({
                 url: '/Tenant/upsert',
                 type: 'POST',

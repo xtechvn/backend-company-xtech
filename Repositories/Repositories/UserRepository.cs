@@ -1,4 +1,5 @@
 ﻿using DAL;
+using DAL.StoreProcedure;
 using Entities.ConfigModels;
 using Entities.Models;
 using Entities.ViewModels;
@@ -6,8 +7,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nest;
 using Repositories.IRepositories;
 using SixLabors.ImageSharp;
+using System.Data;
 using System.Globalization;
 using System.Security.Claims;
 using Utilities;
@@ -39,7 +42,7 @@ namespace Repositories.Repositories
             _userPositionDAL = new UserPositionDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _userRoleDAL = new UserRoleDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
             _tenantDAL = new TenantDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
-          
+
         }
 
         public async Task<UserDetailViewModel> CheckExistAccount(AccountModel entity)
@@ -573,7 +576,7 @@ namespace Repositories.Repositories
         }
 
 
-      
+
 
 
         public List<User> GetAdminUser()
@@ -659,39 +662,87 @@ namespace Repositories.Repositories
         {
             try
             {
-               var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
-                return await _tenantDAL.InsertTenant(model);
-            }
-            catch(Exception ex)
-            {
-                LogHelper.InsertLogTelegram("InsertTenant - UserRepository: " + ex);
-            }
-            return -1;
-        }
-        public async Task<int> UpsertUserTenant(UserViewModel model)
-        {
-            try
-            {
-                var user_claim_id = _HttpContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-                var user_id = 0;
-                if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
-
-                // Check exist User Name or Email
-              
-                var userList = await _UserDAL.GetAllAsync();
-                var exmodel = userList.Where(s => s.Status == 0 && (s.UserName == model.UserName/* || s.Email == model.Email*/));
-                if (exmodel != null && exmodel.Count() > 0)
+                var searchModel = new TenantSearchModel();
+                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                searchModel.UserName = model.UserName;
+                searchModel.PageIndex = -1;
+                DataTable dt = await _tenantDAL.GetListTenant(searchModel);
+                if (dt != null && dt.Rows.Count > 0)
                 {
+
                     return -1;
                 }
-                //var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
-                return _tenantDAL.UpsertUser(model);
+
+
+                return await _tenantDAL.InsertTenant(model);
             }
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("InsertTenant - UserRepository: " + ex);
             }
             return -1;
+        }
+        public async Task<int> UpdateTenant(UserViewModel model)
+        {
+            try
+            {
+                var searchModel = new TenantSearchModel();
+                searchModel.UserName = model.UserName;
+                searchModel.PageIndex = -1;
+                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                DataTable dt = await _tenantDAL.GetListTenant(searchModel);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var data = dt.ToList<TenantViewModel>();
+                    data = data.Where(s => s.TenantId != model.TenantId).ToList();
+                    if (data.Count > 0)
+                        return -1;
+                }
+
+                return _tenantDAL.UpdateTenant(model);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("InsertTenant - UserRepository: " + ex);
+            }
+            return -1;
+        }
+        public async Task<GenericViewModel<TenantViewModel>> GetListTenant(TenantSearchModel searchModel)
+        {
+            var model = new GenericViewModel<TenantViewModel>();
+
+            try
+            {
+                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                DataTable dt = await _tenantDAL.GetListTenant(searchModel);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var data = dt.ToList<TenantViewModel>();
+                    model.ListData = data;
+                    model.CurrentPage = searchModel.PageIndex;
+                    model.PageSize = searchModel.PageSize;
+                    model.TotalRecord = Convert.ToInt32(dt.Rows[0]["TotalRow"]);
+                    model.TotalPage = (int)Math.Ceiling((double)model.TotalRecord / model.PageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetList - OrderRepository: " + ex);
+            }
+            return model;
+        }
+        public async Task<TenantViewModel> GetDetailTenantByTenantId(int TenantId)
+        {
+            try
+            {
+                var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                return await _tenantDAL.GetDetailTenantByTenantId(TenantId); ;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetDetailTenantByTenantId - OrderRepository: " + ex);
+            }
+            return null;
         }
     }
 }
