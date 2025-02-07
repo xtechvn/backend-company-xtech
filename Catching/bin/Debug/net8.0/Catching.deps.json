@@ -607,7 +607,10 @@
           "MongoDB.Bson": "2.24.0"
         },
         "runtime": {
-          "Entities.dll": {}
+          "Entities.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       },
       "Ultilities/1.0.0": {
@@ -624,7 +627,10 @@
           "Tesseract": "5.2.0"
         },
         "runtime": {
-          "Ultilities.dll": {}
+          "Ultilities.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
