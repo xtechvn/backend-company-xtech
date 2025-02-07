@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utilities;
+using Utilities.Contants;
 
 namespace DAL
 {
@@ -582,6 +583,44 @@ namespace DAL
                 LogHelper.InsertLogTelegram("UpdateUserRole - UserDAL: " + ex);
             }
 
+        }
+        public int UpsertUser(User user)
+        {
+            try
+            {
+
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@UserID", user.Id),
+                    new SqlParameter("@UserName", user.UserName),
+                    new SqlParameter("@FullName", user.FullName),
+                    new SqlParameter("@Password", user.Password) ,
+                    new SqlParameter("@ResetPassword",user.ResetPassword),
+                    new SqlParameter("@Phone", user.Phone),
+                    new SqlParameter("@BirthDay", user.BirthDay),
+                    new SqlParameter("@Gender", user.Gender),
+                    new SqlParameter("@Email", user.Email),
+                    new SqlParameter("@Avata", user.Avata),
+                    new SqlParameter("@Address",user.Address),
+                    new SqlParameter("@Status", user.Status),
+                    new SqlParameter("@Note",user.Note),
+                    new SqlParameter("@CreatedBy",user.CreatedBy),
+                    new SqlParameter("@CreatedOn", user.CreatedOn),
+                    new SqlParameter("@ModifiedBy", user.ModifiedBy),
+                    new SqlParameter("@ModifiedOn", user.ModifiedOn),
+                    new SqlParameter("@Level", user.Level),
+                    new SqlParameter("@DepartmentId", user.DepartmentId),
+                    new SqlParameter("@UserPositionId", user.UserPositionId)
+                };
+                var id = _DbWorker.ExecuteNonQuery(StoreProcedureConstant.UpsertUser, parameters);
+                user.Id = id;
+                return id;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpsertUser - UserDAL: " + ex);
+                return -1;
+            }
         }
     }
 }
