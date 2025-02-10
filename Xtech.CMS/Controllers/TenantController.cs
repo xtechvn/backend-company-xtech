@@ -110,7 +110,12 @@ namespace Xtech.CMS.Controllers
                 }
                 else
                 {
-                     rs = await _UserRepository.InsertTenant(model);
+                    model.TenantId = -1;
+                    model.DepartmentId = Convert.ToInt32(_configuration["DepartmentId"].ToString());
+                    model.UserPositionId = -1;
+                    model.Level = -1;
+                    var id = await _UserRepository.CreateTenant(model);
+                    rs = await _UserRepository.InsertTenant(model);
                    
                     if (rs <= 0)
                     {
