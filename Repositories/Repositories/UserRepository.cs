@@ -744,5 +744,68 @@ namespace Repositories.Repositories
             }
             return null;
         }
+        public async Task<int> CreateTenant(UserViewModel model)
+        {
+            try
+            {
+                var _UserDAL = new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                var user_claim_id = _HttpContext.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+                var user_id = 0;
+                if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
+
+                var entity = new User()
+                {
+                    UserName = StringHelpers.ConvertStringToNoSymbol(model.UserName.ToLower()).Replace(" ", ""),
+                    FullName = model.FullName,
+                    Password = EncodeHelpers.MD5Hash(model.Password),
+                    ResetPassword = EncodeHelpers.MD5Hash(model.Password),
+                    Phone = model.Phone ?? "",
+                    BirthDay = !string.IsNullOrEmpty(model.BirthDayPicker) ?
+                                DateTime.ParseExact(model.BirthDayPicker, "dd/MM/yyyy", CultureInfo.InvariantCulture)
+                              : model.BirthDay,
+                    Gender = model.Gender,
+                    Email = model.Email,
+                    Avata = model.Avata,
+                    Address = model.Address ?? "",
+                    Status = model.Status,
+                    DepartmentId = model.DepartmentId,
+                    Note = model.Note ?? "",
+                    CreatedBy = user_id,
+                    CreatedOn = DateTime.Now,
+                    ModifiedOn = DateTime.Now,
+                    ModifiedBy = user_id,
+                    UserPositionId = model.UserPositionId,
+                    Level = model.Level,
+                    Id = model.Id,
+                    Manager = model.Manager,
+                    UserMapId = model.UserMapId,
+                    //UserRole = model.UserRole
+                };
+
+                // Check exist User Name or Email
+                var userList = await _UserDAL.GetAllAsync();
+                var exmodel = userList.Where(s => s.Status == 0 && (s.UserName == model.UserName/* || s.Email == model.Email*/));
+                if (exmodel != null && exmodel.Count() > 0)
+                {
+                    return -1;
+                }
+
+                var userId = _UserDAL.UpsertUser(entity);
+
+                if (!string.IsNullOrEmpty(model.RoleId))
+                {
+                    var role_list = model.RoleId.Split(',').Select(s => int.Parse(s)).ToArray();
+                    await _UserDAL.UpdateUserRole(userId, role_list, 0);
+                }
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                LogHelper.InsertLogTelegram("Create - UserRepository: " + ex);
+            }
+
+            return 0;
+        }
     }
 }
