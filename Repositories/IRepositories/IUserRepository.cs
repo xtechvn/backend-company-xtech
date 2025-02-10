@@ -44,5 +44,6 @@ namespace Repositories.IRepositories
         Task<int> UpdateTenant(UserViewModel model);
         Task<GenericViewModel<TenantViewModel>> GetListTenant(TenantSearchModel searchModel);
         Task<TenantViewModel> GetDetailTenantByTenantId(int TenantId);
+        Task<int> CreateTenant(UserViewModel model);
     }
 }
