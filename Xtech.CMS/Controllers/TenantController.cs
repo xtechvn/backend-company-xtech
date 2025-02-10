@@ -112,6 +112,7 @@ namespace Xtech.CMS.Controllers
                 {
                     model.TenantId = -1;
                     model.DepartmentId = Convert.ToInt32(_configuration["DepartmentId"].ToString());
+                    model.RoleId = _configuration["DepartmentId"].ToString();
                     model.UserPositionId = -1;
                     model.Level = -1;
                     var id = await _UserRepository.CreateTenant(model);
