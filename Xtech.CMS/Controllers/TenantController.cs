@@ -115,11 +115,13 @@ namespace Xtech.CMS.Controllers
                     model.RoleId = _configuration["DepartmentId"].ToString();
                     model.UserPositionId = -1;
                     model.Level = -1;
-                    var id = await _UserRepository.CreateTenant(model);
                     rs = await _UserRepository.InsertTenant(model);
+                    
+                  
                    
                     if (rs <= 0)
                     {
+
                         return new JsonResult(new
                         {
                             isSuccess = false,
@@ -131,7 +133,8 @@ namespace Xtech.CMS.Controllers
 
                 if (rs > 0)
                 {
-
+                    model.TenantId = rs;
+                    _UserRepository.CreateTenant(model);
 
                     return new JsonResult(new
                     {

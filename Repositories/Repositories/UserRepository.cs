@@ -189,7 +189,7 @@ namespace Repositories.Repositories
                 var user_id = 0;
                 if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
 
-                var entity = new User()
+                var entity = new UserViewModel()
                 {
                     UserName = StringHelpers.ConvertStringToNoSymbol(model.UserName.ToLower()).Replace(" ", ""),
                     FullName = model.FullName,
@@ -215,6 +215,7 @@ namespace Repositories.Repositories
                     Id = model.Id,
                     Manager = model.Manager,
                     UserMapId = model.UserMapId,
+                    TenantId = model.TenantId,
                     //UserRole = model.UserRole
                 };
 
@@ -753,7 +754,7 @@ namespace Repositories.Repositories
                 var user_id = 0;
                 if (user_claim_id != null) int.TryParse(user_claim_id.Value, out user_id);
 
-                var entity = new User()
+                var entity = new UserViewModel()
                 {
                     UserName = StringHelpers.ConvertStringToNoSymbol(model.UserName.ToLower()).Replace(" ", ""),
                     FullName = model.FullName,
@@ -779,6 +780,7 @@ namespace Repositories.Repositories
                     Id = model.Id,
                     Manager = model.Manager,
                     UserMapId = model.UserMapId,
+                    TenantId=model.TenantId,
                     //UserRole = model.UserRole
                 };
 
