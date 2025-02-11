@@ -584,7 +584,7 @@ namespace DAL
             }
 
         }
-        public int UpsertUser(User user)
+        public int UpsertUser(UserViewModel user)
         {
             try
             {
@@ -610,7 +610,8 @@ namespace DAL
                     new SqlParameter("@ModifiedOn", user.ModifiedOn),
                     new SqlParameter("@Level", user.Level),
                     new SqlParameter("@DepartmentId", user.DepartmentId),
-                    new SqlParameter("@UserPositionId", user.UserPositionId)
+                    new SqlParameter("@UserPositionId", user.UserPositionId),
+                    new SqlParameter("@TenantId", user.TenantId)
                 };
                 var id = _DbWorker.ExecuteNonQuery(StoreProcedureConstant.UpsertUser, parameters);
                 user.Id = id;
