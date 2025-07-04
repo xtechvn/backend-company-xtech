@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
 using Repositories.IRepositories;
+using SharpCompress.Common;
 using SixLabors.ImageSharp;
 using System.Data;
 using System.Globalization;
@@ -665,6 +666,7 @@ namespace Repositories.Repositories
             {
                 var searchModel = new TenantSearchModel();
                 var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                var _UserDAL = new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
                 searchModel.UserName = model.UserName;
                 searchModel.PageIndex = -1;
                 DataTable dt = await _tenantDAL.GetListTenant(searchModel);
@@ -675,7 +677,14 @@ namespace Repositories.Repositories
                 }
 
 
-                return await _tenantDAL.InsertTenant(model);
+                var userId = await _tenantDAL.InsertTenant(model);
+
+
+                var role_list = new List<int>();
+                role_list.Add(6);
+                await _UserDAL.UpdateUserRole(userId, role_list.ToArray(), 0);
+
+                return userId;
             }
             catch (Exception ex)
             {
@@ -780,7 +789,7 @@ namespace Repositories.Repositories
                     Id = model.Id,
                     Manager = model.Manager,
                     UserMapId = model.UserMapId,
-                    TenantId=model.TenantId,
+                    TenantId = model.TenantId,
                     //UserRole = model.UserRole
                 };
 
