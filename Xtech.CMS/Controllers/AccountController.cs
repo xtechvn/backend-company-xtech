@@ -275,82 +275,43 @@ namespace WEB.CMS.Controllers
         {
             try
             {
-                LogHelper.InsertLogTelegram(
-                    $"ConfirmLogin START\n" +
-                    $"Raw UserName: {model?.UserName}\n" +
-                    $"Raw Password: {model?.Password}\n" +
-                    $"Raw ReturnUrl: {model?.ReturnUrl}"
-                );
-
                 //-- Validate Input
-                if (model == null || string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.Password))
+                if (model == null || model.UserName == null || model.UserName.Trim() == "" || model.Password == null || model.Password.Trim() == "")
                 {
-                    LogHelper.InsertLogTelegram("ConfirmLogin - FAILED: Input empty");
                     return Ok(new
                     {
                         status = (int)ResponseType.FAILED,
                         msg = "Tài khoản / Mật khẩu không được để trống, vui lòng thử lại"
                     });
                 }
-
                 //-- Bỏ ký tự đặc biệt
                 model.ReturnUrl = CommonHelper.RemoveAllSpecialCharacterinURL(model.ReturnUrl);
                 model.UserName = CommonHelper.RemoveAllSpecialCharacterLogin(model.UserName);
                 model.UserName = model.UserName.Replace("+", "").Replace("//", "").Replace("=", "");
                 model.Password = CommonHelper.RemoveAllSpecialCharacterLogin(model.Password);
-
-                LogHelper.InsertLogTelegram(
-                    $"ConfirmLogin CLEAN INPUT\n" +
-                    $"UserName: {model.UserName}\n" +
-                    $"Password: {model.Password}\n" +
-                    $"ReturnUrl: {model.ReturnUrl}"
-                );
-
                 //-- Kiểm tra user/pass
                 var user = await _UserRepository.CheckExistAccount(model);
-
                 if (user == null || user.Entity == null || user.Entity.Id <= 0)
                 {
-                    LogHelper.InsertLogTelegram(
-                        $"ConfirmLogin - FAILED: Wrong username or password\n" +
-                        $"UserName: {model.UserName}\n" +
-                        $"Password MD5: {EncodeHelpers.MD5Hash(model.Password)}"
-                    );
-
                     return Ok(new
                     {
                         status = (int)ResponseType.FAILED,
                         msg = "Tài khoản / Mật khẩu không chính xác, vui lòng thử lại"
                     });
                 }
-
                 //-- Nếu tài khoản bị khóa
                 if (user.Entity.Status != 0)
                 {
-                    LogHelper.InsertLogTelegram(
-                        $"ConfirmLogin - FAILED: Account locked\n" +
-                        $"UserId: {user.Entity.Id}\n" +
-                        $"Status: {user.Entity.Status}"
-                    );
-
                     return Ok(new
                     {
                         status = (int)ResponseType.FAILED,
                         msg = "Tài khoản của bạn đã bị khóa, vui lòng liên hệ IT"
                     });
                 }
-
                 //-- Nếu môi trường QC
                 if (_configuration["Setting:On_QC_Environment"] == "1")
                 {
-                    LogHelper.InsertLogTelegram(
-                        $"ConfirmLogin QC MODE\n" +
-                        $"UserId: {user.Entity.Id}\n" +
-                        $"UserName: {model.UserName}"
-                    );
-
                     await CreateCookieAuthenticate(user);
-
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -359,9 +320,7 @@ namespace WEB.CMS.Controllers
                     });
                 }
 
-                //-- IP user
                 var remoteIpAddress = HttpContext.Request.HttpContext.Connection.RemoteIpAddress;
-                LogHelper.InsertLogTelegram($"ConfirmLogin - Client IP: {remoteIpAddress}");
 
                 //-- Tạo token
                 UserLoginModel login_model = new UserLoginModel()
@@ -373,51 +332,34 @@ namespace WEB.CMS.Controllers
                     pass = model.Password,
                     ip = remoteIpAddress.ToString()
                 };
-
-                LogHelper.InsertLogTelegram(
-                    $"ConfirmLogin TOKEN DATA\n" +
-                    $"{JsonConvert.SerializeObject(login_model)}"
-                );
-
                 var key = MFAService.Get_AESKey(MFAService.ConvertBase64StringToByte(_configuration["Setting:AESKey"]));
+                
                 var iv = MFAService.Get_AESIV(MFAService.ConvertBase64StringToByte(_configuration["Setting:AESIV"]));
                 var encrypt = MFAService.AES_EncryptToByte(JsonConvert.SerializeObject(login_model), key, iv);
                 var token = MFAService.ConvertByteToBase64String(encrypt);
-
+                //Set Session:
                 HttpContext.Session.SetString("token", token);
 
-                LogHelper.InsertLogTelegram(
-                    $"ConfirmLogin TOKEN CREATED\n" +
-                    $"Token(Base64): {token}"
-                );
-
-                //-- Kiểm tra bảo mật 2 lớp
+                //-- Kiểm tra bảo mật 2 lớp :
                 Mfauser mfa_detail = await _mFARepository.get_MFA_DetailByUserID(user.Entity.Id);
-
+                //-- Nếu chưa tạo hoặc chưa quét QR
                 if (mfa_detail == null || mfa_detail.Status == 0)
                 {
-                    LogHelper.InsertLogTelegram(
-                        $"ConfirmLogin MFA SETUP REQUIRED\n" +
-                        $"UserId: {user.Entity.Id}"
-                    );
-
                     bool create_2fa_status = false;
-
+                    //-- Tạo MFA
                     if (mfa_detail == null)
                     {
+
                         var new_2fa_model = await MFAService.Get2FAModel(user);
                         var mfa_id = await _mFARepository.CreateAsync(new_2fa_model);
                         if (mfa_id > 0) create_2fa_status = true;
-
-                        LogHelper.InsertLogTelegram(
-                            $"ConfirmLogin MFA CREATED: {mfa_id}"
-                        );
                     }
+                    //-- Có MFA sẵn
                     else
                     {
                         create_2fa_status = true;
                     }
-
+                    //-- Direct To Setup
                     if (create_2fa_status)
                     {
                         return Ok(new
@@ -427,14 +369,11 @@ namespace WEB.CMS.Controllers
                             direct = "/Account/2FA/",
                         });
                     }
+
                 }
+                //Nếu đã thiết lập 2FA:
                 else
                 {
-                    LogHelper.InsertLogTelegram(
-                        $"ConfirmLogin MFA READY\n" +
-                        $"UserId: {user.Entity.Id}"
-                    );
-
                     return Ok(new
                     {
                         status = (int)ResponseType.SUCCESS,
@@ -442,19 +381,18 @@ namespace WEB.CMS.Controllers
                         direct = "/Account/OTP",
                     });
                 }
+
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram($"ConfirmLogin ERROR: {ex}");
+                LogHelper.InsertLogTelegram("ConfirmLogin - AccountController" + ex);
             }
-
             return Ok(new
             {
                 status = (int)ResponseType.FAILED,
                 msg = "Có lỗi xảy ra trong quá trình đăng nhập, vui lòng liên hệ IT"
             });
         }
-
         public async Task<IActionResult> Setup2FA()
         {
             try
