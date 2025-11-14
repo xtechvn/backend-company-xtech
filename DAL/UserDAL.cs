@@ -181,6 +181,12 @@ namespace DAL
         {
             try
             {
+                // MẶC ĐỊNH LOG NGAY KHI VÀO
+                LogHelper.InsertLogTelegram(
+                    $"GetByUserName - START\n" +
+                    $"UserName: {input}\n" +
+                    $"Connection: {_connection}"
+                );
                 using (var _DbContext = new EntityDataContext(_connection))
                 {
                     var user = await _DbContext.Users
