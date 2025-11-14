@@ -172,6 +172,7 @@ namespace DAL
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("GetUserRolesId - UserDAL: " + ex);
+
                 return new List<int>();
             }
         }
@@ -182,15 +183,38 @@ namespace DAL
             {
                 using (var _DbContext = new EntityDataContext(_connection))
                 {
-                    return await _DbContext.Users.FirstOrDefaultAsync(s => s.UserName.Equals(input));
+                    var user = await _DbContext.Users
+                        .FirstOrDefaultAsync(s => s.UserName.Equals(input));
+
+                    // Nếu null thì cũng báo Telegram
+                    if (user == null)
+                    {
+                        LogHelper.InsertLogTelegram(
+                            $"GetByUserName - UserDAL WARNING\n" +
+                            $"UserName: {input}\n" +
+                            $"Message: User not found (null)\n" +
+                            $"Connection: {_connection}"
+                        );
+                    }
+
+                    return user;
                 }
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("GetByUserName - UserDAL: " + ex);
+                // Log lỗi + connection string
+                LogHelper.InsertLogTelegram(
+                    $"GetByUserName - UserDAL ERROR\n" +
+                    $"UserName: {input}\n" +
+                    $"Connection: {_connection}\n" +
+                    $"Exception: {ex}"
+                );
+
                 return null;
             }
         }
+
+
 
         public async Task<List<User>> GetByIds(List<long> userIds)
         {
