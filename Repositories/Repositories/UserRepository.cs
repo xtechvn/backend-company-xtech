@@ -51,36 +51,81 @@ namespace Repositories.Repositories
             try
             {
                 var _encryptPassword = EncodeHelpers.MD5Hash(entity.Password);
+
+                // Lấy user theo username
                 var _model = await _UserDAL.GetByUserName(entity.UserName);
-                if (_model != null)
+
+                // ❌ Không tìm thấy tài khoản
+                if (_model == null)
                 {
-                    if (_encryptPassword == _model.Password || _encryptPassword == _model.ResetPassword)
+                    LogHelper.InsertLogTelegram(
+                        $"CheckExistAccount - UserRepository WARNING\n" +
+                        $"Username: {entity.UserName}\n" +
+                        $"Message: User not found (null)"
+                    );
+                    return null;
+                }
+
+                // Sai password
+                if (_encryptPassword != _model.Password && _encryptPassword != _model.ResetPassword)
+                {
+                    LogHelper.InsertLogTelegram(
+                        $"CheckExistAccount - UserRepository WARNING\n" +
+                        $"Username: {entity.UserName}\n" +
+                        $"Message: Wrong password\n" +
+                        $"Password Input (MD5): {_encryptPassword}\n" +
+                        $"Password DB: {_model.Password}\n" +
+                        $"ResetPassword DB: {_model.ResetPassword}"
+                    );
+                    return null;
+                }
+
+                // Nếu password hợp lệ nhưng khác nhau thì update lại cho đồng bộ
+                if (_model.Password != _model.ResetPassword)
+                {
+                    try
                     {
-                        if (_model.Password != _model.ResetPassword)
-                        {
-                            if (_encryptPassword == _model.Password)
-                            {
-                                _model.ResetPassword = _encryptPassword;
-                            }
-                            else
-                            {
-                                _model.Password = _encryptPassword;
-                            }
+                        if (_encryptPassword == _model.Password)
+                            _model.ResetPassword = _encryptPassword;
+                        else
+                            _model.Password = _encryptPassword;
 
-                            await _UserDAL.UpdateAsync(_model);
-                        }
+                        await _UserDAL.UpdateAsync(_model);
 
-                        return await GetDetailUser(_model.Id);
+                        LogHelper.InsertLogTelegram(
+                            $"CheckExistAccount - UserRepository INFO\n" +
+                            $"Username: {entity.UserName}\n" +
+                            $"Message: Password synced successfully."
+                        );
+                    }
+                    catch (Exception updateEx)
+                    {
+                        LogHelper.InsertLogTelegram(
+                            $"CheckExistAccount - UserRepository ERROR\n" +
+                            $"Username: {entity.UserName}\n" +
+                            $"Message: Error while updating password\n" +
+                            $"Exception: {updateEx}"
+                        );
                     }
                 }
+
+                // Lấy detail user
+                return await GetDetailUser(_model.Id);
             }
             catch (Exception ex)
             {
-                LogHelper.InsertLogTelegram("CheckExistAccount - UserRepository: " + ex);
+                LogHelper.InsertLogTelegram(
+                    $"CheckExistAccount - UserRepository ERROR\n" +
+                    $"Username: {entity.UserName}\n" +
+                    $"Exception: {ex}"
+                );
+
                 _logger.LogError(ex.Message);
             }
+
             return null;
         }
+
 
         public async Task<bool> ResetPassword(string input)
         {
