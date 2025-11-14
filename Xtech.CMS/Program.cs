@@ -74,6 +74,8 @@ builder.Services.AddTransient<IOtherBookingRepository, OtherBookingRepository>()
 builder.Services.AddTransient<IOtherBookingPackageRepository, OtherBookingPackageRepository>();
 builder.Services.AddTransient<IContractPayRepository, ContractPayRepository>();
 builder.Services.AddTransient<IPaymentRequestRepository, PaymentRequestRepository>();
+builder.Services.AddTransient<ITelegramRepository, TelegramRepository>();
+
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();

@@ -5,8 +5,8 @@ namespace Utilities
 {
     public static class LogHelper
     {
-        public static string botToken = "5321912147:AAFhcJ9DolwPWL74WbMjOOyP6-0G7w88PWY";
-        public static string group_Id = "-739120187";
+        public static string botToken = "6804654183:AAFqaLKWkyDidWsw2QFPtHt1oISI020jhyY";
+        public static string group_Id = "-1002067724008";
         public static string enviromment = "DEV";
         public static string CompanyType = " ";
         public static int CompanyTypeInt = 0;

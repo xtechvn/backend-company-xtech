@@ -34,7 +34,20 @@ namespace Ultilities.RedisWorker
             }
         }
 
-      
+        public void Connect()
+        {
+            try
+            {
+                var configString = $"{_redisHost}:{_redisPort},connectRetry=5,allowAdmin=true";
+                _redis = ConnectionMultiplexer.Connect(configString);
+            }
+            catch (RedisConnectionException err)
+            {
+
+                // throw err;
+            }
+            // Log.Debug("Connected to Redis");
+        }
 
         public void Set(string key, string value, int db_index)
         {

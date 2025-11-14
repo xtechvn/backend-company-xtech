@@ -88,6 +88,7 @@ namespace Entities.Models
         public virtual DbSet<VoucherCampaign> VoucherCampaigns { get; set; } = null!;
         public virtual DbSet<VoucherLogActivity> VoucherLogActivities { get; set; } = null!;
         public virtual DbSet<Ward> Wards { get; set; } = null!;
+        public virtual DbSet<TeleBotServer> TeleBotServer { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
