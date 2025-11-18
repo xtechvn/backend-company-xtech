@@ -85,7 +85,8 @@ namespace Repositories.Repositories
                 DataTable dt = await _OrderDal.GetOrderNo();
                 if (dt != null && dt.Rows.Count > 0) 
                 {
-                    string? Id = (string?)dt.Rows[0]["OrderNo"];
+                    string? Id = dt.Rows[0]["OrderNo"] as string;
+
                     if (Id != null)
                     {
                         long newId = long.Parse(Id) + 1;
