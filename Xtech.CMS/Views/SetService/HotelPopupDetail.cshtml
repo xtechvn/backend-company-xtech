@@ -1,0 +1,19 @@
+﻿@{
+    Layout = null;
+}
+<form id="form_Note_TC" onsubmit="return false">
+
+    <input id="id" value="@ViewBag.id" style="display:none" />
+    <input id="type" value="@ViewBag.type" style="display:none" />
+    <input id="orderid" value="@ViewBag.orderid" style="display:none" />
+    <input id="group_booking_id" value="@ViewBag.group_booking_id" style="display:none" />
+
+    <div class="grid-item border mb20">
+        <textarea id="Note_txt" name="Note_txt" class="form-control" placeholder="Nhập lý do" style="height: 150px;"></textarea>
+    </div>
+    <div class="text-center">
+        <button onclick="$.magnificPopup.close();" class="btn btn-default btn btn-default cancel">Bỏ qua</button>
+        <button onclick="_SetService_Detail.OnUpdatetStatus(@ViewBag.id)" class="btn btn-default">Từ chối</button>
+    </div>
+
+</form>

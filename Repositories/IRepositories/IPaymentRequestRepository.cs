@@ -10,5 +10,6 @@ namespace Repositories.IRepositories
     public interface IPaymentRequestRepository
     {
         List<OrderPaymentRequest> GetListPaymentRequestByOrderId(int Orderid);
+        List<PaymentRequestViewModel> GetByServiceId(long serviceId, int type, int requestType = 0);
     }
 }

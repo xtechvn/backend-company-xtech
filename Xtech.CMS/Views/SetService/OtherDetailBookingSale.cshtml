@@ -1,0 +1,106 @@
+﻿@{
+    Layout = null;
+    // Entities.Models.AllCode? service = (Entities.Models.AllCode?)ViewBag.Service;
+    Entities.Models.OtherBooking? booking = (Entities.Models.OtherBooking?)ViewBag.Booking;
+    List<Entities.Models.OtherBookingPackages> list = (List<Entities.Models.OtherBookingPackages>)ViewBag.ExtraList;
+    double profit = list != null && list.Count > 0 ? list.Sum(x => (double)x.Profit) : 0;
+    double amount = list != null && list.Count > 0 ? list.Sum(x => (double)x.Amount) : 0;
+     int index = 0;
+
+}
+<div>
+    <div class="bold mb10 txt_14">Ghi chú</div>
+    <div class="form-group">
+        <textarea class="form-control service-other-readonly-note" disabled style="height: 200px;" rows="6">@(booking != null && booking.Note != null ? booking.Note : "")</textarea>
+    </div>
+</div>
+<div class="row row_min">
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Loại dịch vụ  <sup class="red">*</sup></label>
+        <select id="add-service-other-readonly-select-service" disabled class="select select2 add-service-other-readonly-select-service" name="add-service-other-readonly-select-service" style="width: 100%;">
+            @* <option value="@(service.CodeValue)" selected>@service.Description</option> *@
+
+        </select>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Ngày đi <sup class="red">*</sup></label>
+        <div class="datepicker-wrap" style="width:100%">
+            <input class="form-control datepicker-input service-other-readonly-date-time-single service-other-readonly-from-date" disabled type="text" name="service-other-readonly-from-date" value="@(booking!=null ? booking.StartDate.ToString("dd/MM/yyyy HH:mm"):DateTime.Now.ToString("dd/MM/yyyy HH:mm"))">
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Ngày về <sup class="red">*</sup></label>
+        <div class="datepicker-wrap" style="width:100%">
+            <input class="form-control datepicker-input service-other-readonly-date-time-single service-other-readonly-single-date service-other-readonly-to-date" disabled type="text" name="service-other-readonly-from-date" value="@(booking!=null ? booking.EndDate.ToString("dd/MM/yyyy HH:mm"):DateTime.Now.ToString("dd/MM/yyyy HH:mm"))">
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Chi phí khác </label>
+        <input id="servicemanual-vinwonder-other-amount" class="form-control currency text-right servicemanual-vinwonder-other-amount" disabled type="text" name="servicemanual-vinwonder-other-amount" placeholder="Nhập chi phí khác" value="@(booking.OthersAmount!=null ? ((double)booking.OthersAmount).ToString("N0"):"0")">
+
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Hoa hồng CTV </label>
+        <input id="servicemanual-vinwonder-discount" class="form-control currency text-right servicemanual-vinwonder-discount" disabled type="text" name="servicemanual-vinwonder-discount" placeholder="Nhập chiết khấu" value="@(booking.Commission!=null ? ((double)booking.Commission).ToString("N0"):"0")">
+
+    </div>
+</div>
+<div class="bold mb15 txt_14">Bảng kê dịch vụ <small>((Đơn giá đã bao gồm thuế phí + Phí dịch vụ Adavigo))</small></div>
+<div class="table-responsive table-gray service-other-readonly-packages" data-other-readonly-booking-id="">
+    <table class="table table-nowrap">
+        <thead>
+            <tr>
+                <th style="width: 70px;">STT</th>
+                <th style="min-width: 200px;">Nội dung</th>
+                <th class="text-right" style="min-width: 150px;">Giá nhập<sup class="red">*</sup></th>
+                <th class="text-right" style="min-width: 150px;">Giá bán<sup class="red">*</sup></th>
+                <th class="text-right" style="width:150px !important;">Số lượng</th>
+                <th class="text-right" style="width: 250px !important;">Thành tiền giá bán</th>
+                <th class="text-right" style="width:150px !important;">Lợi nhuận</th>
+            </tr>
+        </thead>
+        <tbody class="service-other-readonly-packages-tbody">
+
+            @if (list.Count > 0)
+            {
+                foreach (var item in list)
+                {
+                    <tr class="service-other-readonly-row" data-extra-package-id="@item.Id">
+                        <td class="service-other-readonly-order">@(++index)</td>
+                        <td>
+                            <input type="text" class="form-control service-other-readonly-packagename" disabled style="background-color: lightgray;width:100% !important" value="@item.Name">
+                        </td>
+                        @{
+                            double amount_sale_pre = (double)item.Amount / (double)item.Quantity;
+                            if (item.SalePrice != amount_sale_pre) item.SalePrice = amount_sale_pre;
+
+                        }
+                        <td> <input class="form-control text-right currency service-other-readonly-baseprice" disabled style="background-color: lightgray;" type="text" name="service-other-readonly-baseprice" value="@(((double)item.BasePrice).ToString("N0"))"></td>
+                        <td> <input class="form-control text-right currency service-other-readonly-saleprice" disabled style="background-color: lightgray;" type="text" name="service-other-readonly-saleprice" value="@((item.SalePrice ==null? amount_sale_pre: (double)item.SalePrice).ToString("N0"))"></td>
+                        <td> <input class="form-control text-right currency service-other-readonly-quantity" disabled style="background-color: lightgray;" type="text" name="service-other-readonly-quantity" value="@(((int)item.Quantity).ToString("N0"))"></td>
+                        <td class="text-right"> <input class="form-control text-right currency service-other-readonly-amount" disabled style="background-color: lightgray;" value="@item.Amount.ToString("N0")"></td>
+                        <td class="text-right service-other-readonly-profit-row">
+                            <input class="form-control text-right currency service-other-readonly-profit" disabled type="text" style="background-color: lightgray;" value="@(item.Profit==null ? "0":((double)item.Profit).ToString("N0"))">
+                        </td>
+
+                    </tr>
+                }
+            }
+
+            <tr class="service-other-readonly-summary-row">
+                <td></td>
+                <td>
+                </td>
+                <td class="text-right" colspan="3">Tổng cộng</td>
+                <td class="text-right font-weight-bold service-other-readonly-total-amount">@(amount.ToString("N0"))</td>
+                <td class="text-right font-weight-bold service-other-readonly-total-profit">@(profit.ToString("N0"))</td>
+            </tr>
+
+
+        </tbody>
+    </table>
+
+</div>
+<div class="attachment-sale border pd10">
+    <img src="/images/icons/loading.gif" style="width: 55px;height: 55px;margin-left: 10px;margin-bottom: 10px;" class="img_loading coll">
+</div>

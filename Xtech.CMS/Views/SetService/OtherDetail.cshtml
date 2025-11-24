@@ -1,0 +1,213 @@
+﻿@{
+    ViewData["Title"] = "Chi tiết đặt dịch vụ khác";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var booking = (Entities.Models.OtherBooking)ViewBag.Booking;
+    var user_created = (Entities.Models.User)ViewBag.UserCreated;
+    var user_updated = (Entities.Models.User?)ViewBag.UserUpdated;
+    var saler = (Entities.Models.User?)ViewBag.Saler;
+    var operator_object = (Entities.Models.User?)ViewBag.Operator;
+    var order_amount = (double)ViewBag.OrderAmount;
+    double amount = booking.Amount;
+    long client_id = (long)ViewBag.ClientId;
+
+    double commission = booking.Commission != null ? (double)booking.Commission : 0;
+    double other_amount = booking.OthersAmount != null ? (double)booking.OthersAmount : 0;
+    var price = booking.Price != null && booking.Price > 0 ? (double)booking.Price : (double)booking.Amount - (double)booking.Profit;
+    double profit = amount - price/* - other_amount - commission*/;
+
+    bool allow_to_finish_payment = (bool)ViewBag.AllowToFinishPayment;
+    double refund_amount = (long)ViewBag.RefundAmount;
+
+}
+
+<style>
+    .set-service-other-detail-box {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 10px;
+        margin-left: 0;
+    }
+
+    .set-service-other-detail-title {
+        padding-top: 15px;
+    }
+
+    .input-disabled-background {
+        background-color: #f0f0f0 !important;
+        color: black !important;
+    }
+</style>
+<div class="row-main container">
+    <div class="table-responsive table-white">
+        <input id="service-other-detail-data" style="display:none"
+               data-user="@ViewBag.user" data-order-id="@booking.OrderId" data-sale="@saler.FullName "
+               data-status="@booking.Status" data-booking-id="@booking.Id" data-servicecode="@booking.ServiceCode"
+               data-orderid="@booking.OrderId" data-clientid="@client_id" data-amount="@booking.Amount">
+        <table class="table table-nowrap">
+            <tbody>
+                <tr>
+                    <td colspan="3">
+                        <strong>Dịch vụ khác: @(booking.ServiceCode ?? "")</strong>
+                        @if (booking.Status == 0)
+                        {
+                            <span class="status-oranger">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 1)
+                        {
+                            <span class="status-oranger">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 2)
+                        {
+                            <span class="status-blue">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 3)
+                        {
+                            <span class="status-green">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 8)
+                        {
+                            <span class="status-green">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 4)
+                        {
+                            <span class="status-green">@ViewBag.StatusName</span>
+                        }
+                        @if (booking.Status == 5)
+                        {
+                            <span class="status-red">@ViewBag.StatusName</span>
+                        }
+
+                    </td>
+                </tr>
+                <tr>
+                    <td style="min-width: 400px;">
+                        <div class="row">
+
+                            <div class="col-4 mb10 gray">Ngày đi</div>
+                            <div class="col-8 mb10">: @(booking.StartDate.ToString("dd/MM/yyyy HH:mm:ss"))</div>
+                            <div class="col-4 mb10 gray">Ngày về</div>
+                            <div class="col-8 mb10">:  @(booking.EndDate.ToString("dd/MM/yyyy HH:mm:ss")) </div>
+                            <div class="col-4 mb10 gray">Nhân viên bán</div>
+                            <div class="col-8 mb10">: @saler.FullName</div>
+                            <div class="col-4 mb10 gray">Điều hành viên</div>
+                            @if (operator_object != null)
+                            {
+                                <div class="col-8 mb10">: @operator_object.FullName  <a class="blue" href="javascript:;" onclick="_set_service_other_detail.PopupChangeOperator(' @operator_object.FullName',)"><i class="fa fa-edit blue"></i></a></div>
+
+                            }
+                            else
+                            {
+                                <div class="col-8 mb10">:  <a class="blue" href="javascript:;" onclick="_set_service_other_detail.PopupChangeOperator('',)"><i class="fa fa-edit blue"></i></a></div>
+
+                            }
+                        </div>
+                    </td>
+                    <td style="min-width: 400px;">
+                        <div class="row">
+                            <div class="col-4 mb10 gray">Tổng giá trị đơn hàng</div>
+                            <div class="col-8 mb10">: @order_amount.ToString("N0")</div>
+                            <div class="col-4 mb10 gray">Tổng giá trị dịch vụ</div>
+                            <div class="col-8 mb10" id="saler-order-amount" data-amount="@(booking.Amount)">: @booking.Amount.ToString("N0")</div>
+                            <div class="col-4 mb10 gray">Tổng chi dịch vụ thực tế</div>
+                            <div class="col-8 mb10" id="operator-order-amount" data-amount="@(booking.Price != null && booking.Price > 0 ? booking.Price.ToString() : price.ToString())">: @(booking.Price != null && booking.Price > 0 ? ((double)booking.Price).ToString("N0") : price.ToString("N0"))</div>
+                            <div class="col-4 mb10 gray">Tổng Lợi nhuận thực tế</div>
+                            <div class="col-8 mb10" id="operator-total-profit" data-profit="@profit.ToString("N0")">: @profit.ToString("N0")</div>
+                            <div class="col-4 mb10 gray">Lợi nhuận Saler nhập</div>
+                            <div class="col-8 mb10">: @booking.Profit.ToString("N0")</div>
+                            <div class="col-4 mb10 gray">Hoàn trả khách hàng</div>
+                            <div class="col-8 mb10">: @refund_amount.ToString("N0")</div>
+                            <div class="col-4 mb10 gray">Nhà cung cấp hoàn tiền</div>
+                            <div class="col-8 mb10">: @ViewBag.amountNcc.ToString("N0")</div>
+                        </div>
+                    </td>
+                    <td style="min-width: 400px;">
+                        <div class="row">
+                            <div class="col-5 mb10 gray">Người tạo</div>
+                            <div class="col-7 mb10">: @user_created.FullName</div>
+                            <div class="col-5 mb10 gray">Ngày tạo</div>
+                            <div class="col-7 mb10 ">: @(((DateTime)booking.CreatedDate).ToString("dd/MM/yyyy HH:mm"))</div>
+                            <div class="col-5 mb10 gray">Người cập nhật</div>
+                            <div class="col-7 mb10">: @(user_updated == null || user_updated.Id <= 0 ? "N/A" : user_updated.FullName)</div>
+                            <div class="col-5 mb10 gray">Ngày cập nhật</div>
+                            <div class="col-7 mb10">: @(user_updated == null || user_updated.Id <= 0 ? "N/A" : ((DateTime)booking.UpdatedDate).ToString("dd/MM/yyyy HH:mm"))</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-default" style="border-bottom: 1px solid #CCCCCC;">
+        <div class="row" style=" width: 100%; ">
+            <div class="tab-default col-md-9 mb0 mt10">
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-order active" data-loaded="0" data-tab-id="0">Đơn hàng</a>
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-need-to-order" data-loaded="0" data-tab-id="1">Dịch vụ cần đặt</a>
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-ordered" data-loaded="0" data-tab-id="2">Dịch vụ đã đặt</a>
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-payment" data-loaded="0" data-tab-id="3">Thanh toán</a>
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-servicecode" data-loaded="0" data-tab-id="4">Code dịch vụ</a>
+                <a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-refund" data-loaded="0" data-tab-id="5">Hoàn trả khách hàng</a>
+                @*<a href="javascript:;" class="service-other-detail-change-tab-button  service-other-detail-button-marketing" data-loaded="0" data-tab-id="6">Chi Phí Marketing</a>*@
+
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="service-other-detail-tab service-other-detail-tab-order">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-need-to-order" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-ordered" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-payment" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-servicecode" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-refund" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+        <div class="service-other-detail-tab service-other-detail-tab-marketing" style="display:none">
+            <img src="~/images/icons/loading.gif" style=" width: 100px; height: 100px; display:none" class="loading" />
+        </div>
+    </div>
+    <div class="form-group align-right mt20 block pin-btn-bottom ">
+        <b class="btn btn-default cancel ml-1" onclick="_set_service_other_detail.Back()">Quay lại</b>
+        @if (booking.Status != (int)Utilities.Contants.ServiceStatus.Payment && booking.Status != (int)Utilities.Contants.ServiceStatus.Cancel && booking.Status != (int)Utilities.Contants.ServiceStatus.Decline)
+        {
+            <button type="button" class="btn btn-default red ml-1 " onclick="_SetService_Detail.OnResetStatusPopup('@booking.Id',9,@booking.OrderId,'')">Từ chối</button>
+        }
+        @if (booking.Status == (int)Utilities.Contants.ServiceStatus.WaitingExcution)
+        {
+            <button type="button" class="btn btn-default ml-1" onclick="_set_service_other_detail.GrantOrderPermission($(this))">Nhận đặt dịch vụ</button>
+        }
+        @if (booking.Status == (int)Utilities.Contants.ServiceStatus.OnExcution)
+        {
+            <button type="button" class="btn btn-default ml-1" onclick="_set_service_other_detail.SendServiceCode($(this))">Trả code dịch vụ</button>
+        }
+
+        @if ((booking.Status == (int)Utilities.Contants.ServiceStatus.ServeCode || booking.Status == (int)Utilities.Contants.ServiceStatus.ServeCodeKH) && allow_to_finish_payment)
+        {
+            <button type="button" class="btn btn-default ml-1" onclick="_set_service_other_detail.ChangeToPayment($(this))">Quyết toán</button>
+        }
+        else if (booking.Status == (int)Utilities.Contants.ServiceStatus.ServeCode || booking.Status == (int)Utilities.Contants.ServiceStatus.ServeCodeKH)
+        {
+            <button type="button" class="btn btn-default ml-1 disabled" onclick="return false;" disabled style="">Quyết toán</button>
+        }
+
+    </div>
+</div>
+
+
+@section scripts {
+
+    <script type="text/javascript" src="/modules/set_service_other.js"></script>
+    <script type="text/javascript" src="/modules/SetServiceDetail.js"></script>
+    <script type="text/javascript" src="/modules/payment_request.js"></script>
+    <script type="text/javascript" src="/js/zebra_datepicker.min.js"></script>
+    <script type="text/javascript" src="~/modules/add_payment_request.js"></script>
+    <script>_set_service_other_detail.Initialization()</script>
+
+}

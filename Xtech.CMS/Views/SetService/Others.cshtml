@@ -1,0 +1,108 @@
+﻿@{
+    ViewData["Title"] = "Đặt dịch vụ khác";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Entities.Models.AllCode> status = (List<Entities.Models.AllCode>)ViewBag.status;
+
+}
+<style>
+    .select2-container {
+        min-width: 250px !important;
+        width: max-content !important;
+    }
+</style>
+<section class="main-container">
+    <div class="row-main container">
+        <h2 class="title_page mb20">Danh sách dịch vụ khác</h2>
+        <div class="flex fillter-donhang" style="overflow: hidden !important; float:none;">
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+                <select class="form-control set-service-other-search-servicecode" style="width:100% !important" placeholder="Mã dịch vụ">
+                </select>
+            </div>
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+                <select class="form-control set-service-other-search-orderno" style="width:100% !important" placeholder="Mã đơn hàng">
+                </select>
+            </div>
+
+            <div class="form-group mb10 mr-2" style="min-width: 250px; max-width: 520px; width:max-content;">
+                <select class="set-service-other-search-status" multiple="multiple" style="min-width: 250px;" placeholder="Tất cả trạng thái">
+
+                    @if (status != null && status.Count > 0)
+                    {
+                        foreach (var i in status)
+                        {
+                            <option value="@i.CodeValue">@i.Description</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mb10 mr-2">
+                <input class="form-control date text-left set-service-other-search-daterange set-service-other-search-startdate" type="text" name="set-service-other-search-startdate" style="min-width: 180px !important" placeholder="Ngày đi" value="" />
+
+            </div>
+            <div class="form-group mb10 mr-2">
+                <input class="form-control date text-left set-service-other-search-daterange set-service-other-search-enddate" type="text" name="set-service-other-search-enddate" style="min-width: 180px !important" placeholder="Ngày về" value="" />
+
+            </div>
+            <div class="form-group mb10 mr-2">
+                <div class="datepicker-wrap" style="width:100%">
+                    <input class="form-control date text-left set-service-other-search-daterange set-service-other-search-createddate" type="text" name="set-service-other-search-createddate" style="min-width: 180px !important" placeholder="Ngày tạo" value="" />
+                </div>
+            </div>
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+                <select class="set-service-other-search-usercreate" style="width:100% !important" placeholder="Người tạo">
+                </select>
+            </div>
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+                <select class="set-service-other-search-main-staff" style="width:100% !important" placeholder="Nhân viên bán hàng">
+                </select>
+            </div>
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+                <select class="set-service-other-search-saler" style="width:100% !important" placeholder="Điều hành viên">
+                </select>
+            </div>
+            <div class="form-group mb10 mr-2" style="min-width: 220px;">
+
+                <select class="select2 client-select main-staff-select" id="BookingCode" style="width:100% !important">
+                </select>
+            </div>
+            <div class="mb10 mr-2">
+                <button class="btn-search btn-default" type="button" onclick="_set_service_other.Export()" id="btnExport">
+                    <i class="fa fa-file-excel-o" id="icon-export" title="Xuất excel">
+                    </i>
+                </button>
+                <button type="button" class="btn btn-default bg-main" onclick="_set_service_other.SearchData()">
+                    <svg class="icon-svg" style="vertical-align: sub;">
+                        <use xlink:href="/images/icons/icon.svg#search"></use>
+                    </svg>
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+        <div class="line-bottom" style="padding-bottom: 0;">
+            <div class="row">
+                <div class="tab-default col-md-9 mb0 mt10">
+                    <a href="javascript:;" class="service-other-filter-by-status active" data-status="-1">Tất cả <nw style="display:none;" class="set-service-other-total-count">(0)</nw></a>
+                    <a href="javascript:;" class="service-other-filter-by-status" data-status="1">Chờ xử lý <nw style="display:none;" class="set-service-other-waiting-total-count">(0)</nw></a>
+                    <a href="javascript:;" class="service-other-filter-by-status" data-status="2">Đang xử lý <nw style="display:none;" class="set-service-other-on-progress-total-count">(0)</nw></a>
+                    <a href="javascript:;" class="service-other-filter-by-status" data-status="3">Trả code <nw style="display:none;" class="set-service-other-return-code-total-count">(0)</nw></a>
+                    <a href="javascript:;" class="service-other-filter-by-status" data-status="4">Quyết toán <nw style="display:none;" class="set-service-other-finished-payment-total-count">(0)</nw></a>
+                    <a href="javascript:;" class="service-other-filter-by-status" data-status="5">Từ chối <nw style="display:none;" class="set-service-other-decline-total-count">(0)</nw></a>
+                </div>
+            </div>
+        </div>
+        <div id="search_data_grid">
+            <img src="/images/icons/loading.gif" style=" width: 100px; height: 100px; margin-left:46%;" />
+        </div>
+
+
+
+    </div>
+</section>
+
+@section scripts {
+    <script type="text/javascript" src="/modules/set_service_other.js"></script>
+    <script type="text/javascript" src="/modules/common.js"></script>
+    <script>_set_service_other.Initialization();</script>
+}

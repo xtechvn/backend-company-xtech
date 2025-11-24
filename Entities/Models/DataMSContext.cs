@@ -61,7 +61,7 @@ namespace Entities.Models
         public virtual DbSet<Mfauser> Mfausers { get; set; } = null!;
         public virtual DbSet<National> Nationals { get; set; } = null!;
         public virtual DbSet<Note> Notes { get; set; } = null!;
-        public virtual DbSet<Order> Orders { get; set; } = null!;
+        //public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<OrderBak> OrderBaks { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<PaymentAccount> PaymentAccounts { get; set; } = null!;
@@ -84,12 +84,18 @@ namespace Entities.Models
         public virtual DbSet<UserDepart> UserDeparts { get; set; } = null!;
         public virtual DbSet<UserPosition> UserPositions { get; set; } = null!;
         public virtual DbSet<UserRole> UserRoles { get; set; } = null!;
-        public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
+        //public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
         public virtual DbSet<VoucherCampaign> VoucherCampaigns { get; set; } = null!;
         public virtual DbSet<VoucherLogActivity> VoucherLogActivities { get; set; } = null!;
         public virtual DbSet<Ward> Wards { get; set; } = null!;
         public virtual DbSet<TeleBotServer> TeleBotServer { get; set; }
-
+        //==========================================================
+        public virtual DbSet<Voucher> Voucher { get; set; }
+        public virtual DbSet<Order> Order { get; set; }
+        public virtual DbSet<Client> Client { get; set; }
+        public virtual DbSet<OtherBooking> OtherBooking { get; set; }
+        public virtual DbSet<OtherBookingPackages> OtherBookingPackages { get; set; }
+        public virtual DbSet<OtherBookingPackagesOptional> OtherBookingPackagesOptional { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

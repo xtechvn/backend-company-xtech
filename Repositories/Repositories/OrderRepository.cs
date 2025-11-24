@@ -150,5 +150,67 @@ namespace Repositories.Repositories
             }
             return -1;
         }
+        public async Task<List<ProductServiceName>> ProductServiceName(string OrderId)
+        {
+            var ListData = new List<ProductServiceName>();
+            try
+            {
+
+                DataTable dt = await _OrderDal.GetDetailOrderServiceByOrderId(Convert.ToInt32(OrderId));
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    ListData = (from row in dt.AsEnumerable()
+                                select new ProductServiceName
+                                {
+                                    OrderId = row["OrderId"].ToString(),
+                                    ServiceName = row["ServiceName"].ToString(),
+                                    StatusName = row["StatusName"].ToString(),
+                                    ServiceId = row["ServiceId"].ToString(),
+                                    Type = row["Type"].ToString(),
+                                    Status = Convert.ToInt32(row["Status"].ToString()),
+                                }).ToList();
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("ProductServiceName- OrderRepository: " + ex);
+            }
+            return ListData;
+        }
+        public async Task<double> UpdateOrderDetail(long OrderId, long user_id)
+        {
+            try
+            {
+                var result = await _OrderDal.UpdateOrderDetail(OrderId, user_id);
+                var order = _OrderDal.GetByOrderId(OrderId);
+                if (order == null || order.OrderId <= 0)
+                {
+                    return result;
+                }
+                //await UndoContractPayByOrderId(OrderId, (int)user_id);
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrderAmount - OrderRepository: " + ex);
+            }
+            return -2;
+        }
+
+        public async Task<int> UpdateOrderStatus(long OrderId, long Status, long UpdatedBy, long UserVerify)
+        {
+            try
+            {
+                return await _OrderDal.UpdateOrderStatus(OrderId, Status, UpdatedBy, UserVerify);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOrderAmount - OrderRepository: " + ex);
+            }
+            return 0;
+        }
     }
 }

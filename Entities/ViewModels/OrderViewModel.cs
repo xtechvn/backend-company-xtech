@@ -14,6 +14,8 @@ namespace Entities.ViewModels
         public string OrderNo { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        //public string StartDate { get; set; }
+        //public string EndDate { get; set; }
         public string ClientName { get; set; }
         public string Branch {  get; set; }
         public string Description { get; set; }
@@ -59,6 +61,7 @@ namespace Entities.ViewModels
         public string ListProductId { get; set; }
         public string OrderStatus { get; set; }
         public string OrderCode { get; set; }
+        public string CreateDate { get; set; }
 
         public List<ProductMongoDbModel> ListProduct { get; set; }
     }
@@ -193,11 +196,13 @@ namespace Entities.ViewModels
         public string TaxNo { get; set; }
         public string BusinessAddress { get; set; }
         public double Id { get; set; }
-        public long ClientId { get; set; }
+        public int ClientId { get; set; }
         public long CreatedBy { get; set; }
         public int ContactClientId { get; set; }
         public int SalerId { get; set; }
         public DateTime? UpdateLast { get; set; }
+        public DateTime CreateTime { get; set; }
+
         public long? UserUpdateId { get; set; }
         public long? AccountClientId { get; set; }
         public string? OrderStatus { get; set; }

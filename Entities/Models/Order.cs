@@ -59,6 +59,9 @@ namespace Entities.Models
         public string? DebtNote { get; set; }
         public double? Commission { get; set; }
         public string? UtmMedium { get; set; }
+        //public double? Refund { get; set; }
+        //public double? TotalFundCustomerCare { get; set; }
+        //public string? ProductService { get; set; }
 
         public virtual ContactClient? ContactClient { get; set; }
         public virtual Contract? Contract { get; set; }

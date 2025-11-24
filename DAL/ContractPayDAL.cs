@@ -56,6 +56,32 @@ namespace DAL
                 return null;
             }
         }
+        public double GetTotalAmountContractPayByServiceId(string ServiceId, long ServiceType, long ContractPayType)
+        {
+
+            try
+            {
+
+
+                SqlParameter[] objParam_contractPay = new SqlParameter[3];
+                objParam_contractPay[0] = new SqlParameter("@ServiceId", ServiceId);
+                objParam_contractPay[1] = new SqlParameter("@ServiceType", ServiceType);
+                objParam_contractPay[2] = new SqlParameter("@ContractPayType", ContractPayType);
+
+                DataTable dt = _DbWorker.GetDataTable(StoreProcedureConstant.SP_GetTotalAmountContractPayByServiceId, objParam_contractPay);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    var amount = Convert.ToDouble(dt.Rows[0]["Amount"]);
+                    return amount;
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("DeleteContractPayDetailByIds - ContractPayDAL. " + ex);
+                return 0;
+            }
+        }
 
     }
 }

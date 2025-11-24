@@ -6,6 +6,8 @@ namespace Utilities.Contants
 {
     public class StoreProcedureConstant
     {
+        public static string SP_GetListOrderBookClosingByOrderId = "SP_GetListOrderBookClosingByOrderId";
+        public const string sp_GetListPaymentRequestByServiceId = "sp_GetListPaymentRequestByServiceId";
         public static string GetClientByID = "SP_GetClientByID";
         public static string GetClientByAccountClientID = "SP_GetClientByAccountClientID";
         public static string GetContactClientByID = "SP_GetContactClientByID";
@@ -60,6 +62,7 @@ namespace Utilities.Contants
         public static string SP_InsertPolicyDetail = "SP_InsertPolicyDetail";
         public static string SP_UpdatePolicyDetail = "SP_UpdatePolicyDetail";
         public static string SP_UpdatePolicy = "SP_UpdatePolicy";
+
         //public static string SP_InsertSupplier = "SP_InsertSupplier";
         //public static string SP_GetSupplierById = "SP_GetSupplierById";
         //public static string SP_UpdateSupplier = "SP_UpdateSupplier";
@@ -297,6 +300,7 @@ namespace Utilities.Contants
         public static string SP_GetDetailTenantByTenantId = "SP_GetDetailTenantByTenantId";
         public static string UpsertUser = "sp_UpsertUser";
         public static string sp_InsertUser = "sp_InsertUser";
+        public static string SP_GetTotalAmountContractPayByServiceId = "SP_GetTotalAmountContractPayByServiceId";
 
 
 

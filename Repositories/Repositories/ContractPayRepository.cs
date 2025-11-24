@@ -46,5 +46,18 @@ namespace Repositories.Repositories
             }
             return null;
         }
+        public double GetTotalAmountContractPayByServiceId(string ServiceId, long ServiceType, long ContractPayType)
+        {
+            try
+            {
+
+                return _contractPayDAL.GetTotalAmountContractPayByServiceId(ServiceId, ServiceType, ContractPayType);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetServiceDetail - ContractPayRepository: " + ex);
+            }
+            return 0;
+        }
     }
 }

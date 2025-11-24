@@ -345,5 +345,25 @@ namespace DAL
                 return null;
             }
         }
+        public async Task<Client> GetClientDetail(long clientId)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var detail = await _DbContext.Client.AsNoTracking().FirstOrDefaultAsync(x => x.Id == clientId);
+                    if (detail != null)
+                    {
+                        return detail;
+                    } 
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetClientDetail - ClientDAL: " + ex.ToString());
+                return null;
+            }
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Repositories.IRepositories
     public interface IContractPayRepository
     {
         Task<List<ContractPayDetaiByOrderIdlViewModel>> GetContractPayByOrderId(long OrderId);
+        double GetTotalAmountContractPayByServiceId(string ServiceId, long ServiceType, long ContractPayType);
     }
 }

@@ -1,0 +1,156 @@
+﻿@{
+    Layout = null;
+    int index = 0;
+    // Entities.Models.AllCode? service = (Entities.Models.AllCode?)ViewBag.Service;
+    Entities.Models.OtherBooking? booking = (Entities.Models.OtherBooking?)ViewBag.Booking;
+    List<Entities.ViewModels.SetServices.OtherBookingPackagesOptionalViewModel> others_packages = (List<Entities.ViewModels.SetServices.OtherBookingPackagesOptionalViewModel>)ViewBag.ListPackagesOptional;
+    double amount = others_packages.Sum(x => x.Amount);
+}
+<style>
+    .service-other-ordered-package-name {
+        margin-top: 15px;
+    }
+
+    .textarea {
+        min-height: 70px !important;
+        min-width: 120px !important;
+    }
+</style>
+<div>
+    <div class="bold mb10 txt_14">Ghi chú</div>
+    <div class="form-group">
+        <textarea class="form-control service-other-note" disabled style="height: 200px;" rows="6">@(booking != null && booking.Note != null ? booking.Note : "")</textarea>
+    </div>
+</div>
+<div class="row row_min">
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Loại dịch vụ  <sup class="red">*</sup></label>
+        <select id="add-service-other-select-service" class="select select2 add-service-other-select-service" name="add-service-other-select-service" style="width: 100%;">
+            @* <option value="@(service.CodeValue)" selected>@service.Description</option> *@
+
+        </select>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Ngày đi <sup class="red">*</sup></label>
+        <div class="datepicker-wrap" style="width:100%">
+            <input class="form-control datepicker-input service-other-date-time-single service-other-from-date" type="text" name="service-other-from-date" value="@(booking!=null ? booking.StartDate.ToString("dd/MM/yyyy HH:mm"):DateTime.Now.ToString("dd/MM/yyyy HH:mm"))">
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Ngày về <sup class="red">*</sup></label>
+        <div class="datepicker-wrap" style="width:100%">
+            <input class="form-control datepicker-input service-other-date-time-single service-other-single-date service-other-to-date" type="text" name="service-other-from-date" value="@(booking!=null ? booking.EndDate.ToString("dd/MM/yyyy HH:mm"):DateTime.Now.ToString("dd/MM/yyyy HH:mm"))">
+        </div>
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Chi phí khác </label>
+        <input id="servicemanual-other-other-amount" class="form-control currency text-right servicemanual-other-other-amount" disabled type="text" name="servicemanual-other-other-amount" placeholder="Nhập chi phí khác" value="@(booking.OthersAmount!=null ? ((double)booking.OthersAmount).ToString("N0"):"0")">
+
+    </div>
+    <div class="col-xl-2 col-lg-3 col-md-6 mb15">
+        <label class="lbl mb5">Hoa hồng CTV </label>
+        <input id="servicemanual-other-discount" class="form-control currency text-right servicemanual-other-discount" disabled type="text" name="servicemanual-other-discount" placeholder="Nhập chiết khấu" value="@(booking.Commission!=null ? ((double)booking.Commission).ToString("N0"):"0")">
+
+    </div>
+</div>
+<div class="mb15 bold txt_18 set-service-other-detail-title">
+    Bảng kê dịch vụ
+    <small>(Đơn giá đã bao gồm thuế phí + Phí dịch vụ Adavigo)</small>
+    @if (booking != null && (booking.Status == (short)Utilities.Contants.ServiceStatus.OnExcution || booking.Status == (short)Utilities.Contants.ServiceStatus.ServeCode || booking.Status == (short)Utilities.Contants.ServiceStatus.ServeCodeKH))
+    {
+        <button class="btn btn-default update-operator-order-amount">Cập nhật thành tiền</button>
+        <button class="btn btn-default update-operator-order-amount-save" style="display:none;">Lưu</button>
+        <button class="btn btn-default update-operator-order-amount-cancel" style="display:none;">Hủy</button>
+    }
+
+</div>
+<div class="table-responsive table-default table-gray wrap_bg wrap_bg_no-padding mb20">
+    <table class="table table-nowrap set-service-other-detail-box">
+        <thead>
+            <tr>
+                <th style="width: 70px;">STT</th>
+                <th style="min-width: 200px;">Nội dung</th>
+                <th style="min-width: 400px;">Nhà cung cấp</th>
+                <th style="min-width: 100px;">Trạng thái</th>
+                <th class="text-right" style="min-width: 100px;"> Giá nhập </th>
+                <th class="text-right" style="width:100px !important;">Số lượng</th>
+                <th class="text-right"> Tổng tiền giá nhập</th>
+                <th style="width: 500px !important;">Ghi chú</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody class="set-service-other-packages-optional-tbody" data-code="@(booking != null && booking.ServiceCode != null ? booking.ServiceCode : "")" data-go-id="@(booking != null ? booking.Id.ToString() : "")">
+            @if (others_packages != null && others_packages.Count > 0)
+            {
+                foreach (var item in others_packages)
+                {
+
+                    <tr class="service-other-ordered-row" data-id="@item.Id">
+                        <td class="service-other-ordered-order">@(++index)</td>
+                        <td><p class="form-control service-other-ordered-package-name">@item.PackageName</p></td>
+                        <td>
+                            <select class="select2 service-other-ordered-suplier input-disabled-background" style="width:100% !important" disabled>
+                                <option value="@item.SuplierId" selected>@item.SuplierId - @item.supplier.FullName</option>
+
+                            </select>
+                        </td>
+                        <td>
+                            <select disabled class="form-control input-disabled-background supplier-select  service-other-ordered-status" name="service-other-ordered-status">
+
+                                @if (item.Status == 0)
+                                {
+                                    <option selected="selected" value="0">Sử dụng </option>
+                                }
+                                else
+                                {
+                                    <option value="0">Sử dụng </option>
+                                }
+                                @if (item.Status == 1)
+                                {
+                                    <option selected="selected" value="1">Hủy </option>
+                                }
+                                else
+                                {
+                                    <option value="1">Hủy </option>
+                                }
+
+                            </select>
+                        </td>
+                        <td> <input class="form-control text-right currency service-other-packages-baseprice-operator input-disabled-background" disabled type="text" name="service-other-packages-baseprice-operator" value="@((item.BasePrice==null || item.BasePrice<0? (double)item.Amount : (double)item.BasePrice).ToString("N0"))"></td>
+                        <td> <input class="form-control text-right currency service-other-packages-quantity input-disabled-background" disabled type="text" name="service-other-packages-quantity" value="@((item.Quantity==null || item.Quantity<0? 1 : (int)item.Quantity).ToString("N0"))"></td>
+                        <td class="text-right"> <input class="form-control text-right currency service-other-packages-unit-price input-disabled-background" disabled style="background-color: lightgray;" value="@(item.Amount.ToString("N0"))"></td>
+                        <td>
+
+                            <textarea class="form-control style-width2 textarea service-other-ordered-note input-disabled-background" disabled style="background: #f0f0f0;">@item.Note</textarea>
+
+                        </td>
+                        <td> <a class="fa fa-trash-o service-other-ordered-delete-row-disabled service-other-ordered-delete-row" style="display:none;" href="javascript:;"></a></td>
+                    </tr>
+                }
+            }
+
+            <tr class="service-other-ordered-summary-row">
+                <td></td>
+                <td>
+                    <a href="javascript:;" class="blue ml-2 mb10 service-other-ordered-add-new-disabled service-other-ordered-add-new" style="display:none;"><i class="fa fa-plus-circle green"></i> Thêm dòng</a>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="service-other-ordered-total-amount" style="font-weight:bold; text-align:right;">@(amount.ToString("N0")) </td>
+                <td></td>
+                <td></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</div>
+<div class="attachment-operator border pd10">
+    <img src="/images/icons/loading.gif" style="width: 55px;height: 55px;margin-left: 10px;margin-bottom: 10px;" class="img_loading coll">
+</div>
+<script>
+    _set_service_other_detail.otherDetailBookingOrderedInitialization()
+
+</script>

@@ -1,0 +1,124 @@
+﻿@using Entities.Models
+@using Entities.ViewModels
+@using Entities.ViewModels.Funding
+@using Ultilities.Constants
+@using Utilities.Contants
+@model List<OrderDetailViewModel>
+@{
+    Client client = (Client)ViewBag.Client;
+}
+
+@if (Model != null)
+{
+
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-default table-gray">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Nhãn đơn</th>
+                        <th class="text-right">Thanh toán</th>
+                        <th>
+                            Trạng thái
+                        </th>
+                        <th>Ngày tạo</th>
+                        <th>
+                            Nhân viên bán
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <td><a class="blue" href="/Order/@item.OrderId">@item.OrderNo</a> </td>
+                            <td>
+                                @if (client != null && client.Id > 0)
+                                {
+                                    <p style="margin: 0!important;">@("Mã khách hàng: " + client.ClientCode)</p>
+                                }
+                                <a class="blue" href="/CustomerManager/Detail/@item.Id">@item.ClientName</a><br />
+                                @item.Phone <br />
+                                @item.Email
+                            </td>
+                            <td>@item.Label</td>
+                            <td class="text-right"><span class="green">@(item.AmountPay != 0 ? item.AmountPay.ToString("###,###") : "0")</span>/<span class="red">@(item.Amount != 0 ? item.Amount.ToString("###,###") : "0")</span></td>
+                            <td>
+                                @switch (item.Status)
+                                {
+                                    case (int)(OrderStatus.New):
+                                        {
+                                            <span class="status-oranger">@item.OrderStatus</span>
+                                        }
+                                        break;
+                                    case (int)(OrderStatus.Received_for_implementation):
+                                    case (int)(OrderStatus.Approved_by_management):
+                                        {
+
+                                            <div class="status-green">@(item.PermisionTypeName == null || item.PermisionTypeName.Trim() == "" ? "Không công nợ" : item.PermisionTypeName)</div>
+                                            <div class="status-green">@item.PaymentStatus</div>
+
+                                        }
+                                        break;
+                                    case (int)(OrderStatus.Rejected_by_management):
+                                        {
+                                            <span class="status-green">@item.OrderStatus</span>
+                                        }
+                                        break;
+                                    case (int)(OrderStatus.Approved_by_accounting):
+                                        {
+                                            <span class="status-green">@item.OrderStatus</span>
+                                        }
+                                        break;
+                                    case ((int)(OrderStatus.Rejected_by_accounting)):
+                                    case ((int)(OrderStatus.Canceled)):
+                                    case ((int)(OrderStatus.Draft)):
+                                        {
+                                            <span class="status-red">@item.OrderStatus</span>
+                                        }
+                                        break;
+                                }
+
+                            </td>
+                            <td>@item.CreateTime.ToString("dd/MM/yyyy")</td>
+                            <td>@item.FullName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+}
+else
+{
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-default table-gray">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">STT</th>
+                        <th>Mã đơn</th>
+                        <th>Ngày bắt đầu - Ngày kết thúc</th>
+                        <th>Nhãn đơn</th>
+                        <th class="text-right">Thanh toán</th>
+                        <th class="text-right">Lợi nhuận</th>
+                        <th>Trạng thái</th>
+                        <th>
+                            Ngày tạo
+                            <a class="sort">↓</a>
+                        </th>
+                        <th>Người tạo</th>
+                        <th>Nhân viên chính</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

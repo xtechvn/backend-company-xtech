@@ -13,5 +13,8 @@ namespace Repositories.IRepositories
         Task<int> UpdateAmountOrder(int OrderId);
         Task<string> GetOrderNo();
         Task<long> UpdateOrder(Order model);
+        Task<List<ProductServiceName>> ProductServiceName(string OrderId);
+        Task<double> UpdateOrderDetail(long OrderId, long user_id);
+        Task<int> UpdateOrderStatus(long OrderId, long Status, long UpdatedBy, long UserVerify);
     }
 }
