@@ -19,9 +19,11 @@ namespace Repositories.Repositories
     public class OtherBookingRepository : IOtherBookingRepository
     {
         private readonly OtherBookingDAL _OtherBookingDal;
+        private readonly OtherBookingPackagesOptionalDAL otherBookingPackagesOptionalDAL;
         public OtherBookingRepository(IOptions<DataBaseConfig> dataBaseConfig)
         {
             _OtherBookingDal = new OtherBookingDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+            otherBookingPackagesOptionalDAL = new OtherBookingPackagesOptionalDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
         }
         public async Task<List<OtherBookingViewModel>> GetAllOtherBookingByOrderId(int OrderId)
         {
@@ -59,6 +61,40 @@ namespace Repositories.Repositories
                 LogHelper.InsertLogTelegram("GetAllOtherBookingByOrderId - OtherBookingRepository: " + ex);
             }
             return null;
+        }
+        public async Task<long> UpdateOtherBookingOptional(List<OtherBookingPackagesOptional> data, long booking_id, int user_summit)
+        {
+            try
+            {
+                double price = 0;
+                if (data != null && data.Count > 0)
+                {
+                    List<long> remain_list = new List<long>();
+                    foreach (var item in data)
+                    {
+                        if (item.Note != null && item.Note.Trim() != "")
+                        {
+                            item.Note = CommonHelper.RemoveSpecialCharacterExceptVietnameseCharacter(item.Note);
+                        }
+                        if (item.Status != 1)
+                            price += item.Amount > 0 ? item.Amount : 0;
+                        item.CreatedBy = user_summit;
+                        item.UpdatedBy = user_summit;
+                        var id = await otherBookingPackagesOptionalDAL.CreateOrUpdatePackageOptional(item);
+                        remain_list.Add(item.Id);
+                    }
+                    await _OtherBookingDal.UpdateOtherBookingPrice(booking_id, price, user_summit);
+                    await otherBookingPackagesOptionalDAL.RemoveNonExistsBookingOptional(remain_list, booking_id);
+                    return data[0].Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateFlyBookingOptional - FlyBookingDetailRepository: " + ex);
+
+            }
+            return 0;
+
         }
         public async Task<OtherBooking> GetOtherBookingById2(long booking_id)
         {

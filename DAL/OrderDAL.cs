@@ -25,6 +25,58 @@ namespace DAL
         {
             _DbWorker = new DbWorker(connection);
         }
+        public List<Order> GetByOrderIds(List<long> orderIds)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+
+                    return _DbContext.Order.AsNoTracking().Where(s => orderIds.Contains(s.OrderId)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetByOrderIds - OrderDal: " + ex);
+                return new List<Order>();
+            }
+        }
+        public List<Order> GetByOrderNos(List<string> orderNos)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+
+                    return _DbContext.Order.AsNoTracking().Where(s => orderNos.Contains(s.OrderNo)).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetByOrderNos - OrderDal: " + ex);
+                return new List<Order>();
+            }
+        }
+        public DataTable GetListOrderByClientId(long clienId, string proc, int status = 0)
+        {
+            try
+            {
+                SqlParameter[] objParam = new SqlParameter[3];
+                objParam[0] = new SqlParameter("@ClientId", clienId);
+                objParam[1] = new SqlParameter("@IsFinishPayment", DBNull.Value);
+                if (status == 0)
+                    objParam[2] = new SqlParameter("@OrderStatus", DBNull.Value);
+                else
+                    objParam[2] = new SqlParameter("@OrderStatus", status);
+
+                return _DbWorker.GetDataTable(proc, objParam);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetListOrderByClientId - OrderDal: " + ex);
+            }
+            return null;
+        }
 
         public async Task<OrderDetailViewModel> GetDetailOrderByOrderId(long OrderId)
         {
@@ -265,6 +317,20 @@ namespace DAL
                 LogHelper.InsertLogTelegram("GetDetailOrderServiceByOrderId - OrderDal: " + ex);
             }
             return 0;
+        }
+        public async Task<DataTable> GetAllServiceByOrderId(long OrderId)
+        {
+            try
+            {
+                SqlParameter[] objParam = new SqlParameter[1];
+                objParam[0] = new SqlParameter("@OrderId", OrderId);
+                return _DbWorker.GetDataTable(StoreProcedureConstant.SP_GetAllServiceByOrderId, objParam);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetAllServiceByOrderId - OrderDal: " + ex);
+            }
+            return null;
         }
         public async Task<double> UpdateOrderDetail(long OrderId, long user_id)
         {

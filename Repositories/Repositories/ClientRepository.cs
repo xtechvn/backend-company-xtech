@@ -1,6 +1,7 @@
 ﻿using DAL;
 using Entities.ConfigModels;
 using Entities.Models;
+using Entities.ViewModels;
 using Entities.ViewModels.CustomerManager;
 using Microsoft.Extensions.Options;
 using Repositories.IRepositories;
@@ -36,8 +37,14 @@ namespace Repositories.Repositories
                 return null;
             }
         }
+        public async Task<List<CustomerViewModel>> GetClientSuggesstion(string txt_search)
+        {
+            // DAL đang chạy sync, nên wrap lại cho hợp async pattern
+            var data = _ClientDAL.GetClientSuggesstion(txt_search);
+            return await Task.FromResult(data);
+        }
 
-       
+
         public List<Client> GetAllClient()
         {
             try

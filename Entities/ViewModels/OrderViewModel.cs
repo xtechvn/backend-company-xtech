@@ -12,6 +12,7 @@ namespace Entities.ViewModels
     {
         public string OrderId { get; set; }
         public string OrderNo { get; set; }
+        public int? IsLock { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         //public string StartDate { get; set; }
@@ -30,7 +31,7 @@ namespace Entities.ViewModels
         public double Profit { get; set; }
         //public List<Source> StatusDetail { get; set; } = new List<Source>();
         public string Status { get; set; }
-        public int StatusCode { get; set; }
+        public int? StatusCode { get; set; }
         public int PayDetailId { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateName { get; set; }

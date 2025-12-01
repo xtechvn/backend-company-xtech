@@ -40,6 +40,7 @@ builder.Services.Configure<DomainConfig>(configuration.GetSection("DomainConfig"
 
 // Register services
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<IPaymentVoucherRepository, PaymentVoucherRepository>();
 
 builder.Services.AddSingleton<IAllCodeRepository, AllCodeRepository>();
 builder.Services.AddSingleton<ICommonRepository, CommonRepository>();
@@ -66,6 +67,9 @@ builder.Services.AddTransient<IPaymentAccountRepository, PaymentAccountRepositor
 builder.Services.AddTransient<IInvoiceRequestRepository, InvoiceRequestRepository>();
 builder.Services.AddTransient<IInvoiceRequestDetailRepository, InvoiceRequestDetailRepository>();
 builder.Services.AddTransient<IOrderRepositor, OrderRepositor>();
+builder.Services.AddTransient<IDepositHistoryRepository, DepositHistoryRepository>();
+builder.Services.AddTransient<IDebtGuaranteeRepository, DebtGuaranteeRepository>();
+builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();

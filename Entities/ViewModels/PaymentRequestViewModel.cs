@@ -70,36 +70,36 @@ namespace Entities.ViewModels
         public bool IsChecked { get; set; }
         public bool IsDisabled { get; set; }
         public long TotalRow { get; set; }
-        //public List<PaymentRequestDetailViewModel> PaymentRequestDetails { get; set; }
-        //public List<PaymentRequestDetailViewModel> RelateData { get; set; }
+        public List<PaymentRequestDetailViewModel> PaymentRequestDetails { get; set; }
+        public List<PaymentRequestDetailViewModel> RelateData { get; set; }
         public int OrderId { get; set; }
         public long ServiceId { get; set; }
         public int ServiceType { get; set; }
         public string ServiceCode { get; set; }
         public string GroupBookingId { get; set; }
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public int IsIncludeService { get; set; }
-        public string StartDateStr
-        {
-            get
-            {
-                if (StartDate != null)
-                    return StartDate.ToString("dd/MM/yyyy");
-                return string.Empty;
-            }
-        }
+        //public string StartDateStr
+        //{
+        //    get
+        //    {
+        //        if (StartDate != null)
+        //            return StartDate.ToString("dd/MM/yyyy");
+        //        return string.Empty;
+        //    }
+        //}
         public DateTime EndDate { get; set; }
-        public string EndDateStr
-        {
-            get
-            {
-                {
-                    if (EndDate != null)
-                        return EndDate.ToString("dd/MM/yyyy");
-                    return string.Empty;
-                }
-            }
-        }
+        //public string EndDateStr
+        //{
+        //    get
+        //    {
+        //        {
+        //            if (EndDate != null)
+        //                return EndDate.ToString("dd/MM/yyyy");
+        //            return string.Empty;
+        //        }
+        //    }
+        //}
         public string OrderNo { get; set; }
         public decimal AmountPay { get; set; }
         public decimal AmountReturn { get; set; }

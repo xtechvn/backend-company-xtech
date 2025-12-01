@@ -97,11 +97,11 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
                 if (searchModel == null) searchModel = new SearchFlyBookingViewModel();
                 if (searchModel.pageSize <= 0) searchModel.pageSize = 30;
                 if (searchModel.PageIndex <= 0) searchModel.PageIndex = 1;
-                //if (searchModel.StatusBooking == null || searchModel.StatusBooking.Trim() == "")
-                //{
-                //    var s = _allCodeRepository.GetListByType(AllCodeType.BOOKING_HOTEL_ROOM_STATUS).Where(x => x.CodeValue != (int)ServiceStatus.New).Select(x => x.CodeValue);
-                //    searchModel.StatusBooking = string.Join(",", s);
-                //}
+                if (searchModel.StatusBooking == null || searchModel.StatusBooking.Trim() == "")
+                {
+                    var s = _allCodeRepository.GetListByType(AllCodeType.BOOKING_HOTEL_ROOM_STATUS).Where(x => x.CodeValue != (int)ServiceStatus.New).Select(x => x.CodeValue);
+                    searchModel.StatusBooking = string.Join(",", s);
+                }
                 if (searchModel.StartDateFrom != null && (searchModel.StartDateTo == null || searchModel.StartDateTo < searchModel.StartDateFrom)) searchModel.StartDateTo = searchModel.StartDateFrom;
                 if (searchModel.EndDateFrom != null && (searchModel.EndDateTo == null || searchModel.EndDateTo < searchModel.EndDateFrom)) searchModel.EndDateTo = searchModel.EndDateFrom;
                 if (searchModel.StartDateTo < searchModel.EndDateFrom && searchModel.StartDateTo < searchModel.EndDateTo)
@@ -467,62 +467,62 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
                 msg = msg
             });
         }
-        //[HttpPost]
-        //public async Task<IActionResult> UpdateOtherOperatorOrderPrice(List<OtherBookingPackagesOptional> data)
-        //{
+        [HttpPost]
+        public async Task<IActionResult> UpdateOtherOperatorOrderPrice(List<OtherBookingPackagesOptional> data)
+        {
 
-        //    try
-        //    {
-        //        if (data == null || data.Count <= 0)
-        //        {
-        //            return Ok(new
-        //            {
-        //                status = (int)ResponseType.FAILED,
-        //                msg = "Dữ liệu gửi lên không chính xác, vui lòng kiểm tra lại"
-        //            });
-        //        }
-        //        var other_booking = await _otherBookingRepository.GetOtherBookingById2(data[0].BookingId);
-        //        double amount = 0;
-        //        double price = 0;
-        //        double profit = 0;
-        //        if (other_booking != null && other_booking.Id > 0)
-        //        {
-        //            int _UserId = 0;
-        //            if (HttpContext.User.FindFirst(ClaimTypes.NameIdentifier) != null)
-        //            {
-        //                _UserId = Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        //            }
-        //            var id = await _otherBookingRepository.UpdateOtherBookingOptional(data, data[0].BookingId, _UserId);
-        //            other_booking = await _otherBookingRepository.GetOtherBookingById(data[0].BookingId);
-        //            amount = other_booking.Amount;
-        //            price = (other_booking.Price != null ? (double)other_booking.Price : 0);
-        //            if (price <= 0) price = 0;
-        //            profit = amount - price - (other_booking.Commission == null ? 0 : (double)other_booking.Commission) - (other_booking.OthersAmount == null ? 0 : (double)other_booking.OthersAmount);
+            try
+            {
+                 if (data == null || data.Count <= 0)
+                {
+                    return Ok(new
+                    {
+                        status = (int)ResponseType.FAILED,
+                        msg = "Dữ liệu gửi lên không chính xác, vui lòng kiểm tra lại"
+                    });
+                }
+                var other_booking = await _otherBookingRepository.GetOtherBookingById2(data[0].BookingId);
+                double amount = 0;
+                double price = 0;
+                double profit = 0;
+                if (other_booking != null && other_booking.Id > 0)
+                {
+                    int _UserId = 0;
+                    if (HttpContext.User.FindFirst(ClaimTypes.NameIdentifier) != null)
+                    {
+                        _UserId = Convert.ToInt32(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                    }
+                    var id = await _otherBookingRepository.UpdateOtherBookingOptional(data, data[0].BookingId, _UserId);
+                    other_booking = await _otherBookingRepository.GetOtherBookingById2(data[0].BookingId);
+                    amount = other_booking.Amount;
+                    price = (other_booking.Price != null ? (double)other_booking.Price : 0);
+                    if (price <= 0) price = 0;
+                    profit = amount - price - (other_booking.Commission == null ? 0 : (double)other_booking.Commission) - (other_booking.OthersAmount == null ? 0 : (double)other_booking.OthersAmount);
 
-        //            #region Update Order Amount:
-        //            await _orderRepository2.UpdateOrderDetail(other_booking.OrderId, _UserId);
-        //            #endregion
-        //        }
-        //        return Ok(new
-        //        {
-        //            status = (int)ResponseType.SUCCESS,
-        //            msg = "Cập nhật giá đặt dịch vụ thành công",
-        //            amount = price,
-        //            profit = profit
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        LogHelper.InsertLogTelegram("UpdateOperatorOrderPrice - OrderManualController: " + ex.ToString());
+                    #region Update Order Amount:
+                    await _orderRepository2.UpdateOrderDetail(other_booking.OrderId, _UserId);
+                    #endregion
+                }
+                return Ok(new
+                {
+                    status = (int)ResponseType.SUCCESS,
+                    msg = "Cập nhật giá đặt dịch vụ thành công",
+                    amount = price,
+                    profit = profit
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOperatorOrderPrice - OrderManualController: " + ex.ToString());
 
-        //    }
-        //    return Ok(new
-        //    {
-        //        status = (int)ResponseType.FAILED,
-        //        msg = "Cập nhật giá đặt dịch vụ thất bại, vui lòng liên hệ IT"
-        //    });
+            }
+            return Ok(new
+            {
+                status = (int)ResponseType.FAILED,
+                msg = "Cập nhật giá đặt dịch vụ thất bại, vui lòng liên hệ IT"
+            });
 
-        //}
+        }
 
         //[HttpPost]
         //public async Task<IActionResult> OtherExportExcel(SearchFlyBookingViewModel searchModel)

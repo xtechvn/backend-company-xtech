@@ -90,7 +90,10 @@
                         <td><p class="form-control service-other-ordered-package-name">@item.PackageName</p></td>
                         <td>
                             <select class="select2 service-other-ordered-suplier input-disabled-background" style="width:100% !important" disabled>
-                                <option value="@item.SuplierId" selected>@item.SuplierId - @item.supplier.FullName</option>
+                                <option value="@item.SuplierId" selected>
+                                    @item.SuplierId - @(item.SupplierName ?? "")
+                                </option>
+
 
                             </select>
                         </td>

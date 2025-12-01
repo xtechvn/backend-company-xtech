@@ -261,6 +261,7 @@ var _receipt_service = {
         this.Search(searchobj);
     },
     AddContractPay: function () {
+        
         let title = 'Thêm phiếu thu';
         let url = '/Receipt/AddNew';
         var param = {

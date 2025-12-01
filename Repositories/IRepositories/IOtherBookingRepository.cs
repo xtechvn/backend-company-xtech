@@ -17,6 +17,7 @@ namespace Repositories.IRepositories
         Task<List<OtherBookingViewModel>> GetAllOtherBookingByOrderId(int OrderId);
         Task<int> SetUpOtherBooking(OtherBookingSubmitModel model);
         Task<OtherBookingViewModel> GetOtherBookingById(int? Id);
+        Task<long> UpdateOtherBookingOptional(List<OtherBookingPackagesOptional> data, long booking_id, int user_summit);
 
         Task<long> UpdateServiceStatus(int status, long booking_id, int user_id);
         public Task<OtherBooking> GetOtherBookingById2(long booking_id);

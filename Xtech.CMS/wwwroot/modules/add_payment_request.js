@@ -27,6 +27,7 @@ $().ready(function () {
 var _add_payment_request = {
     Initialization: function (isEditView = false) {
         $("#client-select").select2({
+
             theme: 'bootstrap4',
             placeholder: "Tên KH, Điện Thoại, Email",
             hintText: "Nhập từ khóa tìm kiếm",
@@ -38,12 +39,14 @@ var _add_payment_request = {
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
+                    debugger
                     var query = {
                         txt_search: params.term,
                     }
                     return query;
                 },
                 processResults: function (response) {
+                    debugger
                     return {
                         results: $.map(response.data, function (item) {
                             return {
@@ -825,7 +828,7 @@ var _add_payment_request = {
         }
     },
     Validate: function () {
-        
+        debugger
         _add_payment_request.ClearError()
         let result = true
         if ($('#payment-request-type').val() == undefined || $('#payment-request-type').val() == null || $('#payment-request-type').val() == '') {
@@ -1351,7 +1354,7 @@ var _add_payment_request = {
         }, 300);
     },
     EditRequest: function (isSend = 0) {
-
+        debugger
         let validate = _add_payment_request.Validate()
         if (!validate)
             return;

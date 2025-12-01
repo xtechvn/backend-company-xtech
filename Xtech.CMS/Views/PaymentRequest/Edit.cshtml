@@ -1,0 +1,583 @@
+﻿@* @using Entities.Models *@
+@* @{ *@
+@*     var allCode_PAY_TYPE = (List<AllCode>)ViewBag.allCode_PAY_TYPE; *@
+@*     var allCode_PAYMENT_VOUCHER_TYPE = (List<AllCode>)ViewBag.allCode_PAYMENT_VOUCHER_TYPE; *@
+@*     var listPayment = (List<BankingAccount>)ViewBag.listPayment; *@
+@*     var clientId = 0; *@
+@*     long supplierIdDetail = 0; *@
+@*     long bankingAccountId = 0; *@
+@*     if (Model.ClientId != null && Model.ClientId != 0) *@
+@*     { *@
+@*         clientId = Model.ClientId.Value; *@
+@*     } *@
+@*     if (Model.SupplierId != null && Model.SupplierId != 0) *@
+@*     { *@
+@*         supplierIdDetail = Model.SupplierId.Value; *@
+@*     } *@
+@*     if (Model.BankingAccountId != null && Model.BankingAccountId != 0) *@
+@*     { *@
+@*         bankingAccountId = Model.BankingAccountId.Value; *@
+@*     } *@
+@*     var counter = 0; *@
+@*     var serviceId = (long)ViewBag.serviceId; *@
+@*     var serviceType = (int)ViewBag.serviceType; *@
+@*     var supplierId = (long)ViewBag.supplierId; *@
+@*     var amount_supplier_refund = (decimal)ViewBag.amount_supplier_refund; *@
+@*     var amount = (decimal)ViewBag.amount; *@
+@*     var payment_request_type = (int)ViewBag.payment_request_type; *@
+@*     var supplierName = (string)ViewBag.supplierName; *@
+@*     var isEditAmountReject = (bool)ViewBag.isEditAmountReject; *@
+@*     var orderId = (long)ViewBag.orderId; *@
+@* } *@
+@* @using Utilities *@
+@* @using Utilities.Contants *@
+@* @using Entities.ViewModels *@
+@* @model PaymentRequestViewModel *@
+@* <style> *@
+@*     .white-popup { *@
+@*         max-width: 900px !important; *@
+@*     } *@
+
+@*     .content_lightbox .head { *@
+@*         font-weight: 500 !important; *@
+@*         font-size: 16px !important; *@
+@*         margin-bottom: 20px !important; *@
+@*     } *@
+
+@*     .content_lightbox { *@
+@*         padding: 20px !important; *@
+@*     } *@
+
+@*     .background-disabled { *@
+@*         background: #eee !important; *@
+@*     } *@
+
+@*     .Zebra_DatePicker_Icon_Wrapper { *@
+@*         width: 391px !important; *@
+@*     } *@
+@* </style> *@
+
+
+@* <div class="grid grid__2 grid-don-hang gap10 mb20"> *@
+@*     <input type="text" name="name" id="payId" value="@Model.Id" style="display: none" /> *@
+@*     <input type="text" name="paymentCode" id="paymentCode" value="@Model.PaymentCode" style="display: none" /> *@
+@*     <input type="text" name="isServiceIncluded" id="isServiceIncluded" value="@Model.IsIncludeService" style="display: none" /> *@
+@*     <input type="text" name="isEditAmountReject" id="isEditAmountReject" value="@(!isEditAmountReject?0:1)" style="display: none" /> *@
+@*     <input type="text" name="payStatus" id="payStatus" value="@Model.Status" style="display: none" /> *@
+@*     <input type="text" name="client_name_hide" id="client_name_hide" value="@Model.ClientName" style="display: none" /> *@
+@*     <input type="text" name="supplier_name_hide" id="supplier_name_hide" value="@Model.SupplierName" style="display: none" /> *@
+@*     <input type="text" name="serviceId" id="serviceId" value="@serviceId" style="display: none" /> *@
+@*     <input type="text" name="serviceType" id="serviceType" value="@serviceType" style="display: none" /> *@
+@*     <input type="text" name="supplierId_service" id="supplierId_service" value="@supplierId" style="display: none" /> *@
+@*     <input type="text" name="amount_service" id="amount_supplier_refund" value="@amount_supplier_refund" style="display: none" /> *@
+@*     <input type="text" name="amount_service" id="amount_service" value="@amount" style="display: none" /> *@
+@*     <input type="text" name="payment_request_type" id="payment_request_type" value="@payment_request_type" style="display: none" /> *@
+@*     @if (Model.IsSupplierDebt != null && Model.IsSupplierDebt.Value) *@
+@*     { *@
+@*         <input type="checkbox" name="isSupplierDebtHide" id="isSupplierDebtHide" style="display: none" checked /> *@
+@*     } *@
+@*     @if (Model.IsSupplierDebt != null && !Model.IsSupplierDebt.Value) *@
+@*     { *@
+@*         <input type="checkbox" name="isSupplierDebtHide" id="isSupplierDebtHide" style="display: none" /> *@
+@*     } *@
+
+@*     @if (Model.IsPaymentBefore != null && Model.IsPaymentBefore.Value) *@
+@*     { *@
+@*         <input type="checkbox" name="isPaymentBeforeHide" id="isPaymentBeforeHide" style="display: none" checked /> *@
+@*     } *@
+@*     @if (Model.IsPaymentBefore != null && !Model.IsPaymentBefore.Value) *@
+@*     { *@
+@*         <input type="checkbox" name="isPaymentBeforeHide" id="isPaymentBeforeHide" style="display: none" /> *@
+@*     } *@
+@*     <div class="grid-item border"> *@
+
+@*         <div class="col-md-6 mb10"><label class="lbl mt5 mb0">Loại nghiệp vụ <sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10"> *@
+@*             <select class="form-control background-disabled" style="width: 100%; height: 34px ;" id="payment-request-type" disabled *@
+@*                     onchange="_add_payment_request.OnChooseRequestType()" asp-for="@Model.Type"> *@
+@*                 <option value="-1" disabled selected>Chọn</option> *@
+@*                 @foreach (var item in allCode_PAYMENT_VOUCHER_TYPE) *@
+@*                 { *@
+@*                     <option value="@item.CodeValue">@item.Description</option> *@
+@*                 } *@
+@*             </select> *@
+@*             <div class="validate-payment-request-type"></div> *@
+@*         </div> *@
+
+@*         <div class="col-md-6 mb10" id="lblSupplier"><label class="lbl mt5 mb0">Tên nhà cung cấp <sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10" id="divSupplier" style=" max-width: 425px !important;"> *@
+@*             <select class="select2 supplier-select background-disabled" id="supplier-select" style="width:100% !important" multiple="multiple" *@
+@*                     onchange="_add_payment_request.OnChooseRequestType()" disabled> *@
+@*             </select> *@
+@*             <div class="validate-supplier-select"></div> *@
+@*         </div> *@
+
+@*         <div class="col-md-6 mb10" id="lblCustomer"><label class="lbl mt5 mb0">Tên khách hàng <sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10" id="divCustomer" style=" max-width: 425px !important;"> *@
+@*             <select class="select2 client-select background-disabled" id="client-select" style="width:100% !important" multiple="multiple" *@
+@*                     onchange="_add_payment_request.OnChooseRequestType()" disabled> *@
+@*             </select> *@
+@*             <div class="validate-client-select"></div> *@
+@*         </div> *@
+@*         @if (isEditAmountReject) *@
+@*         { *@
+@*             <div class="col-md-6 mb10"><label class="lbl mt5 mb0"> Số tiền <sup class="red">*</sup></label></div> *@
+@*             <div class="col-md-12 mb10"> *@
+@*                 <input type="text" class="form-control" id="amount" maxlength="15" onchange="_add_payment_request.OnChangeAmount()" *@
+@*                        onkeyup="_add_payment_request.FormatNumber();" *@
+@*                        asp-for="@Model.Amount" value="@Model.Amount.ToString("N0")" autocomplete="off"> *@
+@*                 <div class="validate-amount"></div> *@
+@*             </div> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <div class="col-md-6 mb10"><label class="lbl mt5 mb0"> Số tiền <sup class="red">*</sup></label></div> *@
+@*             <div class="col-md-12 mb10"> *@
+@*                 <input type="text" class="form-control background-disabled" id="amount" onkeyup="_add_payment_request.FormatNumber();" *@
+@*                        disabled onchange="_add_payment_request.OnChangeAmount()" maxlength="15" *@
+@*                        asp-for="@Model.Amount" value="@Model.Amount.ToString("N0")" autocomplete="off"> *@
+@*                 <div class="validate-amount"></div> *@
+@*             </div> *@
+@*         } *@
+
+@*         <div class="col-md-12 mb10"> <label class="lbl mt5 mb0"> Nội dung <sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10"> *@
+@*             <input type="text" id="content" maxlength="500" name="name" placeholder="Nhập text(tối đa 500 kí tự)" *@
+@*                    asp-for="@Model.Note" autocomplete="off" /> *@
+@*             <div class="validate-content"></div> *@
+@*         </div> *@
+
+@*         @if (Model.IsIncludeService == 0) *@
+@*         { *@
+@*             <div class="col-md-6 mb10" style=" margin-top: 50px !important;" id="divisPaymentBefore"> *@
+@*                 <label class="lbl mb0">Đã thanh toán trước </label> *@
+@*                 <label class="check-list  number" style="display: contents !important;"> *@
+@*                     <input type="checkbox" id="isPaymentBefore" onclick="_add_payment_request.OnChangePaymentBefore()"> *@
+@*                     <span class="checkmark"></span> *@
+@*                 </label> *@
+@*             </div> *@
+@*         } *@
+
+@*     </div> *@
+@*     <div class="grid-item border"> *@
+
+@*         <div class="col-md-6 mb10"> <label class="lbl mt5 mb0"> Hình thức <sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10"> *@
+@*             <select class="form-control" style="width: 100%; height: 34px ;" id="payment-request-pay-type" asp-for="@Model.PaymentType" *@
+@*                     onchange="_add_payment_request.OnChoosePaymentType()"> *@
+@*                 <option value="-1" disabled selected>Chọn</option> *@
+@*                 @foreach (var item in allCode_PAY_TYPE) *@
+@*                 { *@
+@*                     <option value="@item.CodeValue">@item.Description</option> *@
+@*                 } *@
+@*             </select> *@
+@*             <div class="validate-payment-request-pay-type"></div> *@
+@*         </div> *@
+@*         @if (Model.BankingAccountId != null && Model.BankingAccountId != 0) *@
+@*         { *@
+@*             @if (clientId > 0) *@
+@*             { *@
+@*                 <div class="col-md-6 mb10 hidden"> *@
+@*                     <label class="lbl mt5 mb0" id="lblBankNameRequired">Tài khoản ngân hàng nhận <sup class="red">*</sup></label> *@
+@*                     <label class="lbl mt5 mb0" id="lblBankName">Tài khoản ngân hàng nhận</label> *@
+@*                 </div> *@
+@*                 <div class="col-md-12 mb10 hidden"> *@
+@*                     <select class="form-control" style="width: 100%; height: 34px ;" id="bankingAccount" asp-for="@Model.BankingAccountId" *@
+@*                             onchange="_add_payment_request.GetAccountName()"> *@
+@*                         <option value="0" disabled selected>Chọn</option> *@
+@*                     </select> *@
+@*                     <div class="validate-bankingAccount"></div> *@
+@*                 </div> *@
+@*             } *@
+@*             else *@
+@*             { *@
+@*                 <div class="col-md-6 mb10 hidden"> *@
+@*                     <label class="lbl mt5 mb0" id="lblBankNameRequired">Tài khoản ngân hàng nhận <sup class="red">*</sup></label> *@
+@*                     <label class="lbl mt5 mb0" id="lblBankName">Tài khoản ngân hàng nhận</label> *@
+@*                 </div> *@
+@*                 <div class="col-md-12 mb10 hidden"> *@
+@*                     <select class="form-control" style="width: 100%; height: 34px ;" id="bankingAccount" asp-for="@Model.BankingAccountId" *@
+@*                             onchange="_add_payment_request.GetAccountName()"> *@
+@*                         <option value="0" disabled selected>Chọn</option> *@
+@*                         @foreach (var item in listPayment) *@
+@*                         { *@
+@*                             <option value="@item.Id">@item.BankId - @item.AccountNumber</option> *@
+@*                         } *@
+@*                     </select> *@
+@*                     <div class="validate-bankingAccount"></div> *@
+@*                 </div> *@
+@*             } *@
+
+@*             <div class="col-md-6 mb10"> *@
+@*                 <label class="lbl mt5 mb0">Tên người thụ hưởng</label> *@
+@*             </div> *@
+@*             <div class="col-md-12 mb10"> *@
+@*                 <input class="form-control background-disabled" type="text" name="bankName" id="bankName" asp-for="@Model.BankName"  disabled> *@
+@*             </div> *@
+@*         } *@
+@*         else *@
+@*         { *@
+@*             <div class="col-md-6 mb10"> *@
+@*                 <label class="lbl mt5 mb0" id="lblBankAccountRequired">Số tài khoản nhận <sup class="red">*</sup></label> *@
+@*                 <label class="lbl mt5 mb0" id="lblBankAccount">Số tài khoản nhận</label> *@
+@*             </div> *@
+@*             <div class="col-md-12 mb10"> *@
+@*                 <input class="form-control" type="text" name="bankAccount" id="bankAccount" asp-for="@Model.BankAccount"> *@
+@*                 <div class="validate-bankingAccount"></div> *@
+@*             </div> *@
+
+@*             <div class="col-md-6 mb10"> *@
+@*                 <label class="lbl mt5 mb0" id="lblBankNameRequired">Tên người thụ hưởng <sup class="red">*</sup></label> *@
+@*                 <label class="lbl mt5 mb0" id="lblBankName">Tên người thụ hưởng</label> *@
+@*             </div> *@
+@*             <div class="col-md-12 mb10"> *@
+@*                 <input class="form-control" type="text" name="bankName" id="bankName" asp-for="@Model.BankName" > *@
+@*                 <div class="validate-bankingName"></div> *@
+@*             </div> *@
+@*         } *@
+
+
+@*         <div class="col-md-6 mb10"><label class="lbl mt5 mb0">Thời hạn thanh toán<sup class="red">*</sup></label></div> *@
+@*         <div class="col-md-12 mb10" style="width: 100% !important"> *@
+@*             <input class="form-control datepicker-payment" type="text" name="paymentDate" id="paymentDate" asp-for="@Model.PaymentDateViewStr" *@
+@*                    style="width: 100% !important"> *@
+@*             <div class="validate-paymentDate"></div> *@
+@*         </div> *@
+
+@*         <div class="col-md-6 mb10" style=" margin-top: 50px !important;" id="divIsSupplierDebt"> *@
+@*             <label class="lbl mb0">Công nợ với nhà cung cấp </label> *@
+@*             <label class="check-list  number" style="display: contents !important;"> *@
+@*                 <input type="checkbox" id="isSupplierDebt"> *@
+@*                 <span class="checkmark"></span> *@
+@*             </label> *@
+@*         </div> *@
+
+@*     </div> *@
+@* </div> *@
+@* <div class="row m-0 p-0"> *@
+
+@*     <div class="col-md-12 mb10"> Ghi chú</div> *@
+@*     <div class="col-md-12 mb10"> *@
+@*         <textarea class="form-control" id="description" maxlength="3000" style="height: 100px;" *@
+@*                   asp-for="@Model.Description" autocomplete="off"> </textarea> *@
+@*         <div class="validate-description"></div> *@
+@*     </div> *@
+@* </div> *@
+@* @if (Model.IsIncludeService == 0 && Model.SupplierId != 0 && Model.SupplierId != null) *@
+@* { *@
+@*     <div class="row m-0 p-0"> *@
+@*         <div class="bg-white border pd10 hidden" id="service-relate" style="display: none; width: 100% !important;"> *@
+@*             <div class="bold gray mb10">Dịch vụ liên quan</div> *@
+@*             <div class="table-responsive table-default table-gray table-modal scroll-inner"> *@
+@*                 <table class="table" id="service-relate-table"> *@
+@*                     <thead> *@
+@*                         <tr> *@
+@*                             <th>STT</th> *@
+@*                             <th style="min-width: 80px;">Mã dịch vụ</th> *@
+@*                             <th style="min-width: 100px;">Ngày bắt đầu - Ngày kết thúc</th> *@
+@*                             <th style="min-width: 80px;">Mã đơn hàng</th> *@
+@*                             <th style="min-width: 100px;">Nhân viên điều hành</th> *@
+@*                             <th class="text-right" style="min-width: 50px;">Số tiền</th> *@
+@*                             <th class="text-right" style="min-width: 50px;">Đã giải trừ</th> *@
+@*                             <th class="text-right" style="min-width: 50px;">Chưa giải trừ</th> *@
+@*                             <th class="text-right" style="min-width: 100px;">Cần giải trừ</th> *@
+@*                         </tr> *@
+@*                     </thead> *@
+@*                     <tbody id="body_service_list"> *@
+@*                     </tbody> *@
+@*                 </table> *@
+@*             </div> *@
+@*             <div class="flex flex-end"> *@
+@*             </div> *@
+@*         </div> *@
+
+@*     </div> *@
+@* } *@
+@* else if (Model.IsIncludeService == 1 && Model.Type == (int)PAYMENT_VOUCHER_TYPE.THANH_TOAN_DICH_VU && (Model.SupplierId != 0 && Model.SupplierId != null)) *@
+@* { *@
+@*     <div class="mb10">Dịch vụ liên quan</div> *@
+@*     <div class="table-responsive table-default table-gray table-modal"> *@
+@*         <table class="table"> *@
+@*             <thead> *@
+@*                 <tr> *@
+@*                     <th>STT</th> *@
+@*                     <th>Mã dịch vụ</th> *@
+@*                     <th>Ngày bắt đầu-Ngày kết thúc</th> *@
+@*                     <th>Mã đơn hàng</th> *@
+@*                     <th>Nhân viên điều hành</th> *@
+@*                     <th>Số tiền</th> *@
+@*                     <th>Số tiền giải trừ</th> *@
+@*                 </tr> *@
+@*             </thead> *@
+@*             <tbody> *@
+@*                 @foreach (var item in Model.RelateData) *@
+@*                 { *@
+@*                     counter++; *@
+@*                     <tr> *@
+@*                         <td>@counter</td> *@
+@*                         <td> *@
+@*                             @if (item.ServiceType == 1) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/VerifyHotelServiceDetai/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 3) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/fly/detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 5) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/Tour/Detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 6) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/Tour/Detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                         </td> *@
+@*                         <td>@item.StartDateStr - @item.EndDateStr</td> *@
+@*                         <td> *@
+@*                             <a class="blue" href="/Order/@item.OrderId"> *@
+@*                                 @item.OrderNo *@
+@*                             </a> *@
+@*                         </td> *@
+@*                         <td>@item.SalerName</td> *@
+@*                         <td>@item.Amount.ToString("N0")</td> *@
+@*                         <td>@item.AmountPay.ToString("N0")</td> *@
+@*                     </tr> *@
+@*                 } *@
+@*                 <tr> *@
+@*                     <td class="text-right" colspan="5"> *@
+@*                         Tổng *@
+@*                     </td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.Amount).ToString("N0")</td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.AmountPay).ToString("N0")</td> *@
+@*                 </tr> *@
+@*             </tbody> *@
+@*         </table> *@
+@*     </div> *@
+@* } *@
+@* else if (Model.IsIncludeService == 1 && Model.Type == (int)PAYMENT_VOUCHER_TYPE.CHI_PHI_MARKETING && (Model.SupplierId != 0 && Model.SupplierId != null)) *@
+@* { *@
+@*     <div class="mb10">Dịch vụ liên quan</div> *@
+@*     <div class="table-responsive table-default table-gray table-modal"> *@
+@*         <table class="table"> *@
+@*             <thead> *@
+@*                 <tr> *@
+@*                     <th>STT</th> *@
+@*                     <th>Mã dịch vụ</th> *@
+@*                     <th>Ngày bắt đầu-Ngày kết thúc</th> *@
+@*                     <th>Mã đơn hàng</th> *@
+@*                     <th>Nhân viên điều hành</th> *@
+@*                     <th>Số tiền</th> *@
+@*                     <th>Số tiền chi phí</th> *@
+@*                 </tr> *@
+@*             </thead> *@
+@*             <tbody> *@
+@*                 @foreach (var item in Model.RelateData) *@
+@*                 { *@
+@*                     counter++; *@
+@*                     <tr> *@
+@*                         <td>@counter</td> *@
+@*                         <td> *@
+@*                             @if (item.ServiceType == 1) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/VerifyHotelServiceDetai/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 3) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/fly/detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 5) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/Tour/Detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                             @if (item.ServiceType == 6) *@
+@*                             { *@
+@*                                 <a class="blue" href="/SetService/Tour/Detail/@item.ServiceId"> *@
+@*                                     @item.ServiceCode *@
+@*                                 </a> *@
+@*                             } *@
+@*                         </td> *@
+@*                         <td>@item.StartDateStr - @item.EndDateStr</td> *@
+@*                         <td> *@
+@*                             <a class="blue" href="/Order/@item.OrderId"> *@
+@*                                 @item.OrderNo *@
+@*                             </a> *@
+@*                         </td> *@
+@*                         <td>@item.SalerName</td> *@
+@*                         <td>@item.Amount.ToString("N0")</td> *@
+@*                         <td>@item.AmountPay.ToString("N0")</td> *@
+@*                     </tr> *@
+@*                 } *@
+@*                 <tr> *@
+@*                     <td class="text-right" colspan="5"> *@
+@*                         Tổng *@
+@*                     </td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.Amount).ToString("N0")</td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.AmountPay).ToString("N0")</td> *@
+@*                 </tr> *@
+@*             </tbody> *@
+@*         </table> *@
+@*     </div> *@
+@* } *@
+@* else if (Model.IsIncludeService == 1 && Model.ClientId != 0 && Model.ClientId != null) *@
+@* { *@
+@*     <div class="mb10">Đơn hàng liên quan</div> *@
+@*     <div class="table-responsive table-default table-gray table-modal"> *@
+@*         <table class="table"> *@
+@*             <thead> *@
+@*                 <tr> *@
+@*                     <th>STT</th> *@
+@*                     <th>Mã đơn hàng</th> *@
+@*                     <th>Ngày bắt đầu-Ngày kết thúc</th> *@
+@*                     <th>Nhân viên chính</th> *@
+@*                     <th>Số tiền</th> *@
+@*                     <th>Số tiền hoàn trả</th> *@
+@*                 </tr> *@
+@*             </thead> *@
+@*             <tbody> *@
+@*                 @foreach (var item in Model.RelateData) *@
+@*                 { *@
+@*                     counter++; *@
+@*                     <tr> *@
+@*                         <td>@counter</td> *@
+@*                         <td> *@
+@*                             <a class="blue" href="/Order/@item.OrderId"> *@
+@*                                 @item.OrderNo *@
+@*                             </a> *@
+@*                         </td> *@
+@*                         <td>@item.StartDateStr - @item.EndDateStr</td> *@
+@*                         <td>@item.SalerName</td> *@
+@*                         <td>@item.OrderAmount.ToString("N0")</td> *@
+@*                         <td>@item.Amount.ToString("N0")</td> *@
+@*                     </tr> *@
+@*                 } *@
+@*                 <tr> *@
+@*                     <td class="text-right" colspan="4"> *@
+@*                         Tổng *@
+@*                     </td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.OrderAmount).ToString("N0")</td> *@
+@*                     <td>@Model.RelateData.Sum(n => n.Amount).ToString("N0")</td> *@
+@*                 </tr> *@
+@*             </tbody> *@
+@*         </table> *@
+@*     </div> *@
+@* } *@
+@* else if (Model.IsIncludeService == 0 && (Model.ClientId != 0 && Model.ClientId != null)) *@
+@* { *@
+@*     <div class="bg-white border pd10 hidden" id="order-relate" style="display: none; width: 100% !important;"> *@
+@*         <div class="bold gray mb10">Đơn hàng liên quan</div> *@
+@*         <div class="table-responsive table-default table-gray table-modal scroll-inner"> *@
+@*             <table class="table" id="order-relate-table"> *@
+@*                 <thead> *@
+@*                     <tr> *@
+@*                         <th>STT</th> *@
+@*                         <th style="min-width: 80px;">Mã đơn hàng</th> *@
+@*                         <th style="min-width: 100px;">Ngày bắt đầu - Ngày kết thúc</th> *@
+@*                         <th style="min-width: 100px;">Nhân viên chính</th> *@
+@*                         <th class="text-right" style="min-width: 50px;">Số tiền</th> *@
+@*                         <th class="text-right" style="min-width: 50px;">Đã hoàn trả</th> *@
+@*                         <th class="text-right" style="min-width: 50px;">Chưa hoàn trả</th> *@
+@*                         <th class="text-right" style="min-width: 100px;">Có thể hoàn trả</th> *@
+@*                     </tr> *@
+@*                 </thead> *@
+@*                 <tbody id="body_order_list"> *@
+@*                 </tbody> *@
+@*             </table> *@
+@*         </div> *@
+@*         <div class="flex flex-end"> *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
+@* else *@
+@* { *@
+
+@* } *@
+@* <div class="text-center" style="margin-top: 20px; margin-bottom: 20px;"> *@
+@*     <button type="submit" class="btn btn-default btn btn-default cancel" onclick="$.magnificPopup.close();">Bỏ qua</button> *@
+@*     <button type="submit" class="btn btn-default" onclick="_add_payment_request.EditRequest()" style="background: #5cb566 !important;">Chỉnh sửa</button> *@
+@*     <button type="submit" class="btn btn-default" onclick="_add_payment_request.EditRequest(1)" style="background: #5cb566 !important;">Gửi đi</button> *@
+@* </div> *@
+
+@* <script type="text/javascript" src="~/modules/add_payment_request.js?v=4"></script> *@
+@* <script> *@
+@*     $('.datepicker-payment').Zebra_DatePicker({ *@
+@*         format: 'd/m/Y H:i' *@
+@*     }).removeAttr('readonly'); *@
+@*     _add_payment_request.Initialization(true); *@
+@*     $(document).ready(function () { *@
+@*         //_add_payment_request.OnChooseRequestType() *@
+@*         _add_payment_request.OnChooseRequestTypeEdit(@clientId, @supplierIdDetail, @bankingAccountId) *@
+@*     }) *@
+@* </script> *@
+@* @section scripts { *@
+@*     <script> *@
+@*         $().ready(function () { *@
+@*             $('input').attr('autocomplete', 'off'); *@
+@*             setTimeout(function () { *@
+@*                 $('#service-relate').hide() *@
+@*                 $('#order-relate').hide() *@
+@*             }, 1000) *@
+@*         }) *@
+@*     </script> *@
+@* } *@
+@* <style scoped> *@
+@*     .multiple-select { *@
+@*         position: relative; *@
+@*         max-width: 200px !important; *@
+@*         width: 100%; *@
+@*     } *@
+
+@*     .select2-selection .select2-selection--single { *@
+@*         height: 34px !important; *@
+@*     } *@
+
+@*     .token-input-client-add { *@
+@*         min-width: 200px !important; *@
+@*     } *@
+
+@*         .token-input-client-add input { *@
+@*             background: #fff !important; *@
+@*             width: 100% !important; *@
+@*             font-size: 13px !important; *@
+@*             height: 30px !important; *@
+@*             line-height: 30px !important; *@
+@*             border: 1px solid #ccc !important; *@
+@*             padding: 0 5px !important; *@
+@*             outline: 0 !important; *@
+@*             box-shadow: none !important; *@
+@*             color: #000 !important; *@
+@*             border-radius: 0.25rem !important; *@
+@*         } *@
+
+@*     .row-main-head .down-up .form-down { *@
+@*         width: 345px !important; *@
+@*     } *@
+
+@*     .form-control { *@
+@*         background: #fff; *@
+@*         width: 100%; *@
+@*         font-size: 13px; *@
+@*         height: 30px; *@
+@*         line-height: 30px; *@
+@*         border: 1px solid #ccc; *@
+@*         padding: 0 5px; *@
+@*         outline: 0; *@
+@*         box-shadow: none; *@
+@*         color: #000; *@
+@*         border-radius: 0.25rem !important; *@
+@*     } *@
+@* </style> *@

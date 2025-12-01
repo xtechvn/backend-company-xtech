@@ -1,6 +1,8 @@
-﻿using DAL.StoreProcedure;
+﻿using DAL.Generic;
+using DAL.StoreProcedure;
 using Entities.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,17 +14,48 @@ using Utilities.Contants;
 
 namespace DAL
 {
-    public class BankingAccountDAL
+    public class BankingAccountDAL : GenericService<BankingAccount>
     {
         private static DbWorker _DbWorker;
         private readonly string _connection;
-        public BankingAccountDAL(string connection)
+        public BankingAccountDAL(string connection) : base(connection)
         {
             _connection = connection;
             _DbWorker = new DbWorker(connection);
         }
+        public List<BankingAccount> GetAllBankingAccount()
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    return _DbContext.BankingAccounts.AsNoTracking().ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetAllBankingAccount - BankingAccountDAL: " + ex);
+                return null;
+            }
+        }
+        public DataTable GetBankAccountDataTableBySupplierId(int supplier_id)
+        {
+            try
+            {
+                SqlParameter[] objParam = new SqlParameter[]
+                {
+                    new SqlParameter("@SupplierId", supplier_id)
+                };
 
-       
+                return _DbWorker.GetDataTable(StoreProcedureConstant.SP_GetListBankingAccountBySupplierId, objParam);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+
         public BankingAccount GetById(int bankAccountId)
         {
             try

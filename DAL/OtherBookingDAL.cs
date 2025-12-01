@@ -42,6 +42,30 @@ namespace DAL
             }
             return null;
         }
+        public async Task<long> UpdateOtherBookingPrice(long booking_id, double price, int user_summit)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var exists = _DbContext.OtherBooking.FirstOrDefault(x => x.Id == booking_id);
+                    if (exists != null && exists.Id > 0)
+                    {
+                        exists.Price = price;
+                        exists.UpdatedBy = user_summit;
+                        exists.UpdatedDate = DateTime.Now;
+                        _DbContext.OtherBooking.Update(exists);
+                        await _DbContext.SaveChangesAsync();
+                    }
+                    return 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateOtherBookingPrice - OtherBookingDAL: " + ex);
+                return -1;
+            }
+        }
 
         public async Task<DataTable> GetOtherBookingById(int? Id)
         {
