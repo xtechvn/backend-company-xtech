@@ -294,7 +294,7 @@ namespace Xtech.CMS.Controllers
                     var Result = _customerManagerRepositories.SetUpClient(DataModel);
                     if (Result == 1)
                     {
-                        _workQueueClient.SyncES(-1, _configuration["DataBaseConfig:Elastic:SP:sp_GetClient"], _configuration["DataBaseConfig:Elastic:Index:Client"], ProjectType.XTECH, "Setup CustomerManager");
+                        _workQueueClient.SyncES(DataModel.Id, _configuration["DataBaseConfig:Elastic:SP:sp_GetClient"], _configuration["DataBaseConfig:Elastic:Index:Client"], ProjectType.XTECH, "Setup CustomerManager");
                         stt_code = (int)ResponseType.SUCCESS;
                         msg = "Cập nhật thông tin thành công";
                     }
