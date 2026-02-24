@@ -16,7 +16,7 @@ namespace Catching.Elasticsearch
         public ClientESRepository(string Host) : base(Host) { }
 
 
-        public async Task<List<CustomerESViewModel>> GetClientSuggesstion(string txt_search, string index_name = "xtech_client_store")
+        public async Task<List<CustomerESViewModel>> GetClientSuggesstion(string txt_search, string index_name = "xtech_client_store2")
         {
             List<CustomerESViewModel> result = new List<CustomerESViewModel>();
             try
