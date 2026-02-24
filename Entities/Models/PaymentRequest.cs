@@ -6,7 +6,7 @@ namespace Entities.Models
     public partial class PaymentRequest
     {
         public long Id { get; set; }
-        public string PaymentCode { get; set; } = null!;
+        public string PaymentCode { get; set; } 
         /// <summary>
         /// 1: Thanh toán dịch vụ , 2: Thanh toán khác
         /// </summary>

@@ -1,0 +1,15 @@
+﻿@{
+    int status = (int)ViewBag.status;
+}
+<div class="white-popup" style="max-width: 400px;">
+    <div class="content_lightbox">
+        <div class="form-group border">
+            <input type="text" hidden name="name" id="status_undo_approve" value="@status" />
+            <textarea class="form-control" style="height: 150px;" placeholder="Nhập lý do bỏ duyệt" id="note" maxlength="300"></textarea>
+        </div>
+        <div class="text-right">
+            <button type="submit" class="btn btn-default red ml-1" onclick="_payment_request_service.UndoApproveRequest();">Xác nhận</button>
+        </div>
+
+    </div>
+</div>

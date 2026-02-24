@@ -175,21 +175,21 @@
     <script type="text/javascript" src="~/js/daterangepicker.min.js"></script>
     <script type="text/javascript" src="~/modules/widget_attachfile.js" defer></script>
     <script type="text/javascript" src="~/modules/chatbox-widget.js" defer></script>
-    <script>
-      window.tovaAsyncInit = function() {
-        tova.init({
-          tenant_id: "01JNGDB23ZF2MNEN4GCX8WSZ21",
-          bot_code: "01JNJZ34JEA49WSCP4VCVJPW96",
-        });
-      };
-      (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "https://agents.fpt.ai/connect/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, "script", "tova-jssdk"));
-    </script>
+    @* <script> *@
+    @*   window.tovaAsyncInit = function() { *@
+    @*     tova.init({ *@
+    @*       tenant_id: "01JNGDB23ZF2MNEN4GCX8WSZ21", *@
+    @*       bot_code: "01JNJZ34JEA49WSCP4VCVJPW96", *@
+    @*     }); *@
+    @*   }; *@
+    @*   (function(d, s, id) { *@
+    @*     var js, fjs = d.getElementsByTagName(s)[0]; *@
+    @*     if (d.getElementById(id)) return; *@
+    @*     js = d.createElement(s); js.id = id; *@
+    @*     js.src = "https://agents.fpt.ai/connect/sdk.js"; *@
+    @*     fjs.parentNode.insertBefore(js, fjs); *@
+    @*   }(document, "script", "tova-jssdk")); *@
+    @* </script> *@
     <!-- build:script -->
     @RenderSection("Scripts", required: false)
 </body>

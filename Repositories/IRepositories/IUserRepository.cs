@@ -17,6 +17,9 @@ namespace Repositories.IRepositories
         Task<int> UpdateUserRole(int userId, int[] arrayRole, int type);
         Task<int> ChangeUserStatus(int userId);
         Task<User> FindById(int id);
+        bool IsHeadOfAccountantPhoTPKeToan(long userId);
+        bool IsAccountantTour(long userId);
+        Task<List<User>> GetChiefofDepartmentByServiceTypeNew(int service_type);
         Task<List<User>> GetUserSuggestionList(string userName);
         Task<User> GetById(long userIds);
         Task<string> ResetPasswordByUserId(int userId);

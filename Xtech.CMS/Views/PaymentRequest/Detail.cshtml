@@ -1,0 +1,557 @@
+﻿@{
+    ViewData["Title"] = "Chi tiết phiếu yêu cầu chi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Utilities
+@using Utilities.Contants
+@using Entities.ViewModels
+@using System.Linq
+@using Entities.ViewModels
+@model PaymentRequestViewModel
+@{
+    var counter = 0;
+    int TBP_DUYET_YEU_CAU_CHI = (int)ViewBag.TBP_DUYET_YEU_CAU_CHI;
+    int KTT_DUYET_YEU_CAU_CHI = (int)ViewBag.KTT_DUYET_YEU_CAU_CHI;
+    int KTV_DUYET_YEU_CAU_CHI = (int)ViewBag.KTV_DUYET_YEU_CAU_CHI;
+    bool isAdmin = (bool)ViewBag.isAdmin;
+    // var List_Note = (List<NoteViewModel>)ViewBag.ListNote;
+}
+<section class="main-container">
+    <input type="text" name="name" value="@Model.Id" id="requestId" hidden style="display: none" />
+    <input type="text" name="TransNo" value="@Model.PaymentCode" id="paymentRequestNo" hidden style="display: none" />
+    <div class="row-main container">
+        <h2 class="txt_18 bold mb20" style="color: #FF9966 !important;">
+            <a href="/PaymentRequest/Index" style="color: #FF9966 !important;">Danh sách phiếu yêu cầu chi</a> / Chi tiết phiếu yêu cầu chi @Model.PaymentCode
+        </h2>
+        <div class="table-responsive table-white">
+            <table class="table table-nowrap">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <strong>Mã  phiếu yêu cầu chi: @Model.PaymentCode</strong>
+                            @if (Model.Status == (int)(PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET) ||
+                            Model.Status == (int)(PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET))
+                            {
+                                <span class="status-wait">@Model.PaymentRequestStatus</span>
+                            }
+                            @if (Model.Status == (int)(PAYMENT_REQUEST_STATUS.CHO_CHI) || Model.Status == (int)(PAYMENT_REQUEST_STATUS.DA_CHI))
+                            {
+                                <span class="status-approve">@Model.PaymentRequestStatus</span>
+                            }
+                            @if (Model.Status == (int)(PAYMENT_REQUEST_STATUS.TU_CHOI))
+                            {
+                                <span class="status-reject">@Model.PaymentRequestStatus</span>
+                            }
+                            @if (Model.Status == (int)(PAYMENT_REQUEST_STATUS.LUU_NHAP))
+                            {
+                                <span class="status-draft">@Model.PaymentRequestStatus</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 45%;">
+                            <div class="row">
+                                <div class="col-5 mb10">Loại nghiệp vụ</div>
+                                <div class="col-7 mb10">: @Model.PaymentRequestType</div>
+                                <div class="col-5 mb10">Hình thức</div>
+                                <div class="col-7 mb10">: @Model.PaymentTypeStr</div>
+                                @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.HOAN_TRA_KHACH_HANG)
+                                {
+                                    <div class="col-5 mb10">Khách hàng</div>
+                                    <div class="col-7 mb10">: @Model.ClientName</div>
+                                }
+                                @if (Model.Type != (int)PAYMENT_VOUCHER_TYPE.HOAN_TRA_KHACH_HANG)
+                                {
+                                    <div class="col-5 mb10">Nhà cung cấp</div>
+                                    <div class="col-7 mb10">
+                                        :<a href="/Supplier/Detail?id=@Model.SupplierId"><span class="blue"> @Model.SupplierName</span></a>
+                                    </div>
+                                }
+                                @if (Model.BankingAccountId != 0)
+                                {
+                                    <div class="col-5 mb10">Tài khoản ngân hàng nhận</div>
+                                    <div class="col-7 mb10">: @Model.BankIdName (@Model.AccountNumber)</div>
+                                    <div class="col-5 mb10">Tên người thụ hưởng</div>
+                                    <div class="col-7 mb10">: @Model.BankName</div>
+                                }
+                                else
+                                {
+                                    <div class="col-5 mb10">Số tài khoản nhận</div>
+                                    <div class="col-7 mb10">: @Model.BankAccount</div>
+                                    <div class="col-5 mb10">Tên người thụ hưởng</div>
+                                    <div class="col-7 mb10">: @Model.BankName</div>
+                                }
+                                <div class="col-5 mb10">Số tiền</div>
+                                <div class="col-7 mb10">:@Model.Amount.ToString("N0")</div>
+                                <div class="col-5 mb10">Nội dung</div>
+                                <div class="col-7 mb10">
+                                    @if (Model.Note.Length > 50)
+                                    {
+                                        <div title="@Model.Note">: @Model.Note.Substring(0, 50)...</div>
+                                    }
+                                    else
+                                    {
+                                        <div>:@Model.Note</div>
+                                    }
+                                </div>
+                                <div class="col-5 mb10">Thời hạn thanh toán</div>
+                                @if (Model.PaymentDate != null)
+                                {
+                                    <div class="col-7 mb10">: @Model.PaymentDate.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                }
+                                else
+                                {
+                                    <div class="col-7 mb10">:</div>
+                                }
+                                @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.THANH_TOAN_DICH_VU)
+                                {
+                                    <div class="col-5 mb10">Công nợ với nhà cung cấp</div>
+                                    <div class="col-7 mb10">
+                                        @if (Model.IsSupplierDebt != null && Model.IsSupplierDebt.Value)
+                                        {
+                                            <div>: Có</div>
+                                        }
+                                        else
+                                        {
+                                            <div>: Không</div>
+                                        }
+                                    </div>
+                                }
+                                <div class="col-5 mb10">Đã thanh toán trước</div>
+                                @* <div class="col-7 mb10"> *@
+                                @*     @if (Model.IsPaymentBefore != null && Model.IsPaymentBefore.Value) *@
+                                @*     { *@
+                                @*         <div>: Có</div> *@
+                                @*     } *@
+                                @*     else *@
+                                @*     { *@
+                                @*         <div>: Không</div> *@
+                                @*     } *@
+                                @* </div> *@
+                                <div class="col-5 mb10">Số lần in</div>
+                                <div class="col-7 mb10">
+
+                                    <div>: @ViewBag.count_ycc</div>
+                                </div>
+                                <div class="col-5 mb10" style="color:red">Ghi chú</div>
+                                <div class="col-7 mb10" style="color:red;font-size:15px !important">
+                                    @if (Model.Description.Length > 50)
+                                    {
+                                        <div title="@Model.Description">: @Model.Description.Substring(0, 50)...</div>
+                                    }
+                                    else
+                                    {
+                                        <div>:@Model.Description</div>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.AttachFiles))
+                                {
+                                    <div class="col-5 mb10">Ảnh đính kèm</div>
+                                    <div class="col-7 mb10">
+                                        @if (!string.IsNullOrEmpty(Model.AttachFiles))
+                                        {
+                                            <a href="@Model.AttachFiles" class="blue" style="color: #056BD3 !important; cursor:pointer;"
+                                               target="_blank">Xem</a>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-7 mb10">
+                                        <div id="attachment-detail" class="attachment-detail"></div>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="row">
+                                <div class="col-6 row">
+                                    <div class="col-5 mb10">Ngày tạo</div>
+                                    <div class="col-7 mb10">
+                                        :
+                                        @if (Model.CreatedDate != null)
+                                        {
+                                            @Model.CreatedDate.Value.ToString("dd-MM-yyyy HH:mm")
+                                        }
+                                    </div>
+                                    <div class="col-5 mb10">Người tạo</div>
+                                    <div class="col-7 mb10">:  @Model.UserCreateName</div>
+                                </div>
+                                <div class="col-6 row">
+                                    @if (!string.IsNullOrEmpty(Model.AbandonmentReason) && (Model.Status != (int)PAYMENT_REQUEST_STATUS.CHO_CHI && Model.Status != (int)PAYMENT_REQUEST_STATUS.DA_CHI))
+                                    {
+                                        <div class="col-5 mb10">Lý do bỏ duyệt</div>
+                                        <div class="col-7 mb10">
+                                            : @Model.AbandonmentReason
+                                        </div>
+                                    }
+                                    @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.TU_CHOI)
+                                    {
+                                        <div class="col-5 mb10">Lý do từ chối</div>
+                                        <div class="col-7 mb10">
+                                            : @Model.DeclineReason
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-5 mb10">Ngày duyệt</div>
+                                        <div class="col-7 mb10">
+                                            :
+                                            @if (Model.VerifyDate != null)
+                                            {
+                                                @Model.VerifyDate.Value.ToString("dd-MM-yyyy HH:mm")
+                                            }
+                                            else
+                                            {
+                                                <dv>N/A</dv>
+                                            }
+                                        </div>
+                                        <div class="col-5 mb10">Người duyệt</div>
+                                        <div class="col-7 mb10">
+                                            :
+                                            @if (!string.IsNullOrEmpty(Model.UserVerifyName))
+                                            {
+                                                @Model.UserVerifyName
+                                            }
+                                            else
+                                            {
+                                                <dv>N/A</dv>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-12">
+                                    @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.THANH_TOAN_DICH_VU || Model.Type == (int)PAYMENT_VOUCHER_TYPE.CHI_PHI_MARKETING)
+                                    {
+                                        <div class="mb10">Dịch vụ liên quan</div>
+                                        <div class="table-responsive table-gray">
+                                            <table class="table table-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th>STT</th>
+                                                        <th>Mã dịch vụ</th>
+                                                        <th>Ngày bắt đầu-Ngày kết thúc</th>
+                                                        <th>Mã đơn hàng</th>
+                                                        <th>Nhân viên điều hành</th>
+                                                        @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.THANH_TOAN_DICH_VU)
+                                                        {
+                                                            <th>Tổng tiền thanh toán cho NCC</th>
+                                                        }
+                                                        <th>Tổng tiền yêu cầu chi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.RelateData)
+                                                    {
+                                                        counter++;
+                                                        <tr>
+                                                            <td>@counter</td>
+                                                            <td>
+                                                                @if (item.ServiceType == (int)ServiceType.BOOK_HOTEL_ROOM_VIN) // khách sạn
+                                                                {
+                                                                    <a class="blue" href="/SetService/VerifyHotelServiceDetai/@item.ServiceId">
+                                                                        @item.ServiceCode
+                                                                    </a>
+                                                                }
+                                                                @if (item.ServiceType == (int)ServiceType.PRODUCT_FLY_TICKET) // vé máy bay
+                                                                {
+                                                                    <a class="blue" href="/SetService/fly/detail/@item.GroupBookingId">
+                                                                        @item.ServiceCode
+                                                                    </a>
+                                                                }
+                                                                @if (item.ServiceType == (int)ServiceType.Tour) // tour du lịch
+                                                                {
+                                                                    <a class="blue" href="/SetService/Tour/Detail/@item.ServiceId">
+                                                                        @item.ServiceCode
+                                                                    </a>
+                                                                }
+                                                                @if (item.ServiceType == (int)ServiceType.Other) // tour du lịch
+                                                                {
+                                                                    <a class="blue" href="/SetService/Others/Detail/@item.ServiceId">
+                                                                        @item.ServiceCode
+                                                                    </a>
+                                                                }
+                                                                @if (item.ServiceType == (int)ServiceType.VinWonder) // VinWonder
+                                                                {
+                                                                    <a class="blue" href="/SetService/vinwonder/Detail/@item.ServiceId">
+                                                                        @item.ServiceCode
+                                                                    </a>
+                                                                }
+                                                            </td>
+                                                            <td>@item.StartDateStr - @item.EndDateStr</td>
+                                                            <td>
+                                                                <a class="blue" href="/Order/@item.OrderId">
+                                                                    @item.OrderNo
+                                                                </a>
+                                                            </td>
+                                                            <td>@item.SalerName</td>
+                                                            @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.THANH_TOAN_DICH_VU)
+                                                            {
+                                                                <td>@item.ServicePrice.ToString("N0")</td>
+                                                            }
+                                                            <td>@item.AmountPay.ToString("N0")</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.CHI_PHI_MARKETING)
+                                                        {
+                                                            <td class="text-right" colspan="5">
+                                                                Tổng
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="text-right" colspan="5">
+                                                                Tổng
+                                                            </td>
+                                                            <td>@Model.RelateData.Sum(n => n.ServicePrice).ToString("N0")</td>
+                                                        }
+                                                        <td>@Model.RelateData.Sum(n => n.AmountPay).ToString("N0")</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    }
+
+                                    @if (Model.Type == (int)PAYMENT_VOUCHER_TYPE.HOAN_TRA_KHACH_HANG)
+                                    {
+                                        <div class="mb10">Đơn hàng liên quan</div>
+                                        <div class="table-responsive table-gray">
+                                            <table class="table table-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th>STT</th>
+                                                        <th>Mã đơn hàng</th>
+                                                        <th>Ngày bắt đầu-Ngày kết thúc</th>
+                                                        <th>Nhân viên chính</th>
+                                                        <th>Số tiền</th>
+                                                        <th>Số tiền hoàn trả</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in Model.RelateData)
+                                                    {
+                                                        counter++;
+                                                        <tr>
+                                                            <td>@counter</td>
+                                                            <td>
+                                                                <a class="blue" href="/Order/@item.OrderId">
+                                                                    @item.OrderNo
+                                                                </a>
+                                                            </td>
+                                                            <td>@item.StartDateStr - @item.EndDateStr</td>
+                                                            <td>@item.SalerName</td>
+                                                            <td>@item.OrderAmount.ToString("N0")</td>
+                                                            <td>@item.OrderAmountPay.ToString("N0")</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        <td class="text-right" colspan="5">
+                                                            Tổng
+                                                        </td>
+                                                        <td>@Model.RelateData.Sum(n => n.OrderAmountPay).ToString("N0")</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    }
+                                </div>
+
+                            </div>
+                            @* <div> *@
+                            @*     @if (List_Note != null && List_Note.Count > 0) *@
+                            @*     { *@
+                            @*         <div class="col-12"> *@
+                            @*             <div class="col-12 mb10" style="color:red;">Kế toán Ghi chú</div> *@
+                            @*             @foreach (var item in List_Note) *@
+                            @*             { *@
+                            @*                 <div class="row"> *@
+                            @*                     <div class="col-3 mb10">@item.FullName</div> *@
+                            @*                     <div class="col-7 mb10"> *@
+                            @*                         :  @item.Comment *@
+                            @*                         @if (KTT_DUYET_YEU_CAU_CHI == 1 || KTV_DUYET_YEU_CAU_CHI == 1 || isAdmin) *@
+                            @*                         { *@
+                            @*                             <a class="cursor-pointer" onclick="_payment_request_service.KTNote(@Model.Id,@item.Id)" title="Chỉnh sửa"> *@
+                            @*                                 <i class="fa fa-edit"></i> *@
+                            @*                             </a> *@
+                            @*                         } *@
+                            @*                     </div> *@
+                            @*                 </div> *@
+                            @*             } *@
+
+                            @*         </div> *@
+                            @*     } *@
+                            @* </div> *@
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="flex flex-end">
+            @*<button type="submit" class="btn btn-default cancel ml-1" onclick="_payment_request_service.BackToList()">Quay lại</button>*@
+            <button type="submit" class="btn btn-default cancel ml-1" onclick="history.back()">Quay lại</button>
+            @if (KTT_DUYET_YEU_CAU_CHI == 1 || KTV_DUYET_YEU_CAU_CHI == 1 || isAdmin)
+            {
+                <button type="submit" class="btn btn-default  ml-1" style="background:#0066ff !important;" onclick="_payment_request_service.KTNote(@Model.Id,0)">Ghi chú kế toán</button>
+            }
+            @if ((isAdmin || KTT_DUYET_YEU_CAU_CHI == 1 || KTV_DUYET_YEU_CAU_CHI == 1) && Model.Status == (int)(PAYMENT_REQUEST_STATUS.CHO_CHI))
+            {
+                <button type="submit" class="btn btn-default  ml-1" style="background:#0066ff !important;" onclick="_payment_request_service.AddNewPaymentVoucher(@Model.Id)">Tạo phiếu chi nhanh</button>
+
+            }
+            @if (ViewBag.TYPE == (int)PAYMENT_VOUCHER_TYPE.QUY_CHAM_SOC_KHACH_HANG)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background: #5cb566 !important;"
+                        onclick="_payment_request_service.PopupInYCChi(@Model.Id)">
+                    <a class="fa fa-print txt_14" href="javascript:;" onclick="_payment_request_service.PopupInYCChi(@Model.Id)"></a>
+                </button>
+
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.LUU_NHAP || Model.Status == (int)PAYMENT_REQUEST_STATUS.TU_CHOI)
+            {
+                <button type="button" class="btn btn-danger ml-1" onclick="_payment_request_service.Delete('@Model.PaymentCode')">
+                    Xóa
+                </button>
+                <button type="button" class="btn btn-default ml-1" style="background: #5cb566 !important;"
+                        onclick="_payment_request_service.Edit(@Model.Id)">
+                    Chỉnh sửa
+                </button>
+            }
+            @if (isAdmin)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background: #5cb566 !important;"
+                        onclick="_payment_request_service.EditAdmin(@Model.Id)">
+                    Chỉnh sửa (Admin)
+                </button>
+            }
+
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_CHI && (isAdmin || KTT_DUYET_YEU_CAU_CHI == 1))
+            {
+                <button type="button" class="btn btn-danger ml-1" onclick="_payment_request_service.UndoApprove(@((int)PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET))">
+                    Bỏ duyệt
+                </button>
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_CHI && KTV_DUYET_YEU_CAU_CHI == 1)
+            {
+                <button type="button" class="btn btn-danger ml-1" onclick="_payment_request_service.UndoApprove(@((int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET))">
+                    Bỏ duyệt
+                </button>
+            }
+            @if (isAdmin && Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background:#0066ff !important;"
+                        onclick="_payment_request_service.Approve(@((int)PAYMENT_REQUEST_STATUS.CHO_CHI))">
+                    Duyệt
+                </button>
+            }
+            @if (isAdmin && Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background:#0066ff !important;"
+                        onclick="_payment_request_service.Approve(@((int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET))">
+                    Duyệt
+                </button>
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET && KTT_DUYET_YEU_CAU_CHI == 1)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background:#0066ff !important;"
+                        onclick="_payment_request_service.Approve(@((int)PAYMENT_REQUEST_STATUS.CHO_CHI))">
+                    Duyệt
+                </button>
+            }
+            @*@if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET && KTV_DUYET_YEU_CAU_CHI == 1 && Model.Type == (int)PAYMENT_VOUCHER_TYPE.CHI_PHI_MARKETING)
+                {
+                <button type="button" class="btn btn-default ml-1" style="background:#0066ff !important;"
+                onclick="_payment_request_service.Approve(@((int)PAYMENT_REQUEST_STATUS.CHO_CHI))">
+                Duyệt
+                </button>
+                }*@
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET && TBP_DUYET_YEU_CAU_CHI == 1)
+            {
+                <button type="button" class="btn btn-default ml-1" style="background:#0066ff !important;"
+                        onclick="_payment_request_service.Approve(@((int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET))">
+                    Duyệt
+                </button>
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET && TBP_DUYET_YEU_CAU_CHI == 1)
+            {
+                <button type="button" class="btn btn-danger ml-1"
+                        onclick="_payment_request_service.Reject()">
+                    Từ chối
+                </button>
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_TBP_DUYET && isAdmin)
+            {
+                <button type="button" class="btn btn-danger ml-1"
+                        onclick="_payment_request_service.Reject()">
+                    Từ chối
+                </button>
+            }
+            @if (Model.Status == (int)PAYMENT_REQUEST_STATUS.CHO_KTT_DUYET && (isAdmin || KTT_DUYET_YEU_CAU_CHI == 1))
+            {
+                <button type="button" class="btn btn-danger ml-1"
+                        onclick="_payment_request_service.Reject()">
+                    Từ chối
+                </button>
+            }
+        </div>
+    </div>
+</section>
+<style>
+    .white-popup {
+        max-width: 900px !important;
+    }
+
+    .content_lightbox .head {
+        font-weight: 500 !important;
+        font-size: 16px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .content_lightbox {
+        padding: 20px !important;
+    }
+
+    .status-wait {
+        background: #EEB442 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-approve {
+        background: #5CB566 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-draft {
+        background: #C9C9C9 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+
+    .status-reject {
+        background: #FF0000 !important;
+        min-width: 130px;
+        padding: 3px 15px;
+        border-radius: 15px;
+        color: #fff;
+    }
+</style>
+@section scripts {
+    <script type="text/javascript" src="~/js/zebra_datepicker.min.js"></script>
+    <script type="text/javascript" src="~/modules/payment_request.js?v=1"></script>
+    <script>
+        _global_function.RenderFileAttachment($('#attachment-detail'), @Model.PaymentVoucherId, @((int)AttachmentType.Payment_Voucher), false)
+    </script>
+}

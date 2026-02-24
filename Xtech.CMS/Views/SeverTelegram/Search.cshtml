@@ -1,0 +1,81 @@
+﻿@{
+    Layout = null;
+}
+@using Entities.Models
+@using Entities.ViewModels
+@using Utilities.Contants
+@model GenericViewModel<TeleBotServer>
+
+<table class="table table-nowrap">
+    <thead>
+        <tr class="bg-main2">
+            <th>STT</th>                  @* 1 *@
+            <th>Tên</th>                  @* 2 *@
+            <th>Giá</th>                  @* 3 *@
+            <th>Ngày bắt đầu</th>         @* 4 *@
+            <th>Ngày kết thúc</th>        @* 5 *@
+            <th>Ngày tạo</th>             @* 6 *@
+            <th>Trạng thái</th>           @* 7 *@
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.ListData != null && Model.ListData.Count > 0)
+        {
+            var counter = (Model.CurrentPage - 1) * Model.PageSize;
+            foreach (var item in Model.ListData)
+            {
+                counter++;
+                <tr class="line-item">
+                    <td class="center">@counter</td>
+
+                    <td>
+                        <a class="blue" href="javascript:void(0);" onclick="_Telegrammanagement.Updata('@item.Id')">
+                            @item.Name
+                        </a>
+                    </td>
+
+                    <td>
+                        @item.Price.ToString("N0")
+                    </td>
+
+                    <td>
+                        @(item.StartDate.HasValue ? item.StartDate.Value.ToString("dd/MM/yyyy") : "")
+                    </td>
+
+                    <td>
+                        @(item.EndDate.HasValue ? item.EndDate.Value.ToString("dd/MM/yyyy") : "")
+                    </td>
+
+                    <td>
+                        @(item.CreatedAt.HasValue ? item.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "")
+                    </td>
+
+                    <td>
+                        @(item.Status == 0 ? "Đang chạy" : "Khóa/tạm dừng")
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">
+                    Không có dữ liệu
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@await Component.InvokeAsync("Paging", new
+    {
+        pageModel = new Paging()
+    {
+        TotalRecord = Model?.TotalRecord ?? 0,
+        TotalPage = Model?.TotalPage ?? 0,
+        CurrentPage = Model?.CurrentPage ?? 1,
+        PageSize = Model?.PageSize ?? 20,
+        RecordName = "Bot Telegram",
+        PageAction = "_Telegrammanagement.OnPaging('{0}');"
+    }
+    })

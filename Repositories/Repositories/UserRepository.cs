@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
 using Repositories.IRepositories;
+using SharpCompress.Common;
 using SixLabors.ImageSharp;
 using System.Data;
 using System.Globalization;
@@ -360,6 +361,70 @@ namespace Repositories.Repositories
             }
             return 0;
         }
+        public async Task<List<User>> GetChiefofDepartmentByServiceTypeNew(int service_type)
+        {
+            try
+            {
+                switch (service_type)
+                {
+                    case (int)ServiceType.BOOK_HOTEL_ROOM_VIN:
+                        {
+                            return await _UserDAL.GetListChiefofDepartmentByRoleID((int)RoleType.TPDHKS);
+                        }
+                    case (int)ServiceType.PRODUCT_FLY_TICKET:
+                        {
+                            return await _UserDAL.GetListChiefofDepartmentByRoleID((int)RoleType.TPDHVe);
+                        }
+                    case (int)ServiceType.Tour:
+                        {
+                            return await _UserDAL.GetListChiefofDepartmentByRoleID((int)RoleType.TPDHTour);
+                        }
+                    case (int)ServiceType.Other:
+                        {
+                            return await _UserDAL.GetListChiefofDepartmentByRoleID(new List<int>() {
+                            (int)RoleType.TPDHKS,
+                            (int)RoleType.TPDHTour,
+                            (int)RoleType.TPDHVe,
+                            (int)RoleType.TPDHKS});
+                        }
+                    default:
+                        {
+                            return await _UserDAL.GetListChiefofDepartmentByRoleID((int)RoleType.TPDHKS);
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetChiefofDepartmentByServiceType - UserRepository: " + ex);
+            }
+            return new List<User>();
+        }
+        public bool IsAccountantTour(long userId)
+        {
+            try
+            {
+                var listIsAccountant = _userRoleDAL.GetListUserByRole((int)RoleType.TPTour);
+                return listIsAccountant.FirstOrDefault(n => n.Id == userId) != null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("IsAccountantTour - UserRepository: " + ex);
+            }
+            return false;
+        }
+        public bool IsHeadOfAccountantPhoTPKeToan(long userId)
+        {
+            try
+            {
+                var listHeadOfAccountant = _userRoleDAL.GetListUserByRole((int)RoleType.PhoTPKeToan);
+                return listHeadOfAccountant.FirstOrDefault(n => n.Id == userId) != null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("isHeadOfAccountant - UserRepository: " + ex);
+            }
+            return false;
+        }
 
         public async Task<List<User>> GetUserSuggestionList(string name)
         {
@@ -665,6 +730,7 @@ namespace Repositories.Repositories
             {
                 var searchModel = new TenantSearchModel();
                 var _tenantDAL = new TenantDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
+                var _UserDAL = new UserDAL(_configuration["DataBaseConfig:SqlServer:ConnectionString_DeepSeek"]);
                 searchModel.UserName = model.UserName;
                 searchModel.PageIndex = -1;
                 DataTable dt = await _tenantDAL.GetListTenant(searchModel);
@@ -675,7 +741,14 @@ namespace Repositories.Repositories
                 }
 
 
-                return await _tenantDAL.InsertTenant(model);
+                var userId = await _tenantDAL.InsertTenant(model);
+
+
+                var role_list = new List<int>();
+                role_list.Add(6);
+                await _UserDAL.UpdateUserRole(userId, role_list.ToArray(), 0);
+
+                return userId;
             }
             catch (Exception ex)
             {
@@ -780,7 +853,7 @@ namespace Repositories.Repositories
                     Id = model.Id,
                     Manager = model.Manager,
                     UserMapId = model.UserMapId,
-                    TenantId=model.TenantId,
+                    TenantId = model.TenantId,
                     //UserRole = model.UserRole
                 };
 

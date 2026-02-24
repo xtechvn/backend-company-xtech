@@ -131,6 +131,27 @@ namespace DAL.Generic
                 return null;
             }
         }
+     
+        public Supplier GetById(long supplierId)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var detail = _DbContext.Supplier.FirstOrDefault(x => x.SupplierId == supplierId);
+                    if (detail != null)
+                    {
+                        return detail;
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetById - SupplierDAL: " + ex);
+                return null;
+            }
+        }
         public async Task<List<TEntity>> GetAllAsync()
         {
             try

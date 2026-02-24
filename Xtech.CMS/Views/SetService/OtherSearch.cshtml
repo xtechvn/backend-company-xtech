@@ -1,0 +1,141 @@
+﻿@{
+    Layout = null;
+    Entities.ViewModels.GenericViewModel<Entities.ViewModels.SetServices.OtherBookingSearchViewModel> model = (Entities.ViewModels.GenericViewModel<Entities.ViewModels.SetServices.OtherBookingSearchViewModel>)ViewBag.Model;
+    int index = 0;
+    long countOther = model.TotalRecord;
+    if (model != null && model.ListData != null && model.ListData.Count > 0)
+    {
+        index = (model.CurrentPage - 1) * model.PageSize;
+    }
+
+}
+<style>
+    .green {
+        color: #4BAC4D;
+    }
+</style>
+
+@if (model != null && model.ListData != null && model.ListData.Count > 0)
+{
+
+    <div class="wrap_bg wrap_bg_no-padding mb20">
+        <div class="table-responsive table-default table-gray">
+            <table class="table table-nowrap">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Mã dịch vụ</th>
+                        <th>Chi tiết dịch vụ</th>
+                        <th>
+                            Ngày bắt đầu -
+                            Ngày kết thúc
+                        </th>
+                        <th>Doanh thu dịch vụ</th>
+                        <th>Giá NET thực tế</th>
+                        <th>Lợi nhuận thực tế</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày tạo</th>
+                        <th>Nhân viên bán</th>
+                        <th>Điều hành</th>
+                        <th>Mã code</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in model.ListData)
+                    {
+                        <tr>
+                            <td>@(++index)</td>
+                            <td>
+                                <a class="blue" href="Others/Detail/@(item.Id)">@(item.ServiceCode == null || item.ServiceCode.Trim() == "" ? "{Unknown Code}" : item.ServiceCode) </a>
+                            </td>
+                            <td>
+                                Dịch vụ : @(item.ServiceTypeName == null ? "" : item.ServiceTypeName)
+                            </td>
+                            <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm") - @item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @(item.Amount == null ? "" : ((double)item.Amount).ToString("N0"))
+                            </td>
+                            <td>
+                                @(item.Price == null ? "" : ((double)item.Price).ToString("N0"))
+                            </td>
+                            <td>
+                                @{
+                                    double operator_profit = (item.Amount == null ? 0 : (double)item.Amount) - (item.Price == null ? 0 : (double)item.Price);
+                                }
+                                @(operator_profit.ToString("N0"))
+                            </td>
+                            <td>
+                                <div><a class="blue" href="/OrderDetail/@item.OrderId">@item.OrderNo</a></div>
+                            </td>
+                            <td>@item.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@item.SalerFullName (@item.DepartmentName)</td>
+                            <td>@item.OperatorFullNameName</td>
+                            <td style="max-width:10%;width:8%"> @(item.BookingCode == null ? "" : item.BookingCode.TrimEnd(',', ' '))</td>
+                            <td>
+
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.New)
+                                {
+                                    <span class="status-oranger">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.WaitingExcution)
+                                {
+                                    <span class="status-oranger">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.OnExcution)
+                                {
+                                    <span class="status-blue">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.ServeCode)
+                                {
+                                    <span class="status-green">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.ServeCodeKH)
+                                {
+                                    <span class="status-green">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.Payment)
+                                {
+                                    <span class="status-green">@item.OtherBookingStatusName</span>
+                                }
+                                @if (item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.Decline || item.OtherBookingStatus == (int)Utilities.Contants.ServiceStatus.Cancel)
+                                {
+                                    <span class="status-red">@item.OtherBookingStatusName</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (model != null && model.ListData != null && model.ListData.Count > 0)
+        {
+            <input id="countOther" value=" @countOther" style="display:none" />
+            @await Component.InvokeAsync("PagingNew", new
+                {
+                    pageModel = new Entities.ViewModels.Paging()
+    {
+        TotalRecord = model.TotalRecord,
+        TotalPage = model.TotalPage,
+        CurrentPage = model.CurrentPage,
+        PageSize = model.PageSize,
+        RecordName = "Other",
+        PageAction = "_set_service_other.OnPaging({0})",
+        PageSelectPageSize = "_set_service_other.onSelectPageSize()",
+    }
+                })
+        }
+
+    </div>
+}
+else
+{
+    <div class="search-null center mb40">
+        <div class="mb24">
+            <img src="/images/graphics/icon-search.png" alt="">
+        </div>
+        <h2 class="title txt_24">Không tìm thấy kết quả</h2>
+        <div class="gray">Chúng tôi không tìm thấy thông tin mà bạn cần, vui lòng thử lại</div>
+    </div>
+}

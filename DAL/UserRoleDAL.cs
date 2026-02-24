@@ -23,7 +23,26 @@ namespace DAL
         {
             _DbWorker = new DbWorker(connection);
         }
-
+        public List<User> GetListUserByRole(int role_id)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var user_role = _DbContext.UserRoles.Where(s => s.RoleId == role_id).ToList();
+                    var userRoleIds = user_role.Select(n => n.UserId).ToList();
+                    if (userRoleIds.Count > 0)
+                    {
+                        return _DbContext.Users.Where(s => userRoleIds.Contains(s.Id) && s.Status == 0).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetListUserByRole - UserRoleDAL: " + ex);
+            }
+            return new List<User>();
+        }
         public async Task<List<Role>> GetUserActiveRoleList(int user_id)
         {
             try

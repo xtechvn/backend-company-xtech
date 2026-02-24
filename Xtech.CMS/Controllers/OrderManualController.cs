@@ -1,6 +1,7 @@
 ﻿using Catching.Elasticsearch;
 using Entities.Models;
 using Entities.ViewModels.Elasticsearch;
+using Entities.ViewModels.ElasticSearch;
 using Microsoft.AspNetCore.Mvc;
 using Repositories.IRepositories;
 using Repositories.Repositories;

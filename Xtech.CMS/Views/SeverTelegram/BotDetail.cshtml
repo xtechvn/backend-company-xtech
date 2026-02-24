@@ -1,0 +1,57 @@
+﻿@model Entities.Models.TeleBotServer
+
+<div class="form-default">
+    <input type="hidden" id="id" value="@Model.Id" />
+
+    <div class="form-group">
+        <label>Tên</label>
+        <input type="text" id="name" class="form-control" value="@Model.Name" />
+    </div>
+
+    <div class="form-group">
+        <label>Giá</label>
+        <input type="number" id="price" class="form-control"
+               value="@(Model.Price == 0 ? "" : Model.Price.ToString())" />
+    </div>
+
+    <div class="form-group">
+        <label>Ngày bắt đầu</label>
+        <input type="text" id="startDate"
+               class="form-control date-picker"
+               value="@(Model.StartDate.HasValue ? Model.StartDate.Value.ToString("dd/MM/yyyy") : "")" />
+    </div>
+
+    <div class="form-group">
+        <label>Ngày kết thúc</label>
+        <input type="text" id="endDate"
+               class="form-control date-picker"
+               value="@(Model.EndDate.HasValue ? Model.EndDate.Value.ToString("dd/MM/yyyy") : "")" />
+    </div>
+
+    <div class="form-group">
+        <label>Ngày tạo</label>
+        <input type="text" id="createdAt"
+               class="form-control date-picker"
+               value="@(Model.CreatedAt.HasValue ? Model.CreatedAt.Value.ToString("dd/MM/yyyy") : "")" />
+        @* Nếu muốn khóa không cho sửa thì thêm readonly *@
+        @* readonly /> *@
+    </div>
+
+    <div class="form-group">
+        <label style="padding-right:10px">Trạng thái</label><br />
+        <label class="check-list mb10 mr25" style="padding-right:7px">
+            <input type="radio" name="status_detail" value="0" @(Model.Status == 0 ? "checked" : "") />
+            <span class="checkmark"></span> Đang chạy
+        </label>
+        <label class="check-list mb10 mr25">
+            <input type="radio" name="status_detail" value="1" @(Model.Status == 1 ? "checked" : "") />
+            <span class="checkmark"></span> Khóa/Tạm dừng
+        </label>
+    </div>
+
+    <div class="form-group text-right">
+        <button type="button" class="btn btn-primary" onclick="_Telegrammanagement.OnSaveBot();">Lưu</button>
+    </div>
+</div>
+
+

@@ -16,7 +16,7 @@ namespace Entities.Models
         {
         }
 
-        public virtual DbSet<AccountClient> AccountClients { get; set; } = null!;
+        public virtual DbSet<AccountClient> AccountClients { get; set; } 
         public virtual DbSet<Action> Actions { get; set; } = null!;
         public virtual DbSet<AddressClient> AddressClients { get; set; } = null!;
         public virtual DbSet<AffiliateGroupProduct> AffiliateGroupProducts { get; set; } = null!;
@@ -30,7 +30,7 @@ namespace Entities.Models
         public virtual DbSet<ArticleTag> ArticleTags { get; set; } = null!;
         public virtual DbSet<AttachFile> AttachFiles { get; set; } = null!;
         public virtual DbSet<BankOnePay> BankOnePays { get; set; } = null!;
-        public virtual DbSet<BankingAccount> BankingAccounts { get; set; } = null!;
+        public virtual DbSet<BankingAccount> BankingAccounts { get; set; }
         public virtual DbSet<BookingVp> BookingVps { get; set; } = null!;
         public virtual DbSet<Brand> Brands { get; set; } = null!;
         public virtual DbSet<Campaign> Campaigns { get; set; } = null!;
@@ -42,11 +42,11 @@ namespace Entities.Models
         public virtual DbSet<ContactClient> ContactClients { get; set; } = null!;
         public virtual DbSet<Contract> Contracts { get; set; } = null!;
         public virtual DbSet<ContractHistory> ContractHistories { get; set; } = null!;
-        public virtual DbSet<ContractPay> ContractPays { get; set; } = null!;
-        public virtual DbSet<ContractPayDetail> ContractPayDetails { get; set; } = null!;
+        public virtual DbSet<ContractPay> ContractPays { get; set; }
+        public virtual DbSet<ContractPayDetail> ContractPayDetails { get; set; }
         public virtual DbSet<DebtStatistic> DebtStatistics { get; set; } = null!;
         public virtual DbSet<Department> Departments { get; set; } = null!;
-        public virtual DbSet<DepositHistory> DepositHistories { get; set; } = null!;
+        public virtual DbSet<DepositHistory> DepositHistories { get; set; } 
         public virtual DbSet<District> Districts { get; set; } = null!;
         public virtual DbSet<GroupProduct> GroupProducts { get; set; } = null!;
         public virtual DbSet<ImageSize> ImageSizes { get; set; } = null!;
@@ -61,13 +61,13 @@ namespace Entities.Models
         public virtual DbSet<Mfauser> Mfausers { get; set; } = null!;
         public virtual DbSet<National> Nationals { get; set; } = null!;
         public virtual DbSet<Note> Notes { get; set; } = null!;
-        public virtual DbSet<Order> Orders { get; set; } = null!;
+        //public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<OrderBak> OrderBaks { get; set; } = null!;
         public virtual DbSet<Payment> Payments { get; set; } = null!;
         public virtual DbSet<PaymentAccount> PaymentAccounts { get; set; } = null!;
-        public virtual DbSet<PaymentRequest> PaymentRequests { get; set; } = null!;
-        public virtual DbSet<PaymentRequestDetail> PaymentRequestDetails { get; set; } = null!;
-        public virtual DbSet<PaymentVoucher> PaymentVouchers { get; set; } = null!;
+        public virtual DbSet<PaymentRequest> PaymentRequests { get; set; }
+        public virtual DbSet<PaymentRequestDetail> PaymentRequestDetails { get; set; }
+        public virtual DbSet<PaymentVoucher> PaymentVouchers { get; set; } 
         public virtual DbSet<Permission> Permissions { get; set; } = null!;
         public virtual DbSet<Policy> Policies { get; set; } = null!;
         public virtual DbSet<PolicyDetail> PolicyDetails { get; set; } = null!;
@@ -79,15 +79,25 @@ namespace Entities.Models
         public virtual DbSet<Tag> Tags { get; set; } = null!;
         public virtual DbSet<TelegramDetail> TelegramDetails { get; set; } = null!;
         public virtual DbSet<Transaction> Transactions { get; set; } = null!;
-        public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<User> Users { get; set; } 
         public virtual DbSet<UserAgent> UserAgents { get; set; } = null!;
         public virtual DbSet<UserDepart> UserDeparts { get; set; } = null!;
         public virtual DbSet<UserPosition> UserPositions { get; set; } = null!;
-        public virtual DbSet<UserRole> UserRoles { get; set; } = null!;
-        public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
+        public virtual DbSet<UserRole> UserRoles { get; set; } 
+        //public virtual DbSet<Voucher> Vouchers { get; set; } = null!;
         public virtual DbSet<VoucherCampaign> VoucherCampaigns { get; set; } = null!;
         public virtual DbSet<VoucherLogActivity> VoucherLogActivities { get; set; } = null!;
         public virtual DbSet<Ward> Wards { get; set; } = null!;
+        public virtual DbSet<Supplier> Supplier { get; set; }
+        public virtual DbSet<TeleBotServer> TeleBotServer { get; set; }
+        //==========================================================
+        public virtual DbSet<Voucher> Voucher { get; set; }
+        public virtual DbSet<Order> Order { get; set; }
+        public virtual DbSet<Client> Client { get; set; }
+        public virtual DbSet<OtherBooking> OtherBooking { get; set; }
+        public virtual DbSet<OtherBookingPackages> OtherBookingPackages { get; set; }
+        public virtual DbSet<OtherBookingPackagesOptional> OtherBookingPackagesOptional { get; set; }
+        public virtual DbSet<FlyBookingPackagesOptional> FlyBookingPackagesOptional { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

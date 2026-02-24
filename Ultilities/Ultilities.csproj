@@ -19,11 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Entities\Entities.csproj" />
+    <Folder Include="APIHelpers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="APIHelpers\" />
+    <ProjectReference Include="..\Entities\Entities.csproj" />
   </ItemGroup>
 
 </Project>

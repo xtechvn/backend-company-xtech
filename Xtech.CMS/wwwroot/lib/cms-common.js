@@ -8,7 +8,18 @@ jQuery.validator.addMethod("exactlength", function (value, element, param) {
 }, $.validator.format("Please enter exactly {0} characters."));
 
 // ----------------------
+function initTeleBotDatePicker() {
+    if (!$('.date-picker').length) return;
 
+    $('.date-picker').daterangepicker({
+        singleDatePicker: true,
+        autoApply: true,
+        showDropdowns: true,
+        locale: {
+            format: 'DD/MM/YYYY'
+        }
+    });
+}
 function ConvertToJSONDate(strdate) {
     if (strdate == null || strdate == "") {
         return null;
@@ -428,31 +439,40 @@ var _magnific = {
         let elTitle = elPopup.find('.magnific-title');
         let elBody = elPopup.find('.magnific-body');
         elTitle.html(title);
+
         $.ajax({
             url: url,
             type: "post",
             data: param,
             success: function (result) {
                 elBody.html(result);
+
+                // Khởi tạo datepicker sau khi content được gắn vào DOM
+                initTeleBotDatePicker();
+
+                jQuery.magnificPopup.open({
+                    items: {
+                        src: elPopup
+                    },
+                    type: 'inline',
+                    midClick: true,
+                    mainClass: 'mfp-with-zoom',
+                    fixedContentPos: false,
+                    fixedBgPos: true,
+                    overflowY: 'auto',
+                    closeBtnInside: true,
+                    closeOnBgClick: false,
+                    preloader: false,
+                    removalDelay: 300
+                });
+            },
+            error: function (xhr) {
+                console.error('Load popup error:', xhr.responseText);
             }
         });
-
-        jQuery.magnificPopup.open({
-            items: {
-                src: elPopup
-            },
-            type: 'inline',
-            midClick: true,
-            mainClass: 'mfp-with-zoom',
-            fixedContentPos: false,
-            fixedBgPos: true,
-            overflowY: 'auto',
-            closeBtnInside: true,
-            closeOnBgClick: false,
-            preloader: false,
-            removalDelay: 300
-        });
     },
+
+
     OpenSmallPopupWithHeader: function (title, url, param, callback = null) {
         let elPopup = $('#magnific-popup-small-header');
         let elTitle = elPopup.find('.magnific-title');

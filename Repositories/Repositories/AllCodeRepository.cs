@@ -20,11 +20,17 @@ namespace Repositories.Repositories
     {
         private readonly ILogger<AllCodeRepository> _logger;
         private readonly AllCodeDAL _AllCodeDAL;
+        private readonly BankingAccountDAL bankingAccountDAL;
 
         public AllCodeRepository(IOptions<DataBaseConfig> dataBaseConfig, ILogger<AllCodeRepository> logger)
         {
             _logger = logger;
             _AllCodeDAL = new AllCodeDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+            bankingAccountDAL = new BankingAccountDAL(dataBaseConfig.Value.SqlServer.ConnectionString);
+        }
+        public List<BankingAccount> GetBankingAccounts()
+        {
+            return bankingAccountDAL.GetAllBankingAccount();
         }
 
         public async Task<long> Create(AllCode model)
@@ -63,6 +69,10 @@ namespace Repositories.Repositories
         public Task<long> Delete(int id)
         {
             throw new NotImplementedException();
+        }
+        public List<BankingAccount> GetBankingAccountsBySupplierId(int supplierId)
+        {
+            return bankingAccountDAL.GetBankAccountDataTableBySupplierId(supplierId).ToList<BankingAccount>();
         }
 
         public List<AllCode> GetAll()

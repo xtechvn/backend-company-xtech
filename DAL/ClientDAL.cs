@@ -1,6 +1,7 @@
 ﻿using DAL.Generic;
 using DAL.StoreProcedure;
 using Entities.Models;
+using Entities.ViewModels;
 using Entities.ViewModels.CustomerManager;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +13,78 @@ using Utilities.Contants;
 
 namespace DAL
 {
-    public class ClientDAL
+    public class ClientDAL : GenericService<Client>
     {
         private static DbWorker _DbWorker;
         private static string _connection;
-        public ClientDAL(string connection)
+        public ClientDAL(string connection) : base(connection)
         {
             _connection = connection;
             _DbWorker = new DbWorker(connection);
         }
-
+        public async Task<AccountClient> GetAccountClientByID(long id)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var detail = await _DbContext.AccountClients.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                    if (detail != null)
+                    {
+                        return detail;
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetAccountClientByID - ClientDAL: " + ex.ToString());
+                return null;
+            }
+        }
+        public List<Client> GetClientByIds(List<long> clientIds)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var clients = _DbContext.Client.AsNoTracking().Where(x => clientIds.Contains(x.Id)).ToList();
+                    if (clients != null)
+                    {
+                        return clients;
+                    }
+                }
+                return new List<Client>();
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetClientByIds - ClientDAL: " + ex.ToString());
+                return new List<Client>();
+            }
+        }
+        public async Task<List<Client>> GetClientInfo(List<long> listIdAccountClient)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var listAccountClient = _DbContext.AccountClients.AsNoTracking().Where(n => listIdAccountClient.Contains(n.Id)).ToList();
+                    var listClientId = listAccountClient.Select(n => n.ClientId).ToList();
+                    var listClient = _DbContext.Client.AsNoTracking().Where(n => listClientId.Contains(n.Id)).ToList();
+                    foreach (var item in listClient)
+                    {
+                        var accountClient = listAccountClient.FirstOrDefault(n => n.ClientId == item.Id);
+                        item.ClientMapId = accountClient?.Id;
+                    }
+                    return listClient;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetClientInfo - ClientDAL: " + ex);
+                return new List<Client>();
+            }
+        }
         public async Task<int> UpdateApproachStatus(Client client)
         {
             try
@@ -40,7 +103,74 @@ namespace DAL
             }
         }
 
+        /// <summary>
+        /// Lấy list client suggestion theo txt_search từ DB (bảng Client)
+        /// </summary>
+        public List<CustomerViewModel> GetClientSuggesstion(string txt_search)
+        {
+            var result = new List<CustomerViewModel>();
 
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var query = _DbContext.Client.AsNoTracking();
+
+                    // Nếu không search gì thì trả top 30 mới nhất
+                    if (string.IsNullOrWhiteSpace(txt_search))
+                    {
+                        result = query
+                            .OrderByDescending(x => x.UpdateTime ?? x.JoinDate)
+                            .Take(30)
+                            .Select(x => new CustomerViewModel
+                            {
+                                Id = x.Id,
+                                ClientName = x.ClientName,
+                                Email = x.Email,
+                                Phone = x.Phone,
+                                ClientCode = x.ClientCode,
+                                Status = x.Status
+                            })
+                            .ToList();
+
+                        return result;
+                    }
+
+                    txt_search = txt_search.Trim();
+
+                    // Điều kiện search giống bên ES: phone / email / name / code
+                    query = query.Where(x =>
+                        (x.Phone != null && x.Phone.Contains(txt_search)) ||
+                        (x.Email != null && x.Email.Contains(txt_search)) ||
+                        (x.ClientName != null && x.ClientName.Contains(txt_search)) ||
+                        (x.ClientCode != null && x.ClientCode.Contains(txt_search))
+                    );
+
+                    int top = 4000;
+
+                    result = query
+                        .OrderByDescending(x => x.UpdateTime ?? x.JoinDate)
+                        .Take(top)
+                        .Select(x => new CustomerViewModel
+                        {
+                            Id = x.Id,
+                            ClientName = x.ClientName,
+                            Email = x.Email,
+                            Phone = x.Phone,
+                            ClientCode = x.ClientCode,
+                            Status = x.Status
+                        })
+                        .ToList();
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetClientSuggesstion - ClientDAL: " + ex);
+                return new List<CustomerViewModel>();
+            }
+        }
 
         public async Task<Client> GetClientByID(int Id) 
         {
@@ -342,6 +472,26 @@ namespace DAL
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("GetAll in GenericService" + ex);
+                return null;
+            }
+        }
+        public async Task<Client> GetClientDetail(long clientId)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var detail = await _DbContext.Client.AsNoTracking().FirstOrDefaultAsync(x => x.Id == clientId);
+                    if (detail != null)
+                    {
+                        return detail;
+                    } 
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetClientDetail - ClientDAL: " + ex.ToString());
                 return null;
             }
         }

@@ -44,7 +44,7 @@ var _Telegrammanagement = {
         let dataapi = JSON.stringify(data);
         
         $.ajax({
-            url: "/BotTelegram/GetGrouplogname",
+            url: "/SeverTelegram/GetGrouplogname",
             type: "post",
             data: { dataapi},
             success: function (result) {
@@ -98,7 +98,7 @@ var _Telegrammanagement = {
         let data = JSON.stringify(object_summit)
      
         $.ajax({
-            url: '/BotTelegram/AddBot',
+            url: '/SeverTelegram/AddBot',
             type: "post",
             data: { data },
             success: function (result) {
@@ -139,7 +139,7 @@ var _Telegrammanagement = {
 
     Search: function (input) {
         $.ajax({
-            url: "/BotTelegram/Search",
+            url: "/SeverTelegram/Search",
             type: "Post",
             data: input,
             success: function (result) {
@@ -150,7 +150,7 @@ var _Telegrammanagement = {
     },
     Updata: function (id) {
         let title = 'Thêm mới/Cập nhật bot log telegram';
-        let url = '/BotTelegram/BotDetail';
+        let url = '/SeverTelegram/BotDetail';
         let param = {
         };
         if (id.trim() != '') {

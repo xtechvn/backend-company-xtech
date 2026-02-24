@@ -6,6 +6,28 @@ namespace Utilities.Contants
 {
     public class StoreProcedureConstant
     {
+        public const string sp_GetAllServiceByRequestiD = "sp_GetAllServiceByRequestiD";
+        public const string Sp_GetDetailServiceById = "Sp_GetDetailServiceById";
+        public const string sp_GetDetailPaymentRequest = "sp_GetDetailPaymentRequest";
+        public const string SP_CountPaymentRequestByStatus = "SP_CountPaymentRequestByStatus";
+        public const string SP_GetListPaymentRequest = "SP_GetListPaymentRequest";
+        public static string SP_GetTotalAmountPaymentVoucherByDate = "SP_GetTotalAmountPaymentVoucherByDate";
+        public static string SP_UpdateOrderRefund = "SP_UpdateOrderRefund";
+        public const string SP_GetListPaymentVoucher = "SP_GetListPaymentVoucher";
+        public const string sp_GetDetailPaymentVoucher = "sp_GetDetailPaymentVoucher";
+        public const string SP_CheckExistsPaymentVoucherByRequestId = "SP_CheckExistsPaymentVoucherByRequestId";
+        public const string SP_GetListPaymentRequestBySupplierId = "SP_GetListPaymentRequestBySupplierId";
+        public const string SP_GetListPaymentRequestByClientId = "SP_GetListPaymentRequestByClientId";
+        public const string SP_CheckCreatePaymentVoucher = "SP_CheckCreatePaymentVoucher";
+        public const string SP_GetDetailOrderByClientId = "SP_GetDetailOrderByClientId";
+        public static string SP_GetListSubServiceByPayId = "SP_GetListSubServiceByPayId";
+        public const string SP_GetAllServiceByServiceCode = "SP_GetAllServiceByServiceCode";
+        public static string SP_GetDetailDebtGuaranteeByOrderid = "SP_GetDetailDebtGuaranteeByOrderid";
+        public const string SP_GetListContractPay = "SP_GetListContractPay";
+        public static string sp_UpdateDebtGuarantee = "sp_UpdateDebtGuarantee";
+        public const string SP_GetDepositHistoryByClientId = "SP_GetDepositHistoryByClientId";
+        public static string SP_GetListOrderBookClosingByOrderId = "SP_GetListOrderBookClosingByOrderId";
+        public const string sp_GetListPaymentRequestByServiceId = "sp_GetListPaymentRequestByServiceId";
         public static string GetClientByID = "SP_GetClientByID";
         public static string GetClientByAccountClientID = "SP_GetClientByAccountClientID";
         public static string GetContactClientByID = "SP_GetContactClientByID";
@@ -60,6 +82,7 @@ namespace Utilities.Contants
         public static string SP_InsertPolicyDetail = "SP_InsertPolicyDetail";
         public static string SP_UpdatePolicyDetail = "SP_UpdatePolicyDetail";
         public static string SP_UpdatePolicy = "SP_UpdatePolicy";
+
         //public static string SP_InsertSupplier = "SP_InsertSupplier";
         //public static string SP_GetSupplierById = "SP_GetSupplierById";
         //public static string SP_UpdateSupplier = "SP_UpdateSupplier";
@@ -297,6 +320,7 @@ namespace Utilities.Contants
         public static string SP_GetDetailTenantByTenantId = "SP_GetDetailTenantByTenantId";
         public static string UpsertUser = "sp_UpsertUser";
         public static string sp_InsertUser = "sp_InsertUser";
+        public static string SP_GetTotalAmountContractPayByServiceId = "SP_GetTotalAmountContractPayByServiceId";
 
 
 

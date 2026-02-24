@@ -18,6 +18,18 @@ namespace Repositories.Repositories.BaseRepos
         protected static string _SqlServerConnectString;
         protected static SysUserModel _SysUserModel;
         private RedisConn _redisConn;
+        private IHttpContextAccessor context;
+        private IOptions<DataBaseConfig> dataBaseConfig;
+        private IConfiguration configuration;
+        private IUserRepository userRepository;
+
+        public BaseRepository(IHttpContextAccessor context, IOptions<DataBaseConfig> dataBaseConfig, IConfiguration configuration, IUserRepository userRepository)
+        {
+            this.context = context;
+            this.dataBaseConfig = dataBaseConfig;
+            this.configuration = configuration;
+            this.userRepository = userRepository;
+        }
 
         public BaseRepository(IHttpContextAccessor context, IOptions<DataBaseConfig> dataBaseConfig, IConfiguration configuration,IUserRepository _UserRepository,
             RedisConn redisConn)

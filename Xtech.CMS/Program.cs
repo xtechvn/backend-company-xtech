@@ -40,6 +40,7 @@ builder.Services.Configure<DomainConfig>(configuration.GetSection("DomainConfig"
 
 // Register services
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<IPaymentVoucherRepository, PaymentVoucherRepository>();
 
 builder.Services.AddSingleton<IAllCodeRepository, AllCodeRepository>();
 builder.Services.AddSingleton<ICommonRepository, CommonRepository>();
@@ -65,6 +66,10 @@ builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IPaymentAccountRepository, PaymentAccountRepository>();
 builder.Services.AddTransient<IInvoiceRequestRepository, InvoiceRequestRepository>();
 builder.Services.AddTransient<IInvoiceRequestDetailRepository, InvoiceRequestDetailRepository>();
+builder.Services.AddTransient<IOrderRepositor, OrderRepositor>();
+builder.Services.AddTransient<IDepositHistoryRepository, DepositHistoryRepository>();
+builder.Services.AddTransient<IDebtGuaranteeRepository, DebtGuaranteeRepository>();
+builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
@@ -74,6 +79,8 @@ builder.Services.AddTransient<IOtherBookingRepository, OtherBookingRepository>()
 builder.Services.AddTransient<IOtherBookingPackageRepository, OtherBookingPackageRepository>();
 builder.Services.AddTransient<IContractPayRepository, ContractPayRepository>();
 builder.Services.AddTransient<IPaymentRequestRepository, PaymentRequestRepository>();
+builder.Services.AddTransient<ITelegramRepository, TelegramRepository>();
+
 
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
@@ -100,11 +107,51 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllerRoute(name: "Order",
     pattern: "/OrderDetail/{orderId?}",
     defaults: new { controller = "Order", action = "OrderDetail" });
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "setupManual",
+                 pattern: "/product/setup-manual",
+                 defaults: new { controller = "product", action = "SetupManual" });
+app.MapControllerRoute(name: "transactionsms",
+  pattern: "/transactionsms",
+  defaults: new { controller = "TransactionSms", action = "Index" });
+app.MapControllerRoute(name: "Order",
+ pattern: "/Order/{id?}",
+ defaults: new { controller = "Order", action = "Orderdetails" });
+app.MapControllerRoute(name: "SetService",
+ pattern: "SetService/fly/detail/{group_booking_id}",
+ defaults: new { controller = "SetService", action = "FlyDetail" });
+app.MapControllerRoute(name: "SetService",
+ pattern: "SetService/Tour/Detail/{id}",
+ defaults: new { controller = "SetService", action = "TourDetail" });
+app.MapControllerRoute(name: "SetService",
+pattern: "SetService/Others/Detail/{id}",
+defaults: new { controller = "SetService", action = "OtherDetail" });
+app.MapControllerRoute(name: "SetService",
+pattern: "SetService/VinWonder/Detail/{id}",
+defaults: new { controller = "SetService", action = "VinWonderDetail" });
+
+
+app.MapControllerRoute(name: "AccountSetup",
+pattern: "/Account/2FA",
+defaults: new { controller = "Account", action = "Setup2FA" });
+app.MapControllerRoute(name: "ProgramsPackage",
+pattern: "/ProgramsPackage/DetailListProgramsPackage/{id}/{Packageid}/{ProgramName}/{RoomTypeid}",
+defaults: new { controller = "ProgramsPackage", action = "DetailListProgramsPackage" });
+app.MapControllerRoute(name: "ProgramsPackage",
+pattern: "/ProgramsPackage/AddListProgramsPackage/{id}/{Packageid}/{ProgramName}/{RoomTypeid}/{type}",
+defaults: new { controller = "ProgramsPackage", action = "AddListProgramsPackage" });
+app.MapControllerRoute(name: "ProgramsPackage",
+pattern: "/ProgramsPackage/ProgramsPriceHotelIndex",
+defaults: new { controller = "ProgramsPackage", action = "ProgramsPriceHotelIndex" });
+
+app.MapControllerRoute(name: "RequestHotelBooking",
+pattern: "/RequestHotelBooking/Detail/{hotel_booking_id}/{ClientId}/{id}",
+defaults: new { controller = "RequestHotelBooking", action = "Detail" });
 
 app.Run();

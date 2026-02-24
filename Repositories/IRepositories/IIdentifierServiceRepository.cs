@@ -9,5 +9,6 @@ namespace Repositories.IRepositories
     public interface IIdentifierServiceRepository
     {
         Task<string> buildClientNo(int client_type);
+        Task<string> buildContractPay(); // sinh mã PHIEU THU
     }
 }

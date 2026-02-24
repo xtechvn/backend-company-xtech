@@ -13,6 +13,8 @@ namespace Repositories.IRepositories
         Task<long> Create(AllCode model);
         Task<long> Update(AllCode model);
         Task<long> Delete(int id);
+        List<BankingAccount> GetBankingAccountsBySupplierId(int supplierId);
+        List<BankingAccount> GetBankingAccounts();
         List<AllCode> GetListByType(string type);
         AllCode GetByType(string type);
         Task<short> GetLastestCodeValueByType(string type);

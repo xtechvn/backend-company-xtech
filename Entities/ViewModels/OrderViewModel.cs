@@ -12,8 +12,11 @@ namespace Entities.ViewModels
     {
         public string OrderId { get; set; }
         public string OrderNo { get; set; }
+        public int? IsLock { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        //public string StartDate { get; set; }
+        //public string EndDate { get; set; }
         public string ClientName { get; set; }
         public string Branch {  get; set; }
         public string Description { get; set; }
@@ -28,7 +31,7 @@ namespace Entities.ViewModels
         public double Profit { get; set; }
         //public List<Source> StatusDetail { get; set; } = new List<Source>();
         public string Status { get; set; }
-        public int StatusCode { get; set; }
+        public int? StatusCode { get; set; }
         public int PayDetailId { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateName { get; set; }
@@ -59,6 +62,7 @@ namespace Entities.ViewModels
         public string ListProductId { get; set; }
         public string OrderStatus { get; set; }
         public string OrderCode { get; set; }
+        public string CreateDate { get; set; }
 
         public List<ProductMongoDbModel> ListProduct { get; set; }
     }
@@ -193,11 +197,13 @@ namespace Entities.ViewModels
         public string TaxNo { get; set; }
         public string BusinessAddress { get; set; }
         public double Id { get; set; }
-        public long ClientId { get; set; }
+        public int ClientId { get; set; }
         public long CreatedBy { get; set; }
         public int ContactClientId { get; set; }
         public int SalerId { get; set; }
         public DateTime? UpdateLast { get; set; }
+        public DateTime CreateTime { get; set; }
+
         public long? UserUpdateId { get; set; }
         public long? AccountClientId { get; set; }
         public string? OrderStatus { get; set; }

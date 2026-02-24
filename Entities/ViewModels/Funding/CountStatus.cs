@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Utilities;
 
 namespace Entities.ViewModels.Funding
 {
@@ -17,5 +16,6 @@ namespace Entities.ViewModels.Funding
         public string StatusName { get; set; }
         public int ServiceType { get; set; }
         public string PaymentRequestStatus { get; set; }
+        public double Amount { get; set; }
     }
 }

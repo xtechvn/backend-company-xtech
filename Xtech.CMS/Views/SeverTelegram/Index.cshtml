@@ -1,0 +1,118 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Bot Telegram";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row-main container flex">
+    <div class="row-main_col200">
+        <a class="close-menu" href="javascrip:;">×</a>
+        <div class="wrap_bg wrap_bg2">
+            <div class="vai-tro">
+                <h3 class="title-margin">
+                    Tên
+                </h3>
+                <div class="form-default">
+                    <input type="text" placeholder="Nhập tên bot/gói" id="name_input" onkeyup="_Telegrammanagement.Onchangeinput();" class="form-control input">
+                </div>
+            </div>
+        </div>
+
+        <div class="wrap_bg wrap_bg2">
+            <h3 class="title-margin">Trạng thái</h3>
+            <label class="check-list mb10">
+                <input type="radio" class="input" checked="checked" name="status" value="-1" id="statusAll" onclick="_Telegrammanagement.Onchangeinput()">
+                <span class="checkmark"></span>
+                Tất cả
+            </label>
+            <label class="check-list mb10">
+                <input type="radio" class="input" name="status" value="0" id="statusRunning" onclick="_Telegrammanagement.Onchangeinput()">
+                <span class="checkmark"></span>
+                Đang chạy
+            </label>
+            <label class="check-list mb10">
+                <input type="radio" name="status" id="statusStopped" value="1" class="input" onclick="_Telegrammanagement.Onchangeinput()">
+                <span class="checkmark"></span>
+                Khóa/Tạm dừng
+            </label>
+        </div>
+
+        <div class="wrap_bg wrap_bg2" style="display:none">
+            <div class="trang-thai">
+                <h3 class="title-margin">Thời gian</h3>
+                <div class="form-default">
+                    <div class="form-group no-line">
+                        <input class="form-control date text-left filter_date_daterangepicker" type="text" name="fromDate" id="fromDate" placeholder="Từ ngày">
+                    </div>
+                    <div class="form-group no-line">
+                        <input class="form-control date text-left filter_date_daterangepicker" type="text" name="toDate" id="toDate" placeholder="Đến ngày">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row-main_col800">
+        <a class="btn_show" href="javascrip:;">Hiển thị danh mục <i class="fa fa-caret-right"></i></a>
+        <div class="flex row-main-head">
+            <h2 class="title_page">Quản lý Bot log trên Telegram</h2>
+            <div class="btn-right text-right">
+                <a class="btn btn-default open-popup" href="javascript:;" onclick="_Telegrammanagement.Updata('');">
+                    + Tạo mới
+                </a>
+
+                <div class="down-up right">
+                    <a class="btn btn-default onclick" href="javascript:;">
+                        <i class="fa fa-bars"></i>
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                    <div class="form-down">
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="sttDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(1)" class="checkbox-tb-column" data-id="1">
+                            <span class="checkmark"></span>
+                            STT
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="nameDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(2)" class="checkbox-tb-column" data-id="2">
+                            <span class="checkmark"></span>
+                            Tên
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="priceDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(3)" class="checkbox-tb-column" data-id="3">
+                            <span class="checkmark"></span>
+                            Giá
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="startDateDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(4)" class="checkbox-tb-column" data-id="4">
+                            <span class="checkmark"></span>
+                            Ngày bắt đầu
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="endDateDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(5)" class="checkbox-tb-column" data-id="5">
+                            <span class="checkmark"></span>
+                            Ngày kết thúc
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="createdAtDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(6)" class="checkbox-tb-column" data-id="6">
+                            <span class="checkmark"></span>
+                            Ngày tạo
+                        </label>
+                        <label class="check-list mb10 mr25">
+                            <input type="checkbox" id="statusDisplay" checked="checked" onclick="_Telegrammanagement.ChangeSetting(7)" class="checkbox-tb-column" data-id="7">
+                            <span class="checkmark"></span>
+                            Trạng thái
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wrap_bg wrap_bg_no-padding mb20">
+            <div class="table-responsive table-default" id="grid_data">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+@section scripts {
+    <script type="text/javascript" src="/modules/TeleSever.js"></script>
+    <link href="/lib/tagify/tagify.css" rel="stylesheet" type="text/css" />
+}

@@ -15,6 +15,15 @@ namespace Utilities.Contants
         HOAT_DONG = 0,
         KHONG_HOAT_DONG = 1
     }
+    public enum PAYMENT_REQUEST_STATUS
+    {
+        LUU_NHAP = 0,
+        TU_CHOI = 1,
+        CHO_TBP_DUYET = 2,
+        CHO_KTT_DUYET = 3,
+        CHO_CHI = 4, //cho tao phieu chi
+        DA_CHI = 5, //da tao phieu chi
+    }
 
     public class ApiStatusType
     {
@@ -40,6 +49,8 @@ namespace Utilities.Contants
         THANH_TOAN_DICH_VU = 1,
         THANH_TOAN_KHAC = 2,
         HOAN_TRA_KHACH_HANG = 3,
+        CHI_PHI_MARKETING = 4,
+        QUY_CHAM_SOC_KHACH_HANG = 5,
     }
 
     public enum INVOICE_REQUEST_STATUS
