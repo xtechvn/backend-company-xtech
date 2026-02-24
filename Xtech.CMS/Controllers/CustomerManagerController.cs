@@ -16,6 +16,8 @@ using Entities.ViewModels.Elasticsearch;
 using Catching.Elasticsearch;
 using Entities.ViewModels;
 using static Utilities.Contants.Constants;
+using APP_CHECKOUT.RabitMQ;
+using Entities.ViewModels.ElasticSearch;
 
 namespace Xtech.CMS.Controllers
 {
@@ -23,7 +25,7 @@ namespace Xtech.CMS.Controllers
     public class CustomerManagerController : Controller
     {
         private readonly ICustomerManagerRepository _customerManagerRepositories;
-
+        private ClientESRepository _clientESRepository;
         private readonly IConfiguration _configuration;
         private readonly IAllCodeRepository _allCodeRepository;
         private readonly IClientRepository _clientRepository;
@@ -35,6 +37,7 @@ namespace Xtech.CMS.Controllers
         private LogCacheFilterMongoService _logCacheFilterMongoService;
         private IUserAgentRepository _userAgentRepository;
         private UserESRepository _userESRepository;
+        private readonly WorkQueueClient _workQueueClient;
         private IIdentifierServiceRepository _identifierServiceRepository;
         private readonly IOrderRepository _orderRepository;
         public CustomerManagerController(IConfiguration configuration, ICustomerManagerRepository customerManagerRepositories, ManagementUser ManagementUser, IWebHostEnvironment WebHostEnvironment, IAccountClientRepository accountClientRepository,
@@ -51,7 +54,9 @@ namespace Xtech.CMS.Controllers
             _bankingAccountRepository = bankingAccountRepository;
             _accountClientRepository = accountClientRepository;
             _logCacheFilterMongoService = new LogCacheFilterMongoService(configuration);
+            _clientESRepository = new ClientESRepository(_configuration["DataBaseConfig:Elastic:Host"]);
             _userAgentRepository = userAgentRepository;
+            _workQueueClient = new WorkQueueClient(configuration);
             _userESRepository = new UserESRepository(configuration["DataBaseConfig:Elastic:Host"], configuration);
             _identifierServiceRepository = identifierServiceRepository;
             _orderRepository = orderRepository;
@@ -271,6 +276,7 @@ namespace Xtech.CMS.Controllers
                         {
 
                             //var SendMail = await apiService.SendMailResetPassword(DataModel.email);
+                            _workQueueClient.SyncES(-1, _configuration["DataBaseConfig:Elastic:SP:sp_GetClient"], _configuration["DataBaseConfig:Elastic:Index:Client"], ProjectType.XTECH, "Setup CustomerManager");
                             stt_code = (int)ResponseType.SUCCESS;
                             msg = "Thêm mới thông tin thành công";
                         }
@@ -288,6 +294,7 @@ namespace Xtech.CMS.Controllers
                     var Result = _customerManagerRepositories.SetUpClient(DataModel);
                     if (Result == 1)
                     {
+                        _workQueueClient.SyncES(-1, _configuration["DataBaseConfig:Elastic:SP:sp_GetClient"], _configuration["DataBaseConfig:Elastic:Index:Client"], ProjectType.XTECH, "Setup CustomerManager");
                         stt_code = (int)ResponseType.SUCCESS;
                         msg = "Cập nhật thông tin thành công";
                     }
@@ -779,51 +786,13 @@ namespace Xtech.CMS.Controllers
             try
             {
 
-                if (string.IsNullOrEmpty(txt_search))
+
+                var data = await _clientESRepository.GetClientSuggesstion(txt_search);
+                return Ok(new
                 {
-                    return Ok(new
-                    {
-                        status = (int)ResponseType.EMPTY
-                    });
-                }
-                else
-                {
-                    bool isUnicode = Encoding.ASCII.GetByteCount(txt_search) != Encoding.UTF8.GetByteCount(txt_search);
-
-
-                    byte[] utfBytes = Encoding.UTF8.GetBytes(txt_search.Trim());
-                    txt_search = Encoding.UTF8.GetString(utfBytes);
-                }
-
-                var es_service = new esService(_configuration);
-                var data_hotel = await es_service.search(txt_search, "searchClient.json");
-                if (data_hotel != "{}")
-                {
-                    //var es_result =// ((RestSharp.RestResponseBase)find_hotel).Content;                       
-
-                    JObject jsonObject = JObject.Parse(data_hotel);
-                    var hits = (JArray)jsonObject["hits"]["hits"];
-                    var hotel_result = new List<earchClientESViewModel>();
-                    foreach (var hit in hits)
-                    {
-                        var source = JsonConvert.DeserializeObject<earchClientESViewModel>(hit["_source"].ToString());
-                        hotel_result.Add(source);
-                    }
-
-                    return Ok(new
-                    {
-                        status = (int)ResponseType.SUCCESS,
-                        data = hotel_result,
-                    });
-                }
-                else
-                {
-                    return Ok(new
-                    {
-                        status = (int)ResponseType.EMPTY,
-                        msg = "Không có dữ liệu nào thỏa mãn từ khóa " + txt_search
-                    });
-                }
+                    status = (int)ResponseType.SUCCESS,
+                    data = data,
+                });
 
 
             }

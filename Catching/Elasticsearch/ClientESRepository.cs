@@ -1,6 +1,7 @@
 ﻿using Catching.Elasticsearch.Generic;
 using Elasticsearch.Net;
 using Entities.ViewModels.Elasticsearch;
+using Entities.ViewModels.ElasticSearch;
 using Microsoft.Extensions.Configuration;
 using Nest;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ namespace Catching.Elasticsearch
                 if (txt_search == null)
                 {
                     var result_all = elasticClient.Search<CustomerESViewModel>(s => s
-                          .Index(index_name + (_company_type.Trim() == "0" ? "" : "_" + _company_type.Trim()))
+                          .Index(index_name)
                           .Size(30)
                           .Query(q => q.MatchAll()
 
@@ -45,11 +46,14 @@ namespace Catching.Elasticsearch
                                     sh => sh.QueryString(m => m
                                     .DefaultField(f => f.phone)
                                     .Query("*" + txt_search + "*")),
-                                    sh => sh.QueryString(m => m
-                                    .DefaultField(f => f.email)
+                                    sh => sh.Match(m => m
+                                    .Field(f => f.email)
                                     .Query("*" + txt_search + "*")),
                                     sh => sh.QueryString(m => m
                                     .DefaultField(f => f.clientname)
+                                    .Query("*" + txt_search + "*")),
+                                      sh => sh.QueryString(m => m
+                                    .DefaultField(f => f.clientcode)
                                     .Query("*" + txt_search + "*"))
 
                                 ))
