@@ -31,7 +31,7 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
         private readonly IConfiguration _configuration;
         private readonly IOrderRepositor _orderRepository;
         private readonly IOrderRepository _orderRepository2;
-        //private readonly ISupplierRepository _supplierRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private APIService apiService;
 
         private readonly IAllCodeRepository _allCodeRepository;
@@ -51,7 +51,7 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
         public SetServiceController(IConfiguration configuration, IOrderRepositor orderRepository, IAllCodeRepository allcodeRepository,
            IUserRepository userRepository, IOtherBookingRepository otherBookingRepository,
            IPaymentRequestRepository paymentRequestRepository, IOrderRepository orderRepository2, IWebHostEnvironment WebHostEnvironment,
-           ManagementUser managementUser, IClientRepository clientRepository, IContractPayRepository contractPayRepository)
+           ManagementUser managementUser, IClientRepository clientRepository, IContractPayRepository contractPayRepository, ISupplierRepository supplierRepository)
         {
 
             _configuration = configuration;
@@ -64,7 +64,7 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
             _userRepository = userRepository;
           
             _paymentRequestRepository = paymentRequestRepository;
-            //_supplierRepository = supplierRepository;
+            _supplierRepository = supplierRepository;
             _orderRepository2 = orderRepository2;
             _otherBookingRepository = otherBookingRepository;
             _ManagementUser = managementUser;
@@ -318,6 +318,8 @@ namespace WEB.Adavigo.CMS.Controllers.SetService.Other
                             if (model.SuplierId > 0)
                             {
                                 model.supplier = null;
+                                var supplier_Detail = _supplierRepository.GetById(model.SuplierId);
+                                model.SupplierName = supplier_Detail!=null? supplier_Detail.FullName:"";
                             }
                             list_optional.Add(model);
                         }
