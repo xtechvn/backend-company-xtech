@@ -915,7 +915,7 @@ namespace WEB.Adavigo.CMS.Controllers.Funding
         {
             try
             {
-                var listOrder = _paymentRequestRepository.GetServiceListBySupplierId(supplierId, requestId, serviceId);
+                var listOrder = _paymentRequestRepository.GetServiceListBySupplierId(supplierId, 9, serviceId);
                 return Ok(new
                 {
                     isSuccess = true,

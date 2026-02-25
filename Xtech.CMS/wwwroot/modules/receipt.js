@@ -59,7 +59,7 @@ $(document).ready(function () {
                 return {
                     results: $.map(response.data, function (item) {
                         return {
-                            text: item.clientname + ' - ' + item.email + ' - ' + item.phone,
+                            text: item.clientName + ' - ' + item.email + ' - ' + item.phone,
                             id: item.id,
                         }
                     })

@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Entities.Models
 {
     public partial class FlyBookingPackagesOptional
     {
-        public long Id { get; set; }
-        public long BookingId { get; set; }
-        public int SuplierId { get; set; }
-        public double Amount { get; set; }
-        public string Note { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public int? UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string PackageName { get; set; }
-        public int? Status { get; set; }
+        public int Id { get; set; }                 // int NOT NULL
+        public int? BookingId { get; set; }         // int NULL
+        public int? SuplierId { get; set; }         // int NULL
+        public decimal? Amount { get; set; }        // decimal(18,2) NULL
+        public string? Note { get; set; }           // nvarchar(max) NULL
+        public int? CreatedBy { get; set; }         // int NULL
+        public DateTime? CreatedDate { get; set; }  // datetime NULL
+        public int? UpdatedBy { get; set; }         // int NULL
+        public DateTime? UpdatedDate { get; set; }  // datetime NULL
+        public string? PackageName { get; set; }    // nvarchar(510) NULL
+        public int? Status { get; set; }            // int NULL
     }
 }
