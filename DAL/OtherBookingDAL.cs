@@ -6,6 +6,7 @@ using Entities.ViewModels.SetServices;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -231,7 +232,7 @@ namespace DAL
                          new SqlParameter("@OrderId",model.OrderId != null? model.OrderId : DBNull.Value),
                          new SqlParameter("@ServiceType",model.ServiceType != null? model.ServiceType : DBNull.Value),
                          new SqlParameter("@Status",defaultStatus),
-                         new SqlParameter("@ServiceCode","SERVICE_TYPE"),
+                         new SqlParameter("@ServiceCode","SERVICE_TYPE_"+model.OrderId),
                          new SqlParameter("@Amount",model.Amount != null ? model.Amount : DBNull.Value),
                          new SqlParameter("@Note",model.Note != null ? model.Note : DBNull.Value),
                          new SqlParameter("@OperatorID",model.OperatorID != null ? model.OperatorID : DBNull.Value),
