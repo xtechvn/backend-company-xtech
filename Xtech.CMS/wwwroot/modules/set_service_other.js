@@ -698,6 +698,7 @@ var _set_service_other_detail = {
         });
     },
     UpdateOperatorPrice: function () {
+        debugger
         var obj_summit = []
         if (!$('.service-other-ordered-row')[0]) {
             _msgalert.error('Vui lòng nhập ít nhất bản ghi dịch vụ tại bảng kê dịch vụ')

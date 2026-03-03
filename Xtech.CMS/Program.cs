@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Repositories;
 using Repositories.IRepositories;
 using Repositories.Repositories;
+using System.Text.Json;
+using Ultilities;
 using Ultilities.RedisWorker;
 using WEB.CMS.Customize;
 
@@ -70,6 +72,8 @@ builder.Services.AddTransient<IOrderRepositor, OrderRepositor>();
 builder.Services.AddTransient<IDepositHistoryRepository, DepositHistoryRepository>();
 builder.Services.AddTransient<IDebtGuaranteeRepository, DebtGuaranteeRepository>();
 builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
+builder.Services.AddTransient<ITicketRepository, TicketRepository>();
+
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();
 builder.Services.AddTransient< IGroupProductAPIRepository, GroupProductAPIRepository> ();
@@ -85,6 +89,23 @@ builder.Services.AddTransient<ITelegramRepository, TelegramRepository>();
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
 builder.Services.AddSingleton<ManagementUser>();
+// ✅ SignalR camelCase cho payload
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.PayloadSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("WebUserCors", p =>
+        p.SetIsOriginAllowed(_ => true)   // dev test nhanh
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
+    );
+});
 
 
 var app = builder.Build();
@@ -97,6 +118,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
 app.UseSession();
 
 app.UseHttpsRedirection();
@@ -104,8 +126,10 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 // app.UseAntiXssMiddleware();
 app.UseRouting();
+app.UseCors("WebUserCors");
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<TicketHub>("/ticketHub");
 
 app.MapControllerRoute(
     name: "default",
