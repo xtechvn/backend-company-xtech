@@ -24,7 +24,7 @@ namespace Entities.ViewModels.Tickets
     public class TicketIndexVm
     {
         public TicketSearchQuery Query { get; set; } = new();
-        public List<Ticket> Items { get; set; } = new();
+        public List<TicketListItemVm> Items { get; set; } = new();
         public int Total { get; set; }
     }
 

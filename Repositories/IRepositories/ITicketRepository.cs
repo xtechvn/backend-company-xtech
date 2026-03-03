@@ -6,7 +6,7 @@ namespace Repositories.IRepositories
 {
     public interface ITicketRepository
     {
-        Task<(List<Ticket> Items, int Total)> SearchAsync(TicketSearchQuery query);
+        Task<(List<TicketListItemVm> Items, int Total)> SearchAsync(TicketSearchQuery query);
         Task<TicketDetailDto?> GetDetailAsync(Guid ticketId);
         Task<TicketMessageDto> AddReplyAsync(AddReplyCommand cmd);
         Task UpdateStatusAsync(Guid ticketId, TicketStatus status);

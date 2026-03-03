@@ -20,28 +20,53 @@ namespace DAL
         {
             using var db = new EntityDataContext(_connection);
 
-            var q = db.Set<Ticket>().AsNoTracking().Where(x => x.CreatedByUserId == userId);
+            var tickets = db.Set<Ticket>().AsNoTracking();
+            var services = db.Set<Service>().AsNoTracking();
+            var depts = db.Set<DepartmentsTicket>().AsNoTracking();
 
-            if (status >= 0) q = q.Where(x => (int)x.Status == status);
+            // LEFT JOIN Services + DepartmentsTicket
+            var q =
+                from t in tickets
+                join s in services on t.ServiceId equals s.Id into sj
+                from s in sj.DefaultIfEmpty()
+                join d in depts on t.DepartmentId equals d.Id into dj
+                from d in dj.DefaultIfEmpty()
+                where t.CreatedByUserId == userId
+                select new { t, s, d };
+
+            if (status >= 0)
+                q = q.Where(x => (int)x.t.Status == status);
 
             var total = await q.CountAsync();
 
-            var items = await q.OrderByDescending(x => x.LastMessageAt)
-                .Skip((page - 1) * size).Take(size)
+            var items = await q
+                .OrderByDescending(x => x.t.LastMessageAt)
+                .Skip((page - 1) * size)
+                .Take(size)
                 .Select(x => new TicketListItemDto
                 {
-                    id = x.Id,
-                    code = x.Code,
-                    serviceId = x.ServiceId,
-                    serviceName = "", // nếu cần join services thì fill thêm
-                    subject = x.Subject,
-                    status = (int)x.Status,
-                    assignedAgentId = x.AssignedAgentId,
-                    lastMessageAt = x.LastMessageAt
+                    id = x.t.Id,
+                    code = x.t.Code,
+                    serviceId = x.t.ServiceId,
+                    serviceName = x.s != null ? x.s.Name : null,
+
+                    departmentId = x.t.DepartmentId,
+                    departmentName = x.d != null ? x.d.Name : null,
+
+                    subject = x.t.Subject,
+                    status = (int)x.t.Status,
+                    assignedAgentId = x.t.AssignedAgentId,
+                    lastMessageAt = x.t.LastMessageAt
                 })
                 .ToListAsync();
 
-            return new TicketListResponse { page = page, size = size, total = total, items = items };
+            return new TicketListResponse
+            {
+                page = page,
+                size = size,
+                total = total,
+                items = items
+            };
         }
 
         public async Task<TicketListResponse> GetTickets(int status, string keyword, int page, int size)
@@ -352,34 +377,63 @@ namespace DAL
 
         //=====================================================================================
 
-        public async Task<List<Ticket>> GetTicketsAsync(
-            string? q, int? status, int? serviceId, int? departmentId,
-            int page, int pageSize)
+        public async Task<List<TicketListItemVm>> GetTicketsAsync(
+     string? q, int? status, int? serviceId, int? departmentId,
+     int page, int pageSize)
         {
             using var db = new EntityDataContext(_connection);
 
-            var query = db.Set<Ticket>().AsNoTracking().AsQueryable();
+            var tickets = db.Set<Ticket>().AsNoTracking();
+            var services = db.Set<Service>().AsNoTracking();
+            var depts = db.Set<DepartmentsTicket>().AsNoTracking();
+
+            var query =
+                from t in tickets
+                join s in services on t.ServiceId equals s.Id into sj
+                from s in sj.DefaultIfEmpty()
+                join d in depts on t.DepartmentId equals d.Id into dj
+                from d in dj.DefaultIfEmpty()
+                select new { t, s, d };
 
             // filter
             if (status.HasValue)
-                query = query.Where(x => x.Status == (TicketStatus)status.Value);
-            if (serviceId.HasValue) query = query.Where(x => x.ServiceId == serviceId.Value);
-            if (departmentId.HasValue) query = query.Where(x => x.DepartmentId == departmentId.Value);
+                query = query.Where(x => (int)x.t.Status == status.Value);
+
+            if (serviceId.HasValue)
+                query = query.Where(x => x.t.ServiceId == serviceId.Value);
+
+            if (departmentId.HasValue)
+                query = query.Where(x => x.t.DepartmentId == departmentId.Value);
 
             if (!string.IsNullOrWhiteSpace(q))
             {
                 var keyword = q.Trim().ToLower();
                 query = query.Where(x =>
-                    x.Subject.ToLower().Contains(keyword) ||
-                    x.Code.ToLower().Contains(keyword));
+                    x.t.Subject.ToLower().Contains(keyword) ||
+                    x.t.Code.ToLower().Contains(keyword));
             }
 
-            // sort: newest activity first (matches CMS)
-            query = query.OrderByDescending(x => x.LastMessageAt);
+            // sort
+            query = query.OrderByDescending(x => x.t.LastMessageAt);
 
             // paging
             var skip = (page - 1) * pageSize;
-            return await query.Skip(skip).Take(pageSize).ToListAsync();
+
+            return await query
+                .Skip(skip).Take(pageSize)
+                .Select(x => new TicketListItemVm
+                {
+                    Id = x.t.Id,
+                    Code = x.t.Code,
+                    Subject = x.t.Subject,
+                    ServiceId = x.t.ServiceId,
+                    DepartmentId = x.t.DepartmentId,
+                    Status = x.t.Status,
+                    LastMessageAt = x.t.LastMessageAt,
+                    ServiceName = x.s != null ? x.s.Name : null,
+                    DepartmentName = x.d != null ? x.d.Name : null
+                })
+                .ToListAsync();
         }
 
         public async Task<int> CountTicketsAsync(string? q, int? status, int? serviceId, int? departmentId)

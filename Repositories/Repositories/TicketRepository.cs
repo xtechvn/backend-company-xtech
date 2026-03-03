@@ -60,7 +60,7 @@ namespace Repositories.Repositories
 
 
         //=============================================================
-        public async Task<(List<Ticket> Items, int Total)> SearchAsync(TicketSearchQuery query)
+        public async Task<(List<TicketListItemVm> Items, int Total)> SearchAsync(TicketSearchQuery query)
         {
             var items = await _ticketDAL.GetTicketsAsync(query.Q, query.Status, query.ServiceId, query.DepartmentId, query.Page, query.PageSize);
             var total = await _ticketDAL.CountTicketsAsync(query.Q, query.Status, query.ServiceId, query.DepartmentId);

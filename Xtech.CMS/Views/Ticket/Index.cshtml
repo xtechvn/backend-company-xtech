@@ -85,8 +85,14 @@
                             foreach(var item in Model.Items)
                             {
                                 <tr>
-                                    <td class="fw-bold primary-text">#@item.Code</td>
-                                    <td>@(item.ServiceId)</td>
+                                    <td class="fw-bold primary-text">
+                                        <a href="/Ticket/Detail/@item.Id" >
+                                            #@item.Code
+                                        </a>
+                                    </td>
+                                           
+                                        
+                                    <td>@(item.ServiceName)</td>
                                     <td>@item.Subject</td>
                                     <td>
                                         @if(item.Status == Entities.Models.TicketStatus.Open)
@@ -102,7 +108,7 @@
                                             <span class="badge bg-success">Resolved</span>
                                         }
                                     </td>
-                                    <td>@item.AssignedAgentId</td>
+                                    <td>@item.DepartmentName</td>
                                     <td class="text-muted">@item.LastMessageAt.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td class="text-end">
                                         <a href="/Ticket/Detail/@item.Id" class="btn btn-sm btn-outline-secondary">
