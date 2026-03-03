@@ -98,6 +98,12 @@ namespace Entities.Models
         public virtual DbSet<OtherBookingPackages> OtherBookingPackages { get; set; }
         public virtual DbSet<OtherBookingPackagesOptional> OtherBookingPackagesOptional { get; set; }
         public virtual DbSet<FlyBookingPackagesOptional> FlyBookingPackagesOptional { get; set; }
+        public virtual DbSet<Ticket> Ticket { get; set; }
+        public virtual DbSet<Service> Services { get; set; }
+
+        public virtual DbSet<TicketMessage> TicketMessage { get; set; }
+        public virtual DbSet<TicketStatusHistory> TicketStatusHistory { get; set; }
+        public virtual DbSet<DepartmentsTicket> DepartmentsTicket { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

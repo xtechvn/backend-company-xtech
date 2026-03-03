@@ -1,0 +1,647 @@
+﻿@using Entities.ViewModels.Tickets
+@using Entities.Models
+@model TicketDetailDto
+
+@{
+    ViewData["Title"] = "Ticket #" + Model.Ticket.Code;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #004a99;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+        .btn-primary-custom:hover {
+            background: #003e80;
+            border-color: #003e80;
+            color: #fff;
+        }
+
+    .text-primary-custom {
+        color: var(--primary) !important;
+    }
+
+    .bg-primary-soft {
+        background: rgba(0,74,153,.08) !important;
+    }
+
+    .badge-urgent {
+        background: rgba(0,74,153,.15);
+        color: var(--primary);
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 12px;
+        flex: 0 0 auto;
+    }
+
+    .avatar-primary {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .reply-card {
+        border: 2px solid var(--primary);
+    }
+
+    .small-label {
+        font-size: 10px;
+        letter-spacing: .12em;
+        font-weight: 800;
+        color: #94a3b8;
+    }
+
+    /* ===== Message attachments ===== */
+    .attachments {
+        display: grid;
+        grid-template-columns: repeat(2,minmax(0,1fr));
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .att-img {
+        display: block;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,.08);
+        background: #f3f4f6;
+    }
+
+        .att-img img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+    .att-file {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,.08);
+        background: #fff;
+        text-decoration: none;
+        color: #111827;
+    }
+
+        .att-file .meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .att-file .ext {
+            font-weight: 800;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .att-file .name {
+            font-weight: 600;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+    /* ===== Reply editor ===== */
+    #replyEditor {
+        min-height: 150px;
+        outline: none;
+        border-radius: .5rem;
+    }
+
+        #replyEditor:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+        }
+
+    /* ===== NEW: Preview attachments dưới editor ===== */
+    #replyAttachments {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .preview-card {
+        border: 1px solid rgba(0,0,0,.10);
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .preview-thumb {
+        width: 64px;
+        height: 64px;
+        border-radius: 10px;
+        border: 1px solid rgba(0,0,0,.08);
+        background: #f3f4f6;
+        overflow: hidden;
+        flex: 0 0 auto;
+        display: grid;
+        place-items: center;
+    }
+
+        .preview-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .preview-meta {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .preview-name {
+        font-weight: 700;
+        font-size: 13px;
+        word-break: break-word;
+    }
+
+    .preview-sub {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .preview-remove {
+        cursor: pointer;
+        font-weight: 900;
+        opacity: .7;
+        user-select: none;
+        line-height: 1;
+        font-size: 18px;
+    }
+
+        .preview-remove:hover {
+            opacity: 1;
+        }
+
+    @@media (max-width: 576px) {
+        .attachments {
+            grid-template-columns: 1fr;
+        }
+
+        #replyAttachments {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container py-4">
+
+    @* Anti-forgery token để JS lấy *@
+    @Html.AntiForgeryToken()
+
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a class="text-decoration-none text-secondary" href="/Ticket">Support Tickets</a>
+            </li>
+            <li class="breadcrumb-item active fw-bold" aria-current="page">#@Model.Ticket.Code</li>
+        </ol>
+    </nav>
+
+    <!-- Ticket Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-4 mb-4 border-bottom">
+        <div>
+            <h1 class="display-6 fw-bold mb-1">Ticket #@Model.Ticket.Code</h1>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                @if (Model.Ticket.Priority.HasValue && Model.Ticket.Priority.Value > 0)
+                {
+                    <span class="badge badge-urgent fw-bold">URGENT</span>
+                }
+                <h5 class="text-secondary small fw-semibold mb-0">@Model.Ticket.Subject</h5>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-dark fw-bold" onclick="ticketDetail.closeTicket('@Model.Ticket.Id')">
+                <i class="bi bi-x-circle me-2"></i>Close Ticket
+            </button>
+        </div>
+    </div>
+
+    <!-- Main content grid -->
+    <div class="row g-4">
+
+        <!-- Conversation -->
+        <div class="col-12 col-lg-8">
+
+            <!-- Container để SignalR append -->
+            <div id="chatContainer">
+                @foreach (var msg in Model.Messages)
+                {
+                    var isStaff = msg.SenderType == MessageSenderType.Agent;
+
+                    <div class="card shadow-sm mb-4" id="msg-@msg.Id">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-body-tertiary">
+                            <div class="d-flex align-items-center gap-3">
+                                @if (isStaff)
+                                {
+                                    <div class="avatar bg-secondary-subtle text-secondary overflow-hidden">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="avatar avatar-primary">C</div>
+                                }
+
+                                <div>
+                                    <div class="fw-bold small mb-0">
+                                        @(isStaff ? "Staff - " + msg.SenderId : "Customer")
+                                    </div>
+                                    <div class="text-secondary" style="font-size:10px;">
+                                        @msg.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (isStaff)
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary fw-bold" style="font-size:10px;">STAFF</span>
+                            }
+                        </div>
+
+                        <div class="card-body">
+                            <div class="text-secondary-emphasis">
+                                @Html.Raw(msg.ContentHtml ?? msg.Content)
+                            </div>
+
+                            @if (msg.AttachFiles != null && msg.AttachFiles.Any())
+                            {
+                                <div class="attachments mt-3">
+                                    @foreach (var f in msg.AttachFiles)
+                                    {
+                                        var name = f.Name ?? "";
+                                        var url = f.Url ?? "#";
+                                        var lower = (name + url).ToLowerInvariant();
+                                        var isImg = lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".png") || lower.EndsWith(".gif") || lower.EndsWith(".webp");
+
+                                        if (isImg)
+                                        {
+                                            <a class="att-img" href="@url" target="_blank" rel="noopener">
+                                                <img src="@url" alt="@name" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="att-file" href="@url" download>
+                                                <div class="meta">
+                                                    <span class="ext">@System.IO.Path.GetExtension(name).Replace(".", "").ToUpper()</span>
+                                                    <span class="name">@name</span>
+                                                </div>
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Reply Box -->
+            <div class="card shadow-sm reply-card">
+                <div class="card-header bg-body-tertiary d-flex align-items-center gap-2 flex-wrap">
+
+                    <button class="btn btn-sm btn-light border" type="button" title="Bold" onclick="replyEditor.cmd('bold')">
+                        <i class="bi bi-type-bold"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light border" type="button" title="Italic" onclick="replyEditor.cmd('italic')">
+                        <i class="bi bi-type-italic"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light border" type="button" title="Link" onclick="replyEditor.insertLink()">
+                        <i class="bi bi-link-45deg"></i>
+                    </button>
+
+                    <button class="btn btn-sm btn-light border" type="button" title="Image"
+                            onclick="document.getElementById('replyImg').click()">
+                        <i class="bi bi-image"></i>
+                    </button>
+                    <input id="replyImg" type="file" class="d-none" accept="image/*" multiple
+                           onchange="replyEditor.addFiles(this.files); this.value='';" />
+
+                    <button class="btn btn-sm btn-light border" type="button" title="Attach"
+                            onclick="document.getElementById('replyFile').click()">
+                        <i class="bi bi-paperclip"></i>
+                    </button>
+                    <input id="replyFile" type="file" class="d-none"
+                           accept="application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,image/*"
+                           multiple onchange="replyEditor.addFiles(this.files); this.value='';" />
+
+                    <div class="ms-auto small text-muted" id="attachInfo"></div>
+                </div>
+
+                <div class="card-body">
+                    <div id="replyEditor"
+                         class="form-control"
+                         contenteditable="true"
+                         data-placeholder="Write your reply here..."></div>
+
+                    <!-- ✅ NEW: preview attachments -->
+                    <div id="replyAttachments"></div>
+
+                    <textarea id="txtReplyContent" class="d-none"></textarea>
+                </div>
+
+                <div class="card-footer bg-body-tertiary d-flex justify-content-end align-items-center">
+                    <button class="btn btn-primary-custom fw-bold"
+                            onclick="replyEditor.beforeSend(); ticketDetail.sendReply();">
+                        Send Reply
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-12 col-lg-4">
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <div class="fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary-custom"></i>
+                        Ticket Information
+                    </div>
+                </div>
+
+                <div class="card-body d-flex flex-column gap-3">
+                    <div>
+                        <div class="small-label">STATUS</div>
+                        <div class="d-flex align-items-center justify-content-between mt-1">
+                            <div class="fw-bold text-primary-custom">@Model.Ticket.Status.ToString()</div>
+                            <button class="btn btn-sm btn-link text-decoration-none text-secondary" type="button" disabled>
+                                <i class="bi bi-pencil-square me-1"></i>Change
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="small-label">ASSIGNED STAFF</div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            @if (!string.IsNullOrEmpty(Model.Ticket.AssignedAgentId))
+                            {
+                                <span>@Model.Ticket.AssignedAgentId</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Unassigned</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="small-label">SERVICE</div>
+                        <div class="mt-1 fw-semibold text-secondary-emphasis">@Model.Ticket.ServiceId</div>
+                    </div>
+
+                    <div>
+                        <div class="small-label">CREATED DATE</div>
+                        <div class="mt-1 fw-semibold text-secondary-emphasis">
+                            @Model.Ticket.CreatedAt.ToString("dd/MM/yyyy - HH:mm")
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="small-label">PRIORITY</div>
+                        <div class="mt-2">
+                            <span class="badge bg-danger-subtle text-danger fw-bold" style="font-size:10px;">
+                                @(Model.Ticket.Priority?.ToString() ?? "N/A")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="TicketId" value="@Model.Ticket.Id" />
+
+<script>
+    window.ticketEndpoints = {
+        replyUrl: '@Url.Action("Reply", "Ticket")',
+        changeStatusUrl: '@Url.Action("ChangeStatus", "Ticket")',
+        hubUrl: '/ticketHub'
+    };
+</script>
+
+<script>
+    // ✅ Reply editor: preview attachments dưới editor, không chèn chip vào editor
+    const replyEditor = {
+        _files: [],
+        _objectUrls: new Map(), // localId -> objectURL
+
+        el() { return document.getElementById('replyEditor'); },
+        previewEl() { return document.getElementById('replyAttachments'); },
+
+        focus() { this.el().focus(); },
+
+        cmd(command) {
+            this.focus();
+            document.execCommand(command, false, null);
+        },
+
+        insertLink() {
+            this.focus();
+            const selected = (window.getSelection()?.toString() || '').trim();
+            let url = prompt('Nhập link (https://...)');
+            if (!url) return;
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+            if (selected) {
+                document.execCommand('createLink', false, url);
+            } else {
+                const safe = this._escape(url);
+                document.execCommand('insertHTML', false,
+                    `<a href="${safe}" target="_blank" rel="noopener noreferrer">${safe}</a>`
+                );
+            }
+        },
+
+        addFiles(fileList) {
+            if (!fileList || fileList.length === 0) return;
+
+            const arr = Array.from(fileList);
+            for (const f of arr) {
+                const id = (crypto?.randomUUID)
+                    ? crypto.randomUUID()
+                    : (Date.now() + '_' + Math.random().toString(16).slice(2));
+
+                f.__localId = id;
+                this._files.push(f);
+            }
+
+            window.__replyFiles = this._files;
+            this.renderPreviews();
+            this._updateAttachInfo();
+        },
+
+        removeFile(id) {
+            // revoke object url if any
+            const u = this._objectUrls.get(id);
+            if (u) {
+                URL.revokeObjectURL(u);
+                this._objectUrls.delete(id);
+            }
+
+            this._files = this._files.filter(f => f.__localId !== id);
+            window.__replyFiles = this._files;
+
+            this.renderPreviews();
+            this._updateAttachInfo();
+        },
+
+        renderPreviews() {
+            const el = this.previewEl();
+            if (!el) return;
+
+            if (!this._files.length) {
+                el.innerHTML = '';
+                return;
+            }
+
+            el.innerHTML = this._files.map(f => this._renderPreviewItem(f)).join('');
+        },
+
+        _renderPreviewItem(f) {
+            const id = f.__localId;
+            const name = this._escape(f.name || 'file');
+            const sizeText = this._formatBytes(f.size || 0);
+
+            const isImg = (f.type || '').toLowerCase().startsWith('image/');
+            if (isImg) {
+                let url = this._objectUrls.get(id);
+                if (!url) {
+                    url = URL.createObjectURL(f);
+                    this._objectUrls.set(id, url);
+                }
+
+                return `
+                    <div class="preview-card" data-file-id="${id}">
+                        <div class="preview-thumb">
+                            <img src="${url}" alt="${name}" />
+                        </div>
+                        <div class="preview-meta">
+                            <div class="preview-name">${name}</div>
+                            <div class="preview-sub">${sizeText}</div>
+                        </div>
+                        <div class="preview-remove" title="Remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
+                    </div>
+                `;
+            }
+
+            const iconClass = this._iconForFile(f);
+            const ext = this._getExt(f.name);
+
+            return `
+                <div class="preview-card" data-file-id="${id}">
+                    <div class="preview-thumb">
+                        <i class="bi ${iconClass}" style="font-size:24px;"></i>
+                    </div>
+                    <div class="preview-meta">
+                        <div class="preview-name">${name}</div>
+                        <div class="preview-sub">${ext} • ${sizeText}</div>
+                    </div>
+                    <div class="preview-remove" title="Remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
+                </div>
+            `;
+        },
+
+        beforeSend() {
+            const cleanHtml = (this.el().innerHTML || '').trim();
+            document.getElementById('txtReplyContent').value = cleanHtml;
+            window.__replyFiles = this._files;
+        },
+
+        reset() {
+            // revoke all object urls
+            for (const [id, url] of this._objectUrls.entries()) {
+                URL.revokeObjectURL(url);
+            }
+            this._objectUrls.clear();
+
+            this._files = [];
+            window.__replyFiles = [];
+
+            this.el().innerHTML = '';
+            document.getElementById('txtReplyContent').value = '';
+            document.getElementById('attachInfo').textContent = '';
+
+            const pv = this.previewEl();
+            if (pv) pv.innerHTML = '';
+        },
+
+        _updateAttachInfo() {
+            const el = document.getElementById('attachInfo');
+            if (!el) return;
+            el.textContent = this._files.length ? `Attached ${this._files.length} file(s)` : '';
+        },
+
+        _iconForFile(f) {
+            const name = (f.name || '').toLowerCase();
+            const type = (f.type || '').toLowerCase();
+
+            if (type === 'application/pdf' || name.endsWith('.pdf')) return 'bi-file-earmark-pdf';
+            if (name.endsWith('.doc') || name.endsWith('.docx')) return 'bi-file-earmark-word';
+            if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'bi-file-earmark-excel';
+            if (name.endsWith('.zip') || name.endsWith('.rar') || name.endsWith('.7z')) return 'bi-file-earmark-zip';
+            if (type.startsWith('image/')) return 'bi-image';
+            return 'bi-file-earmark';
+        },
+
+        _getExt(name) {
+            if (!name) return 'FILE';
+            const parts = name.split('.');
+            return (parts.length > 1 ? parts.pop() : 'FILE').toUpperCase();
+        },
+
+        _escape(s) {
+            return (s || '').replace(/[&<>"']/g, m => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m]));
+        },
+
+        _formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            const v = bytes / Math.pow(k, i);
+            return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${sizes[i]}`;
+        }
+    };
+</script>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="~/modules/ticket_detail.js" asp-append-version="true"></script>
+}
