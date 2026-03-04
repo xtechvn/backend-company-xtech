@@ -1,12 +1,16 @@
-﻿var ticketDetail = {
-    connection: null,
+﻿// ticket_detail.js - CMS
+// Thay SignalR bằng SSE (Server-Sent Events)
+// Không còn phụ thuộc vào hubUrl, không bị Mixed Content
+
+var ticketDetail = {
+    eventSource: null,
     ticketId: null,
 
     init: function () {
         this.ticketId = ($('#TicketId').val() || '').trim();
-        this.initSignalR();
+        this.initSSE();
 
-        // Ctrl + Enter gửi
+        // Ctrl+Enter gửi
         $('#replyEditor').on('keydown', function (e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 if (window.replyEditor && replyEditor.beforeSend) replyEditor.beforeSend();
@@ -16,43 +20,56 @@
         });
     },
 
-    initSignalR: function () {
-        if (typeof signalR === 'undefined') {
-            console.warn('SignalR client not loaded. Realtime disabled.');
-            return;
-        }
+    // =========================================================================
+    // SSE: thay thế hoàn toàn SignalR
+    // Kết nối tới /Ticket/Stream?ticketId=xxx (cùng domain CMS)
+    // =========================================================================
+    initSSE: function () {
+        // SSE chỉ dùng HTTP GET thuần, không cần WebSocket
+        // Cùng domain be.x-tech.vn => không bao giờ bị Mixed Content
+        this.eventSource = new EventSource(
+            '/TicketSSE/Stream?ticketId=' + this.ticketId
+        );
 
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(window.ticketEndpoints.hubUrl)
-            .withAutomaticReconnect()
-            .build();
+        this.eventSource.onopen = function () {
+            console.log('[SSE] Connected');
+        };
 
-        // message event
-        this.connection.on('ReceiveMessage', function (m) {
-            var msg = ticketDetail.normalizeMessage(m);
-            if (!msg) return;
+        this.eventSource.onmessage = function (event) {
+            try {
+                var data = JSON.parse(event.data);
 
-            if ((msg.ticketId + '').toLowerCase() !== (ticketDetail.ticketId + '').toLowerCase()) return;
+                // Phân biệt message thường và attachments
+                if (data.type === 'attachments') {
+                    if (data.messageId && data.attachFiles && data.attachFiles.length) {
+                        ticketDetail.updateMessageAttachments(data.messageId, data.attachFiles);
+                    }
+                    return;
+                }
 
-            ticketDetail.appendMessage(msg);
-        });
+                // Message thường
+                var msg = ticketDetail.normalizeMessage(data);
+                if (!msg) return;
 
-        // attachments event (đến sau message)
-        this.connection.on('ReceiveAttachments', function (p) {
-            if (!p) return;
-            var messageId = p.messageId || p.MessageId || p.id || p.Id;
-            var files = p.attachFiles || p.AttachFiles || [];
-            if (!messageId || !files.length) return;
+                // Chỉ xử lý message thuộc ticket này
+                if ((msg.ticketId + '').toLowerCase() !== (ticketDetail.ticketId + '').toLowerCase()) return;
 
-            ticketDetail.updateMessageAttachments(messageId, files);
-        });
+                ticketDetail.appendMessage(msg);
 
-        this.connection.start()
-            .then(() => this.connection.invoke('JoinTicket', ticketDetail.ticketId))
-            .catch(err => console.error('SignalR connect error:', err));
+            } catch (e) {
+                console.error('[SSE] parse error:', e);
+            }
+        };
+
+        this.eventSource.onerror = function () {
+            console.warn('[SSE] Connection error. Browser sẽ tự reconnect...');
+            // EventSource tự reconnect (built-in browser behavior)
+        };
     },
 
-    // ===== Send Reply (AJAX) =====
+    // =========================================================================
+    // Send Reply (AJAX - không đổi)
+    // =========================================================================
     sendReply: function () {
         var content = ($('#txtReplyContent').val() || '').trim();
         var files = window.__replyFiles || [];
@@ -66,11 +83,8 @@
         fd.append('TicketId', this.ticketId);
         fd.append('ContentHtml', content);
         fd.append('Content', content);
-
-        // anti-forgery
         fd.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
 
-        // attachments
         if (files && files.length) {
             for (var i = 0; i < files.length; i++) {
                 fd.append('AttachFiles', files[i]);
@@ -85,7 +99,7 @@
             contentType: false,
             success: function (res) {
                 if (res && res.success) {
-                    // ✅ append ngay theo response (khỏi phụ thuộc realtime)
+                    // Append ngay từ HTTP response (không chờ SSE để tránh duplicate)
                     if (res.data) {
                         var msg = ticketDetail.normalizeMessage(res.data);
                         if (msg) ticketDetail.appendMessage(msg);
@@ -97,7 +111,6 @@
                 } else {
                     alert(res?.message || 'Reply failed');
                 }
-            
             },
             error: function (xhr) {
                 var msg = xhr?.responseJSON?.message || ('HTTP ' + xhr.status + ': ' + (xhr.responseText || 'Request failed'));
@@ -106,16 +119,19 @@
         });
     },
 
-    // ===== Append Message =====
+    // =========================================================================
+    // Append Message
+    // =========================================================================
     appendMessage: function (m) {
+        if (!m) return;
+
+        // Dedup: nếu message đã có trong DOM thì bỏ qua
         if (m.id && $('#msg-' + m.id).length > 0) return;
 
         var senderType = (m.senderType || '').toLowerCase();
         var isStaff = senderType === 'agent' || senderType === 'staff';
-
         var senderTitle = isStaff ? ('Staff - ' + (m.senderId || '')) : 'Customer';
         var createdAt = m.createdAt || '';
-
         var contentHtml = m.contentHtml
             ? m.contentHtml
             : this.escapeHtml(m.content || '').replace(/\n/g, '<br/>');
@@ -134,38 +150,33 @@
               <div class="text-secondary" style="font-size:10px;">${this.escapeHtml(createdAt)}</div>
             </div>
           </div>
-          ${isStaff ? `<span class="badge bg-secondary-subtle text-secondary fw-bold" style="font-size:10px;">STAFF</span>` : ``}
+          ${isStaff
+                ? `<span class="badge bg-secondary-subtle text-secondary fw-bold" style="font-size:10px;">STAFF</span>`
+                : ''}
         </div>
-
         <div class="card-body">
           <div class="text-secondary-emphasis mb-3">${contentHtml}</div>
           ${attHtml}
         </div>
-      </div>
-    `;
+      </div>`;
 
         $('#chatContainer').append(card);
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     },
 
-    // ===== Update attachments for an existing message =====
     updateMessageAttachments: function (messageId, files) {
         var $msg = $('#msg-' + messageId);
         if ($msg.length === 0) return;
-
         $msg.find('.attachments').remove();
         $msg.find('.card-body').append(this.renderAttachments(files));
     },
 
-    // ===== Render attachments =====
     renderAttachments: function (files) {
         if (!files || !files.length) return '';
-
         return `
       <div class="attachments mt-3">
         ${files.map(f => this.renderAttachmentItem(f)).join('')}
-      </div>
-    `;
+      </div>`;
     },
 
     renderAttachmentItem: function (file) {
@@ -173,8 +184,7 @@
         var url = file.Url || file.url || '#';
         var lower = (name || url).toLowerCase();
 
-        var isImg =
-            lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
+        var isImg = lower.endsWith('.jpg') || lower.endsWith('.jpeg') ||
             lower.endsWith('.png') || lower.endsWith('.gif') ||
             lower.endsWith('.webp');
 
@@ -182,15 +192,11 @@
             return `
         <a class="att-img" href="${url}" target="_blank" rel="noopener">
           <img src="${url}" alt="${this.escapeHtml(name)}"/>
-        </a>
-      `;
+        </a>`;
         }
 
         var ext = '';
-        if (name) {
-            var parts = name.split('.');
-            ext = (parts.length > 1 ? parts.pop() : '').toUpperCase();
-        }
+        if (name) { var parts = name.split('.'); ext = (parts.length > 1 ? parts.pop() : '').toUpperCase(); }
 
         return `
       <a class="att-file" href="${url}" download>
@@ -199,14 +205,11 @@
           <span class="name">${this.escapeHtml(name || url)}</span>
         </div>
         <i class="bi bi-download"></i>
-      </a>
-    `;
+      </a>`;
     },
 
-    // ===== Normalize =====
     normalizeMessage: function (m) {
         if (!m) return null;
-
         var ticketId = m.ticketId || m.TicketId;
         if (!ticketId) return null;
 
@@ -227,11 +230,6 @@
         return (s + '').replace(/[&<>"']/g, function (c) {
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[c];
         });
-    },
-
-    // stub: bạn có closeTicket thì implement ở đây
-    closeTicket: function (ticketId) {
-        alert('TODO: closeTicket ' + ticketId);
     }
 };
 
