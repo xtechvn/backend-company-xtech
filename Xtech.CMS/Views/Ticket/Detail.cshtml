@@ -5,6 +5,15 @@
 @{
     ViewData["Title"] = "Ticket #" + Model.Ticket.Code;
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string StatusBadgeClass(TicketStatus s) => s switch
+    {
+        TicketStatus.Open => "bg-success",
+        TicketStatus.InProgress => "bg-primary",
+        TicketStatus.Resolved => "bg-info",
+        TicketStatus.Closed => "bg-secondary",
+        _ => "bg-success"
+    };
 }
 
 <style>
@@ -65,7 +74,6 @@
         color: #94a3b8;
     }
 
-    /* ===== Message attachments ===== */
     .attachments {
         display: grid;
         grid-template-columns: repeat(2,minmax(0,1fr));
@@ -118,7 +126,6 @@
             word-break: break-word;
         }
 
-    /* ===== Reply editor ===== */
     #replyEditor {
         min-height: 150px;
         outline: none;
@@ -130,7 +137,6 @@
             color: #9ca3af;
         }
 
-    /* ===== NEW: Preview attachments dưới editor ===== */
     #replyAttachments {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -196,20 +202,30 @@
             opacity: 1;
         }
 
-    @@media (max-width: 576px) {
-        .attachments {
-            grid-template-columns: 1fr;
-        }
+    /* Closed notice */
+    .closed-notice {
+        background: #fff8e1;
+        border: 1px solid #f59e0b;
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #92400e;
+        font-weight: 600;
+        font-size: 14px;
+    }
 
-        #replyAttachments {
+    @@media (max-width: 576px) {
+        .attachments, #replyAttachments {
             grid-template-columns: 1fr;
         }
     }
 </style>
 
+
+<input type="hidden" id="TicketId" value="@Model.Ticket.Id" />
+<input type="hidden" id="CurrentStatus" value="@((int)Model.Ticket.Status)" />
+
 <div class="container py-4">
 
-    @* Anti-forgery token để JS lấy *@
     @Html.AntiForgeryToken()
 
     <!-- Breadcrumbs -->
@@ -225,19 +241,37 @@
     <!-- Ticket Header -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pb-4 mb-4 border-bottom">
         <div>
-            <h1 class="display-6 fw-bold mb-1">Ticket #@Model.Ticket.Code</h1>
-            <div class="d-flex flex-wrap align-items-center gap-2">
+            <h1 class="display-6 fw-bold mb-1 d-flex align-items-center gap-2 flex-wrap">
+                Ticket #@Model.Ticket.Code
                 @if (Model.Ticket.Priority.HasValue && Model.Ticket.Priority.Value > 0)
                 {
                     <span class="badge badge-urgent fw-bold">URGENT</span>
                 }
-                <h5 class="text-secondary small fw-semibold mb-0">@Model.Ticket.Subject</h5>
-            </div>
+                
+                <span id="statusBadge">
+                    <span class="badge @StatusBadgeClass(Model.Ticket.Status)">
+                        @Model.Ticket.Status.ToString()
+                    </span>
+                </span>
+            </h1>
+            <h5 class="text-secondary small fw-semibold mb-0">@Model.Ticket.Subject</h5>
         </div>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-dark fw-bold" onclick="ticketDetail.closeTicket('@Model.Ticket.Id')">
-                <i class="bi bi-x-circle me-2"></i>Close Ticket
+        <div class="d-flex gap-2 align-items-center">
+          
+            <button id="btnCloseTicket"
+                    class="btn btn-danger fw-bold d-inline-flex align-items-center gap-2"
+                    onclick="ticketDetail.closeTicket()"
+            @(Model.Ticket.Status == TicketStatus.Closed ? "style=display:none" : "")>
+                <i class="bi bi-x-circle"></i> Close Ticket
+            </button>
+
+           
+            <button id="btnReopenTicket"
+                    class="btn btn-success fw-bold d-inline-flex align-items-center gap-2"
+                    onclick="ticketDetail.reopenTicket()"
+            @(Model.Ticket.Status != TicketStatus.Closed ? "style=display:none" : "")>
+                <i class="bi bi-arrow-counterclockwise"></i> Reopen
             </button>
         </div>
     </div>
@@ -248,12 +282,10 @@
         <!-- Conversation -->
         <div class="col-12 col-lg-8">
 
-            <!-- Container để SignalR append -->
             <div id="chatContainer">
                 @foreach (var msg in Model.Messages)
                 {
                     var isStaff = msg.SenderType == MessageSenderType.Agent;
-
                     <div class="card shadow-sm mb-4" id="msg-@msg.Id">
                         <div class="card-header d-flex justify-content-between align-items-center bg-body-tertiary">
                             <div class="d-flex align-items-center gap-3">
@@ -267,7 +299,6 @@
                                 {
                                     <div class="avatar avatar-primary">C</div>
                                 }
-
                                 <div>
                                     <div class="fw-bold small mb-0">
                                         @(isStaff ? "Staff - " + msg.SenderId : "Customer")
@@ -277,7 +308,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             @if (isStaff)
                             {
                                 <span class="badge bg-secondary-subtle text-secondary fw-bold" style="font-size:10px;">STAFF</span>
@@ -288,7 +318,6 @@
                             <div class="text-secondary-emphasis">
                                 @Html.Raw(msg.ContentHtml ?? msg.Content)
                             </div>
-
                             @if (msg.AttachFiles != null && msg.AttachFiles.Any())
                             {
                                 <div class="attachments mt-3">
@@ -298,7 +327,6 @@
                                         var url = f.Url ?? "#";
                                         var lower = (name + url).ToLowerInvariant();
                                         var isImg = lower.EndsWith(".jpg") || lower.EndsWith(".jpeg") || lower.EndsWith(".png") || lower.EndsWith(".gif") || lower.EndsWith(".webp");
-
                                         if (isImg)
                                         {
                                             <a class="att-img" href="@url" target="_blank" rel="noopener">
@@ -323,55 +351,59 @@
                 }
             </div>
 
-            <!-- Reply Box -->
-            <div class="card shadow-sm reply-card">
-                <div class="card-header bg-body-tertiary d-flex align-items-center gap-2 flex-wrap">
+            @* {{!-- Closed notice (WebUser reopen => ẩn đi) --}} *@
+            <div id="closedNotice"
+                 class="closed-notice mb-3"
+                 style="@(Model.Ticket.Status == TicketStatus.Closed ? "" : "display:none")">
+                <i class="bi bi-lock-fill me-2"></i>
+                Ticket này đã được đóng. Khách hàng có thể mở lại ticket.
+            </div>
 
-                    <button class="btn btn-sm btn-light border" type="button" title="Bold" onclick="replyEditor.cmd('bold')">
-                        <i class="bi bi-type-bold"></i>
-                    </button>
-                    <button class="btn btn-sm btn-light border" type="button" title="Italic" onclick="replyEditor.cmd('italic')">
-                        <i class="bi bi-type-italic"></i>
-                    </button>
-                    <button class="btn btn-sm btn-light border" type="button" title="Link" onclick="replyEditor.insertLink()">
-                        <i class="bi bi-link-45deg"></i>
-                    </button>
+            <!-- Reply Box - ẩn khi Closed -->
+            <div id="replySection"
+                 style="@(Model.Ticket.Status == TicketStatus.Closed ? "display:none" : "")">
+                <div class="card shadow-sm reply-card">
+                    <div class="card-header bg-body-tertiary d-flex align-items-center gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-light border" type="button" title="Bold" onclick="replyEditor.cmd('bold')">
+                            <i class="bi bi-type-bold"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" type="button" title="Italic" onclick="replyEditor.cmd('italic')">
+                            <i class="bi bi-type-italic"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" type="button" title="Link" onclick="replyEditor.insertLink()">
+                            <i class="bi bi-link-45deg"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light border" type="button" title="Image"
+                                onclick="document.getElementById('replyImg').click()">
+                            <i class="bi bi-image"></i>
+                        </button>
+                        <input id="replyImg" type="file" class="d-none" accept="image/*" multiple
+                               onchange="replyEditor.addFiles(this.files); this.value='';" />
+                        <button class="btn btn-sm btn-light border" type="button" title="Attach"
+                                onclick="document.getElementById('replyFile').click()">
+                            <i class="bi bi-paperclip"></i>
+                        </button>
+                        <input id="replyFile" type="file" class="d-none"
+                               accept="application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,image/*"
+                               multiple onchange="replyEditor.addFiles(this.files); this.value='';" />
+                        <div class="ms-auto small text-muted" id="attachInfo"></div>
+                    </div>
 
-                    <button class="btn btn-sm btn-light border" type="button" title="Image"
-                            onclick="document.getElementById('replyImg').click()">
-                        <i class="bi bi-image"></i>
-                    </button>
-                    <input id="replyImg" type="file" class="d-none" accept="image/*" multiple
-                           onchange="replyEditor.addFiles(this.files); this.value='';" />
+                    <div class="card-body">
+                        <div id="replyEditor"
+                             class="form-control"
+                             contenteditable="true"
+                             data-placeholder="Write your reply here..."></div>
+                        <div id="replyAttachments"></div>
+                        <textarea id="txtReplyContent" class="d-none"></textarea>
+                    </div>
 
-                    <button class="btn btn-sm btn-light border" type="button" title="Attach"
-                            onclick="document.getElementById('replyFile').click()">
-                        <i class="bi bi-paperclip"></i>
-                    </button>
-                    <input id="replyFile" type="file" class="d-none"
-                           accept="application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,image/*"
-                           multiple onchange="replyEditor.addFiles(this.files); this.value='';" />
-
-                    <div class="ms-auto small text-muted" id="attachInfo"></div>
-                </div>
-
-                <div class="card-body">
-                    <div id="replyEditor"
-                         class="form-control"
-                         contenteditable="true"
-                         data-placeholder="Write your reply here..."></div>
-
-                    <!-- ✅ NEW: preview attachments -->
-                    <div id="replyAttachments"></div>
-
-                    <textarea id="txtReplyContent" class="d-none"></textarea>
-                </div>
-
-                <div class="card-footer bg-body-tertiary d-flex justify-content-end align-items-center">
-                    <button class="btn btn-primary-custom fw-bold"
-                            onclick="replyEditor.beforeSend(); ticketDetail.sendReply();">
-                        Send Reply
-                    </button>
+                    <div class="card-footer bg-body-tertiary d-flex justify-content-end align-items-center">
+                        <button class="btn btn-primary-custom fw-bold"
+                                onclick="replyEditor.beforeSend(); ticketDetail.sendReply();">
+                            Send Reply
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -379,7 +411,6 @@
 
         <!-- Sidebar -->
         <div class="col-12 col-lg-4">
-
             <div class="card shadow-sm mb-4">
                 <div class="card-header">
                     <div class="fw-bold d-flex align-items-center gap-2">
@@ -387,44 +418,31 @@
                         Ticket Information
                     </div>
                 </div>
-
                 <div class="card-body d-flex flex-column gap-3">
                     <div>
                         <div class="small-label">STATUS</div>
-                        <div class="d-flex align-items-center justify-content-between mt-1">
-                            <div class="fw-bold text-primary-custom">@Model.Ticket.Status.ToString()</div>
-                            <button class="btn btn-sm btn-link text-decoration-none text-secondary" type="button" disabled>
-                                <i class="bi bi-pencil-square me-1"></i>Change
-                            </button>
+                        <div id="sidebarStatus" class="fw-bold text-primary-custom mt-1">
+                            @Model.Ticket.Status.ToString()
                         </div>
                     </div>
-
                     <div>
                         <div class="small-label">ASSIGNED STAFF</div>
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            @if (!string.IsNullOrEmpty(Model.Ticket.AssignedAgentId))
-                            {
-                                <span>@Model.Ticket.AssignedAgentId</span>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Unassigned</span>
-                            }
+                        <div class="mt-1">
+                            @(!string.IsNullOrEmpty(Model.Ticket.AssignedAgentId)
+                                ? Model.Ticket.AssignedAgentId
+                                : "Unassigned")
                         </div>
                     </div>
-
                     <div>
                         <div class="small-label">SERVICE</div>
                         <div class="mt-1 fw-semibold text-secondary-emphasis">@Model.Ticket.ServiceId</div>
                     </div>
-
                     <div>
                         <div class="small-label">CREATED DATE</div>
                         <div class="mt-1 fw-semibold text-secondary-emphasis">
                             @Model.Ticket.CreatedAt.ToString("dd/MM/yyyy - HH:mm")
                         </div>
                     </div>
-
                     <div>
                         <div class="small-label">PRIORITY</div>
                         <div class="mt-2">
@@ -435,36 +453,28 @@
                     </div>
                 </div>
             </div>
-
         </div>
+
     </div>
 </div>
-
-<input type="hidden" id="TicketId" value="@Model.Ticket.Id" />
 
 <script>
     window.ticketEndpoints = {
         replyUrl: '@Url.Action("Reply", "Ticket")',
-        changeStatusUrl: '@Url.Action("ChangeStatus", "Ticket")',
-       hubUrl: 'http://be.x-tech.vn/ticketHub'
+        changeStatusUrl: '@Url.Action("ChangeStatus", "Ticket")'
+        // ✅ Không cần hubUrl nữa - dùng SSE
     };
 </script>
 
 <script>
-    // ✅ Reply editor: preview attachments dưới editor, không chèn chip vào editor
     const replyEditor = {
         _files: [],
-        _objectUrls: new Map(), // localId -> objectURL
+        _objectUrls: new Map(),
 
         el() { return document.getElementById('replyEditor'); },
         previewEl() { return document.getElementById('replyAttachments'); },
-
         focus() { this.el().focus(); },
-
-        cmd(command) {
-            this.focus();
-            document.execCommand(command, false, null);
-        },
+        cmd(command) { this.focus(); document.execCommand(command, false, null); },
 
         insertLink() {
             this.focus();
@@ -472,46 +482,31 @@
             let url = prompt('Nhập link (https://...)');
             if (!url) return;
             if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
             if (selected) {
                 document.execCommand('createLink', false, url);
             } else {
                 const safe = this._escape(url);
                 document.execCommand('insertHTML', false,
-                    `<a href="${safe}" target="_blank" rel="noopener noreferrer">${safe}</a>`
-                );
+                    `<a href="${safe}" target="_blank" rel="noopener noreferrer">${safe}</a>`);
             }
         },
 
         addFiles(fileList) {
             if (!fileList || fileList.length === 0) return;
-
-            const arr = Array.from(fileList);
-            for (const f of arr) {
-                const id = (crypto?.randomUUID)
-                    ? crypto.randomUUID()
-                    : (Date.now() + '_' + Math.random().toString(16).slice(2));
-
-                f.__localId = id;
+            for (const f of Array.from(fileList)) {
+                f.__localId = crypto?.randomUUID?.() ?? (Date.now() + '_' + Math.random().toString(16).slice(2));
                 this._files.push(f);
             }
-
             window.__replyFiles = this._files;
             this.renderPreviews();
             this._updateAttachInfo();
         },
 
         removeFile(id) {
-            // revoke object url if any
             const u = this._objectUrls.get(id);
-            if (u) {
-                URL.revokeObjectURL(u);
-                this._objectUrls.delete(id);
-            }
-
+            if (u) { URL.revokeObjectURL(u); this._objectUrls.delete(id); }
             this._files = this._files.filter(f => f.__localId !== id);
             window.__replyFiles = this._files;
-
             this.renderPreviews();
             this._updateAttachInfo();
         },
@@ -519,93 +514,60 @@
         renderPreviews() {
             const el = this.previewEl();
             if (!el) return;
-
-            if (!this._files.length) {
-                el.innerHTML = '';
-                return;
-            }
-
-            el.innerHTML = this._files.map(f => this._renderPreviewItem(f)).join('');
+            el.innerHTML = this._files.length ? this._files.map(f => this._renderPreviewItem(f)).join('') : '';
         },
 
         _renderPreviewItem(f) {
             const id = f.__localId;
             const name = this._escape(f.name || 'file');
             const sizeText = this._formatBytes(f.size || 0);
-
             const isImg = (f.type || '').toLowerCase().startsWith('image/');
+
             if (isImg) {
                 let url = this._objectUrls.get(id);
-                if (!url) {
-                    url = URL.createObjectURL(f);
-                    this._objectUrls.set(id, url);
-                }
-
-                return `
-                    <div class="preview-card" data-file-id="${id}">
-                        <div class="preview-thumb">
-                            <img src="${url}" alt="${name}" />
-                        </div>
-                        <div class="preview-meta">
-                            <div class="preview-name">${name}</div>
-                            <div class="preview-sub">${sizeText}</div>
-                        </div>
-                        <div class="preview-remove" title="Remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
-                    </div>
-                `;
+                if (!url) { url = URL.createObjectURL(f); this._objectUrls.set(id, url); }
+                return `<div class="preview-card" data-file-id="${id}">
+                    <div class="preview-thumb"><img src="${url}" alt="${name}" /></div>
+                    <div class="preview-meta"><div class="preview-name">${name}</div><div class="preview-sub">${sizeText}</div></div>
+                    <div class="preview-remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
+                </div>`;
             }
 
             const iconClass = this._iconForFile(f);
             const ext = this._getExt(f.name);
-
-            return `
-                <div class="preview-card" data-file-id="${id}">
-                    <div class="preview-thumb">
-                        <i class="bi ${iconClass}" style="font-size:24px;"></i>
-                    </div>
-                    <div class="preview-meta">
-                        <div class="preview-name">${name}</div>
-                        <div class="preview-sub">${ext} • ${sizeText}</div>
-                    </div>
-                    <div class="preview-remove" title="Remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
-                </div>
-            `;
+            return `<div class="preview-card" data-file-id="${id}">
+                <div class="preview-thumb"><i class="bi ${iconClass}" style="font-size:24px;"></i></div>
+                <div class="preview-meta"><div class="preview-name">${name}</div><div class="preview-sub">${ext} • ${sizeText}</div></div>
+                <div class="preview-remove" onclick="replyEditor.removeFile('${id}')">&times;</div>
+            </div>`;
         },
 
         beforeSend() {
-            const cleanHtml = (this.el().innerHTML || '').trim();
-            document.getElementById('txtReplyContent').value = cleanHtml;
+            document.getElementById('txtReplyContent').value = (this.el().innerHTML || '').trim();
             window.__replyFiles = this._files;
         },
 
         reset() {
-            // revoke all object urls
-            for (const [id, url] of this._objectUrls.entries()) {
-                URL.revokeObjectURL(url);
-            }
+            for (const [, url] of this._objectUrls.entries()) URL.revokeObjectURL(url);
             this._objectUrls.clear();
-
             this._files = [];
             window.__replyFiles = [];
-
             this.el().innerHTML = '';
             document.getElementById('txtReplyContent').value = '';
-            document.getElementById('attachInfo').textContent = '';
-
+            const ai = document.getElementById('attachInfo');
+            if (ai) ai.textContent = '';
             const pv = this.previewEl();
             if (pv) pv.innerHTML = '';
         },
 
         _updateAttachInfo() {
             const el = document.getElementById('attachInfo');
-            if (!el) return;
-            el.textContent = this._files.length ? `Attached ${this._files.length} file(s)` : '';
+            if (el) el.textContent = this._files.length ? `Attached ${this._files.length} file(s)` : '';
         },
 
         _iconForFile(f) {
             const name = (f.name || '').toLowerCase();
             const type = (f.type || '').toLowerCase();
-
             if (type === 'application/pdf' || name.endsWith('.pdf')) return 'bi-file-earmark-pdf';
             if (name.endsWith('.doc') || name.endsWith('.docx')) return 'bi-file-earmark-word';
             if (name.endsWith('.xls') || name.endsWith('.xlsx')) return 'bi-file-earmark-excel';
@@ -621,27 +583,20 @@
         },
 
         _escape(s) {
-            return (s || '').replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[m]));
+            return (s || '').replace(/[&<>"']/g, m =>
+                ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
         },
 
         _formatBytes(bytes) {
             if (!bytes) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const k = 1024, sizes = ['B','KB','MB','GB','TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            const v = bytes / Math.pow(k, i);
-            return `${v.toFixed(v >= 10 || i === 0 ? 0 : 1)} ${sizes[i]}`;
+            return `${(bytes/Math.pow(k,i)).toFixed(i===0?0:1)} ${sizes[i]}`;
         }
     };
 </script>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+        {{!-- ✅ Không cần signalr nữa --}}
     <script src="~/modules/ticket_detail.js" asp-append-version="true"></script>
 }

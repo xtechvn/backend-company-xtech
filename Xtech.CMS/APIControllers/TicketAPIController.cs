@@ -1,4 +1,5 @@
-﻿using Entities.ViewModels.TicketApi;
+﻿using Entities.Models;
+using Entities.ViewModels.TicketApi;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -189,6 +190,36 @@ namespace Xtech.CMS.APIControllers
                 LogHelper.InsertLogTelegram("TicketAPIController - ReplyTicket: " + ex + "\n Token: " + token);
                 return Ok(new { status = (int)ResponseType.FAILED, msg = "Error: " + ex.ToString() });
             }
+        }
+        [HttpPost("change-status.json")]
+        public async Task<ActionResult> ChangeTicketStatus([FromForm] string token)
+        {
+            JArray objParr = null;
+            if (!CommonHelper.GetParamWithKey(token, out objParr, configuration["DataBaseConfig:key_api:b2c"]))
+                return Ok(new { status = (int)ResponseType.ERROR, msg = "Key ko hop le" });
+
+            if (!Guid.TryParse(objParr[0]["ticket_id"]?.ToString(), out var ticketId))
+                return Ok(new { status = (int)ResponseType.ERROR, msg = "Invalid ticket_id" });
+
+            if (!int.TryParse(objParr[0]["status"]?.ToString(), out var newStatus))
+                return Ok(new { status = (int)ResponseType.ERROR, msg = "Invalid status" });
+
+            await ticketRepository.UpdateStatusAsync(ticketId, (TicketStatus)newStatus);
+
+            // Publish Redis để CMS SSE nhận realtime
+            var payload = new
+            {
+                type = "status_changed",
+                ticketId = ticketId,
+                status = newStatus,
+                statusText = ((TicketStatus)newStatus).ToString()
+            };
+
+            await _subscriber.PublishAsync(
+                $"TICKET_{ticketId}",
+                System.Text.Json.JsonSerializer.Serialize(payload));
+
+            return Ok(new { status = (int)ResponseType.SUCCESS, msg = "Success" });
         }
 
         // =====================================================================
