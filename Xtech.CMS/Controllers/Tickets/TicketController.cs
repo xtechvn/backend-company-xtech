@@ -1,35 +1,41 @@
-﻿using Entities.Models;
+﻿// CMS - TicketController.cs
+// Dùng Redis Pub/Sub để broadcast message
+// Không còn dùng IHubContext để broadcast nữa
+
+using Entities.Models;
 using Entities.ViewModels.TicketApi;
 using Entities.ViewModels.Tickets;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Repositories.IRepositories;
-using System.Threading.Tasks;
+using StackExchange.Redis;
+using System.Text.Json;
 using Ultilities;
 using Utilities;
-using Xtech.CMS.Services;
 
 namespace Xtech.CMS.Controllers.Tickets
 {
     public class TicketController : Controller
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
         private readonly ITicketRepository _ticketRepository;
-        private readonly IHubContext<TicketHub> _hubContext;
-
-
+        private readonly ISubscriber _subscriber;
 
         public TicketController(
-    ITicketRepository ticketRepository,
-    IHubContext<TicketHub> hubContext,
-    IConfiguration configuration)
+            ITicketRepository ticketRepository,
+            IConfiguration configuration)
         {
             _ticketRepository = ticketRepository;
-            _hubContext = hubContext;
-            this.configuration = configuration;
+            _configuration = configuration;
+
+            // Kết nối Redis (cùng server với BE)
+            var redisConn = ConnectionMultiplexer.Connect(
+                _configuration["Redis:Host"] + ":" + _configuration["Redis:Port"]);
+            _subscriber = redisConn.GetSubscriber();
         }
 
-
+        // =====================================================================
+        // INDEX
+        // =====================================================================
         public async Task<IActionResult> Index([FromQuery] TicketSearchQuery query)
         {
             var (items, total) = await _ticketRepository.SearchAsync(query);
@@ -44,7 +50,9 @@ namespace Xtech.CMS.Controllers.Tickets
             return View(vm);
         }
 
-
+        // =====================================================================
+        // DETAIL
+        // =====================================================================
         [HttpGet]
         public async Task<IActionResult> Detail(Guid id)
         {
@@ -54,79 +62,78 @@ namespace Xtech.CMS.Controllers.Tickets
             return View(dto);
         }
 
-        // POST: admin reply (AJAX)
+        // =====================================================================
+        // REPLY (AJAX)
+        // =====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reply([FromForm] AddReplyCommand cmd)
         {
             try
             {
-                if (cmd.TicketId == Guid.Empty) return BadRequest("Missing TicketId");
+                if (cmd.TicketId == Guid.Empty)
+                    return BadRequest("Missing TicketId");
 
                 cmd.AgentId = User?.Identity?.Name ?? "admin";
 
-                var hasContent = !string.IsNullOrWhiteSpace(cmd.Content) || !string.IsNullOrWhiteSpace(cmd.ContentHtml);
+                var hasContent = !string.IsNullOrWhiteSpace(cmd.Content)
+                              || !string.IsNullOrWhiteSpace(cmd.ContentHtml);
                 var hasFiles = cmd.AttachFiles != null && cmd.AttachFiles.Any();
 
                 if (!hasContent && !hasFiles)
                     return BadRequest("Reply content is empty");
 
-                // ✅ validate tổng size 25MB
+                // Validate tổng size 25MB
                 if (hasFiles)
                 {
-                    long total = cmd.AttachFiles!.Sum(f => f.Length);
-                    if (total > 25 * 1024 * 1024)
+                    long totalSize = cmd.AttachFiles!.Sum(f => f.Length);
+                    if (totalSize > 25 * 1024 * 1024)
                         return BadRequest("Total attachments exceed 25MB");
                 }
 
-                // 1) tạo message trước => lấy messageId (BIGINT)
-                var dto = await _ticketRepository.AddReplyAsync(cmd); // returns TicketMessageDto (Id long)
+                // 1) Lưu message vào DB => lấy messageId (BIGINT)
+                var dto = await _ticketRepository.AddReplyAsync(cmd);
 
-                // 2) upload + lưu attachfile theo messageId
-                List<AttachFileViewModel> attachFilesVm = new();
+                // 2) Upload file + lưu attachments
+                var attachFilesVm = new List<AttachFileViewModel>();
                 if (hasFiles)
                 {
                     foreach (var f in cmd.AttachFiles!)
                     {
-                        // data_id phải là LONG messageId
                         var url = await UpLoadHelper.UploadFileOrImage(f, dto.Id, 200);
                         if (!string.IsNullOrEmpty(url))
                         {
-                            attachFilesVm.Add(new AttachFileViewModel { Url = url, Name = f.FileName });
+                            attachFilesVm.Add(new AttachFileViewModel
+                            {
+                                Url = url,
+                                Name = f.FileName
+                            });
                         }
                     }
 
                     if (attachFilesVm.Any())
-                    {
                         await _ticketRepository.InsertMessageAttachments(dto.Id, attachFilesVm);
-                    }
                 }
 
-                // 3) broadcast message trước (không kèm attachments để đỡ payload)
-                await _hubContext.Clients
-                    .Group($"ticket-{cmd.TicketId}")
-                    .SendAsync("ReceiveMessage", new
-                    {
-                        id = dto.Id,
-                        ticketId = dto.TicketId,
-                        senderType = dto.SenderType,
-                        senderId = dto.SenderId,
-                        content = dto.Content,
-                        contentHtml = dto.ContentHtml,
-                        createdAt = dto.CreatedAt
-                    });
+                // 3) Publish lên Redis channel TICKET_{ticketId}
+                //    - BE đang subscribe => BE HubContext broadcast tới WebUser browser ✅
+                //    - CMS đang subscribe => CMS HubContext broadcast tới CMS browser ✅
+                var createdAtStr = dto.CreatedAt;
 
-                // 4) broadcast attachments riêng (nếu có)
-                if (attachFilesVm.Any())
+                var payload = new
                 {
-                    await _hubContext.Clients
-                        .Group($"ticket-{cmd.TicketId}")
-                        .SendAsync("ReceiveAttachments", new
-                        {
-                            messageId = dto.Id,
-                            attachFiles = attachFilesVm
-                        });
-                }
+                    id = dto.Id,
+                    ticketId = dto.TicketId,
+                    senderType = dto.SenderType,   // "Agent"
+                    senderId = dto.SenderId,
+                    content = dto.Content,
+                    contentHtml = dto.ContentHtml,
+                    createdAt = createdAtStr,
+                    attachFiles = attachFilesVm.Select(f => new { url = f.Url, name = f.Name })
+                };
+
+                var json = JsonSerializer.Serialize(payload);
+                await _subscriber.PublishAsync($"TICKET_{cmd.TicketId}", json);
 
                 return Ok(new
                 {
@@ -139,7 +146,7 @@ namespace Xtech.CMS.Controllers.Tickets
                         senderId = dto.SenderId,
                         content = dto.Content,
                         contentHtml = dto.ContentHtml,
-                        createdAt = dto.CreatedAt,
+                        createdAt = createdAtStr,
                         attachFiles = attachFilesVm
                     }
                 });
@@ -151,6 +158,9 @@ namespace Xtech.CMS.Controllers.Tickets
             }
         }
 
+        // =====================================================================
+        // CHANGE STATUS
+        // =====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeStatus(Guid ticketId, TicketStatus status)
@@ -159,6 +169,9 @@ namespace Xtech.CMS.Controllers.Tickets
             return RedirectToAction(nameof(Detail), new { id = ticketId });
         }
 
+        // =====================================================================
+        // ASSIGN
+        // =====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Assign(Guid ticketId, string agentId)
@@ -167,6 +180,4 @@ namespace Xtech.CMS.Controllers.Tickets
             return RedirectToAction(nameof(Detail), new { id = ticketId });
         }
     }
-
-
 }
