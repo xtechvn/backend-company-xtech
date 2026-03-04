@@ -283,6 +283,41 @@ using Ultilities;
 
             return Ok(new { status = (int)ResponseType.SUCCESS, msg = "Success" });
         }
+        [HttpPost("internal-broadcast")]
+        public async Task<IActionResult> InternalBroadcast([FromBody] InternalBroadcastDto dto)
+        {
+            var secret = Request.Headers["X-Internal-Secret"].ToString();
+            //if (secret != configuration["InternalSecret"])
+            //    return Unauthorized();
+
+            await _hubContext.Clients
+                .Group($"ticket-{dto.TicketId}")
+                .SendAsync("ReceiveMessage", new
+                {
+                    id = dto.Id,
+                    ticketId = dto.TicketId,
+                    senderType = dto.SenderType,
+                    senderId = dto.SenderId,
+                    content = dto.Content,
+                    contentHtml = dto.ContentHtml,
+                    createdAt = dto.CreatedAt,
+                    attachFiles = dto.AttachFiles ?? new List<object>()
+                });
+
+            return Ok(new { success = true });
+        }
+
+        public class InternalBroadcastDto
+        {
+            public string TicketId { get; set; }
+            public long Id { get; set; }
+            public string SenderType { get; set; }
+            public string SenderId { get; set; }
+            public string Content { get; set; }
+            public string ContentHtml { get; set; }
+            public string CreatedAt { get; set; }
+            public List<object> AttachFiles { get; set; }
+        }
 
         // 5) CMS: list tickets (admin)
         [HttpPost("get-tickets.json")]
