@@ -85,13 +85,19 @@
             contentType: false,
             success: function (res) {
                 if (res && res.success) {
-                    // server/hub sẽ bắn ReceiveMessage (+ ReceiveAttachments)
+                    // ✅ append ngay theo response (khỏi phụ thuộc realtime)
+                    if (res.data) {
+                        var msg = ticketDetail.normalizeMessage(res.data);
+                        if (msg) ticketDetail.appendMessage(msg);
+                    }
+
                     if (window.replyEditor && replyEditor.reset) replyEditor.reset();
                     window.__replyFiles = [];
                     $('#txtReplyContent').val('');
                 } else {
                     alert(res?.message || 'Reply failed');
                 }
+            
             },
             error: function (xhr) {
                 var msg = xhr?.responseJSON?.message || ('HTTP ' + xhr.status + ': ' + (xhr.responseText || 'Request failed'));
