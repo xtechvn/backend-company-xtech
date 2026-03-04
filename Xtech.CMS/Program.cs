@@ -89,6 +89,7 @@ builder.Services.AddTransient<ITelegramRepository, TelegramRepository>();
 // Setting Redis                     
 builder.Services.AddSingleton<RedisConn>();
 builder.Services.AddSingleton<ManagementUser>();
+builder.Services.AddHttpClient(); // ← thêm dòng này
 // ✅ SignalR camelCase cho payload
 builder.Services.AddSignalR()
     .AddJsonProtocol(options =>
@@ -130,6 +131,7 @@ app.UseCors("WebUserCors");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapHub<TicketHub>("/ticketHub");
+
 
 app.MapControllerRoute(
     name: "default",
