@@ -1,8 +1,4 @@
-﻿// CMS - TicketController.cs
-// Dùng Redis Pub/Sub để broadcast message
-// Không còn dùng IHubContext để broadcast nữa
-
-using Entities.Models;
+﻿using Entities.Models;
 using Entities.ViewModels.TicketApi;
 using Entities.ViewModels.Tickets;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +23,6 @@ namespace Xtech.CMS.Controllers.Tickets
             _ticketRepository = ticketRepository;
             _configuration = configuration;
 
-            // Kết nối Redis (cùng server với BE)
             var redisConn = ConnectionMultiplexer.Connect(
                 _configuration["Redis:Host"] + ":" + _configuration["Redis:Port"]);
             _subscriber = redisConn.GetSubscriber();
@@ -39,15 +34,7 @@ namespace Xtech.CMS.Controllers.Tickets
         public async Task<IActionResult> Index([FromQuery] TicketSearchQuery query)
         {
             var (items, total) = await _ticketRepository.SearchAsync(query);
-
-            var vm = new TicketIndexVm
-            {
-                Query = query,
-                Items = items,
-                Total = total
-            };
-
-            return View(vm);
+            return View(new TicketIndexVm { Query = query, Items = items, Total = total });
         }
 
         // =====================================================================
@@ -58,7 +45,6 @@ namespace Xtech.CMS.Controllers.Tickets
         {
             var dto = await _ticketRepository.GetDetailAsync(id);
             if (dto == null) return NotFound();
-
             return View(dto);
         }
 
@@ -83,7 +69,6 @@ namespace Xtech.CMS.Controllers.Tickets
                 if (!hasContent && !hasFiles)
                     return BadRequest("Reply content is empty");
 
-                // Validate tổng size 25MB
                 if (hasFiles)
                 {
                     long totalSize = cmd.AttachFiles!.Sum(f => f.Length);
@@ -91,10 +76,10 @@ namespace Xtech.CMS.Controllers.Tickets
                         return BadRequest("Total attachments exceed 25MB");
                 }
 
-                // 1) Lưu message vào DB => lấy messageId (BIGINT)
+                // 1) Lưu message
                 var dto = await _ticketRepository.AddReplyAsync(cmd);
 
-                // 2) Upload file + lưu attachments
+                // 2) Upload + lưu attachments
                 var attachFilesVm = new List<AttachFileViewModel>();
                 if (hasFiles)
                 {
@@ -102,29 +87,21 @@ namespace Xtech.CMS.Controllers.Tickets
                     {
                         var url = await UpLoadHelper.UploadFileOrImage(f, dto.Id, 200);
                         if (!string.IsNullOrEmpty(url))
-                        {
-                            attachFilesVm.Add(new AttachFileViewModel
-                            {
-                                Url = url,
-                                Name = f.FileName
-                            });
-                        }
+                            attachFilesVm.Add(new AttachFileViewModel { Url = url, Name = f.FileName });
                     }
 
                     if (attachFilesVm.Any())
                         await _ticketRepository.InsertMessageAttachments(dto.Id, attachFilesVm);
                 }
 
-                // 3) Publish lên Redis channel TICKET_{ticketId}
-                //    - BE đang subscribe => BE HubContext broadcast tới WebUser browser ✅
-                //    - CMS đang subscribe => CMS HubContext broadcast tới CMS browser ✅
-                var createdAtStr = dto.CreatedAt;
+                // 3) Publish Redis
+                var createdAtStr = dto.CreatedAt; 
 
                 var payload = new
                 {
                     id = dto.Id,
                     ticketId = dto.TicketId,
-                    senderType = dto.SenderType,   // "Agent"
+                    senderType = dto.SenderType,
                     senderId = dto.SenderId,
                     content = dto.Content,
                     contentHtml = dto.ContentHtml,
@@ -132,8 +109,9 @@ namespace Xtech.CMS.Controllers.Tickets
                     attachFiles = attachFilesVm.Select(f => new { url = f.Url, name = f.Name })
                 };
 
-                var json = JsonSerializer.Serialize(payload);
-                await _subscriber.PublishAsync($"TICKET_{cmd.TicketId}", json);
+                await _subscriber.PublishAsync(
+                    $"TICKET_{cmd.TicketId}",
+                    JsonSerializer.Serialize(payload));
 
                 return Ok(new
                 {
@@ -159,7 +137,83 @@ namespace Xtech.CMS.Controllers.Tickets
         }
 
         // =====================================================================
-        // CHANGE STATUS
+        // CLOSE TICKET (AJAX) - CMS staff đóng ticket
+        // POST /Ticket/CloseTicket
+        // =====================================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseTicket([FromForm] Guid ticketId)
+        {
+            try
+            {
+                if (ticketId == Guid.Empty)
+                    return Ok(new { success = false, message = "Missing TicketId" });
+
+                // 1) Đổi status => Closed (3)
+                await _ticketRepository.UpdateStatusAsync(ticketId, TicketStatus.Closed);
+
+                // 2) Publish Redis => WebUser SSE nhận => hiển thị thông báo ticket đã đóng
+                var payload = new
+                {
+                    type = "status_changed",
+                    ticketId = ticketId,
+                    status = (int)TicketStatus.Closed,
+                    statusText = "Closed"
+                };
+
+                await _subscriber.PublishAsync(
+                    $"TICKET_{ticketId}",
+                    JsonSerializer.Serialize(payload));
+
+                return Ok(new { success = true, message = "Ticket đã được đóng." });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("TicketController.CloseTicket: " + ex);
+                return StatusCode(500, new { success = false, message = "Close ticket failed" });
+            }
+        }
+
+        // =====================================================================
+        // REOPEN TICKET (AJAX) - CMS staff mở lại ticket nếu cần
+        // POST /Ticket/ReopenTicket
+        // =====================================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReopenTicket([FromForm] Guid ticketId)
+        {
+            try
+            {
+                if (ticketId == Guid.Empty)
+                    return Ok(new { success = false, message = "Missing TicketId" });
+
+                // 1) Đổi status => Open (0)
+                await _ticketRepository.UpdateStatusAsync(ticketId, TicketStatus.Open);
+
+                // 2) Publish Redis => WebUser SSE nhận => cập nhật UI
+                var payload = new
+                {
+                    type = "status_changed",
+                    ticketId = ticketId,
+                    status = (int)TicketStatus.Open,
+                    statusText = "Open"
+                };
+
+                await _subscriber.PublishAsync(
+                    $"TICKET_{ticketId}",
+                    JsonSerializer.Serialize(payload));
+
+                return Ok(new { success = true, message = "Ticket đã được mở lại." });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("TicketController.ReopenTicket: " + ex);
+                return StatusCode(500, new { success = false, message = "Reopen ticket failed" });
+            }
+        }
+
+        // =====================================================================
+        // CHANGE STATUS (form submit - giữ nguyên cho các case khác)
         // =====================================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
