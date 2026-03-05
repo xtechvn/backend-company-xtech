@@ -120,7 +120,7 @@ var ticketDetail = {
                     ticketDetail.currentStatus = 3; // Closed
                     ticketDetail.renderStatusUI();
                 } else {
-                    alert(res?.message || 'Close ticket failed');
+                    alert(res?.message || 'Đóng ticket thất bại');
                 }
             },
             error: function (xhr) {
@@ -147,7 +147,7 @@ var ticketDetail = {
                     ticketDetail.currentStatus = 0; // Open
                     ticketDetail.renderStatusUI();
                 } else {
-                    alert(res?.message || 'Reopen ticket failed');
+                    alert(res?.message || 'Mở lại ticket thất bại');
                 }
             },
             error: function (xhr) {
@@ -164,7 +164,7 @@ var ticketDetail = {
         var files = window.__replyFiles || [];
 
         if (!content && (!files || files.length === 0)) {
-            alert('Please enter content or attach file.');
+            alert('Vui lòng nhập nội dung hoặc đính kèm file.');
             return;
         }
 
@@ -193,11 +193,11 @@ var ticketDetail = {
                     window.__replyFiles = [];
                     $('#txtReplyContent').val('');
                 } else {
-                    alert(res?.message || 'Reply failed');
+                    alert(res?.message || 'Gửi trả lời thất bại');
                 }
             },
             error: function (xhr) {
-                alert('HTTP ' + xhr.status + ': ' + (xhr.responseText || 'Request failed'));
+                alert('HTTP ' + xhr.status + ': ' + (xhr.responseText || 'Yêu cầu thất bại'));
             }
         });
     },

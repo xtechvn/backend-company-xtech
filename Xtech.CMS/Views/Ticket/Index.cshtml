@@ -1,9 +1,10 @@
 ﻿@using Entities.ViewModels.Tickets
+@using Entities.Models
 @model TicketIndexVm
 
 @{
     ViewData["Title"] = "Support Tickets";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Update layout if necessary
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <style>
@@ -36,32 +37,25 @@
         <!-- Page Header -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
             <div>
-                <h2 class="fw-bold">Support Tickets</h2>
+                <h2 class="fw-bold">Yêu cầu hỗ trợ</h2>
                 <p class="text-muted mb-0">
-                    Manage and track your enterprise support requests across all services.
+                    Quản lý và theo dõi các yêu cầu hỗ trợ của khách hàng.
                 </p>
             </div>
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-secondary">
-                    <i class="bi bi-funnel"></i> Filter
+                    <i class="bi bi-funnel"></i> Lọc
                 </button>
             </div>
         </div>
 
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <button class="nav-link active">All Tickets</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link">Open</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link">In Progress</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link">Resolved</button>
-            </li>
+            <li class="nav-item"><button class="nav-link active">Tất cả</button></li>
+            <li class="nav-item"><button class="nav-link">Mở</button></li>
+            <li class="nav-item"><button class="nav-link">Đang xử lý</button></li>
+            <li class="nav-item"><button class="nav-link">Đã giải quyết</button></li>
+            <li class="nav-item"><button class="nav-link">Đã đóng</button></li>
         </ul>
 
         <!-- Table Card -->
@@ -70,42 +64,44 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Ticket ID</th>
-                            <th>Service</th>
-                            <th>Subject</th>
-                            <th>Status</th>
-                            <th>Assigned Agent</th>
-                            <th>Last Update</th>
-                            <th class="text-end">Actions</th>
+                            <th>Mã ticket</th>
+                            <th>Dịch vụ</th>
+                            <th>Tiêu đề</th>
+                            <th>Trạng thái</th>
+                            <th>Phòng ban</th>
+                            <th>Cập nhật lần cuối</th>
+                            <th class="text-end">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model.Items != null && Model.Items.Any())
                         {
-                            foreach(var item in Model.Items)
+                            foreach (var item in Model.Items)
                             {
                                 <tr>
                                     <td class="fw-bold primary-text">
-                                        <a href="/Ticket/Detail/@item.Id" >
-                                            #@item.Code
-                                        </a>
+                                        <a href="/Ticket/Detail/@item.Id">#@item.Code</a>
                                     </td>
-                                           
-                                        
-                                    <td>@(item.ServiceName)</td>
+                                    <td>@item.ServiceName</td>
                                     <td>@item.Subject</td>
                                     <td>
-                                        @if(item.Status == Entities.Models.TicketStatus.Open)
+                                        @switch (item.Status)
                                         {
-                                            <span class="badge bg-primary">Open</span>
-                                        }
-                                        else if(item.Status == Entities.Models.TicketStatus.InProgress)
-                                        {
-                                            <span class="badge bg-warning text-dark">In Progress</span>
-                                        }
-                                        else 
-                                        {
-                                            <span class="badge bg-success">Resolved</span>
+                                            case TicketStatus.Open:
+                                                <span class="badge bg-primary">Mở</span>
+                                                break;
+                                            case TicketStatus.InProgress:
+                                                <span class="badge bg-warning text-dark">Đang xử lý</span>
+                                                break;
+                                            case TicketStatus.Resolved:
+                                                <span class="badge bg-success">Đã giải quyết</span>
+                                                break;
+                                            case TicketStatus.Closed:
+                                                <span class="badge bg-secondary">Đã đóng</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-light text-dark">@item.Status.ToString()</span>
+                                                break;
                                         }
                                     </td>
                                     <td>@item.DepartmentName</td>
@@ -118,35 +114,53 @@
                                 </tr>
                             }
                         }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Không có ticket nào.</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="card-footer d-flex justify-content-between align-items-center">
-                 @if (Model.Total > 0)
+                @if (Model.Total > 0)
                 {
                     <small class="text-muted">
-                        Showing <strong>@((Model.Query.Page - 1) * Model.Query.PageSize + 1)</strong> to <strong>@(Math.Min(Model.Query.Page * Model.Query.PageSize, Model.Total))</strong> of <strong>@Model.Total</strong> results
+                        Hiển thị <strong>@((Model.Query.Page - 1) * Model.Query.PageSize + 1)</strong>
+                        đến <strong>@(Math.Min(Model.Query.Page * Model.Query.PageSize, Model.Total))</strong>
+                        trong tổng số <strong>@Model.Total</strong> kết quả
                     </small>
                 }
                 else
                 {
-                    <small class="text-muted">No results found</small>
+                    <small class="text-muted">Không tìm thấy kết quả</small>
                 }
 
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">«</a>
+                        <li class="page-item @(Model.Query.Page <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(Model.Query.Page - 1)">«</a>
                         </li>
-                        <li class="page-item active">
-                            <a class="page-link primary-bg border-0" href="#">1</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">»</a>
+
+                        @{
+                            int totalPages = (int)Math.Ceiling((double)Model.Total / Model.Query.PageSize);
+                            int startPage = Math.Max(1, Model.Query.Page - 2);
+                            int endPage = Math.Min(totalPages, startPage + 4);
+                        }
+
+                        @for (int p = startPage; p <= endPage; p++)
+                        {
+                            <li class="page-item @(p == Model.Query.Page ? "active" : "")">
+                                <a class="page-link @(p == Model.Query.Page ? "primary-bg border-0 text-white" : "")"
+                                   href="?page=@p">@p</a>
+                            </li>
+                        }
+
+                        <li class="page-item @(Model.Query.Page >= totalPages ? "disabled" : "")">
+                            <a class="page-link" href="?page=@(Model.Query.Page + 1)">»</a>
                         </li>
                     </ul>
                 </nav>
