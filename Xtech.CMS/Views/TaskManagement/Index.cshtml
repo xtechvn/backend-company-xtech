@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Quản lý công việc";
+}
+
+<div class="row-main-container">
+    <div class="header-control p-4 border-b">
+        <h2 class="title text-2xl font-bold mb-4">Quản lý công việc</h2>
+        <ul class="nav nav-tabs task-tabs border-none" id="taskTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active font-medium border-none border-b-2 border-transparent active:border-primary active:text-primary px-4 py-2 cursor-pointer" 
+                   id="backlog-tab" data-target="backlog" role="tab">Backlog</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link font-medium border-none border-b-2 border-transparent hover:text-primary px-4 py-2 cursor-pointer" 
+                   id="board-tab" data-target="board" role="tab">Board</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content mt-4" id="taskManagementContent">
+        <!-- Content will be loaded here via AJAX -->
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <input type="hidden" id="currentProjectId" value="@ViewBag.ProjectId" />
+    <script src="~/modules/task_management.js"></script>
+    <script>
+        $(document).ready(function() {
+            var projectId = $("#currentProjectId").val();
+            taskManagement.initTabs(projectId);
+        });
+    </script>
+}
+
+<style>
+    .task-tabs .nav-link { color: #5e6c84; }
+    .task-tabs .nav-link.active { color: #0052cc; border-bottom: 2px solid #0052cc !important; }
+    .task-tabs .nav-link:hover { color: #0052cc; }
+</style>

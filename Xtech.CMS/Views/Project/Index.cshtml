@@ -1,0 +1,145 @@
+@model List<Entities.Models.Projects>
+@{
+    ViewData["Title"] = "Quản lý công việc";
+}
+
+<div class="row-main-container px-4 py-4">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold">Danh sách công việc</h2>
+            <p class="text-gray-500">Quản lý các dự án và không gian làm việc của bạn</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn btn-outline-secondary" onclick="project.seedData()">
+                <i class="bi bi-database-fill-add mr-1"></i> Data mẫu
+            </button>
+            <button class="btn btn-primary" onclick="project.openCreateModal()">
+                <i class="bi bi-plus-lg mr-1"></i> Tạo công việc mới
+            </button>
+        </div>
+    </div>
+
+    <div id="grid-data">
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create Project -->
+<div id="modal-create-project" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tạo công việc mới</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="project-id" value="0" />
+                <div class="form-group">
+                    <label>Tên công việc *</label>
+                    <input type="text" id="project-name" class="form-control" placeholder="Ví dụ: Dự án Website XTech" />
+                </div>
+                <div class="form-group mt-3">
+                    <label>Mô tả</label>
+                    <textarea id="project-description" class="form-control" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="project.saveProject()">Tạo mới</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var project = {
+            init: function() {
+                this.search();
+            },
+            search: function() {
+                $("#grid-data").html('<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>');
+                $.post("/Project/Search", {}, function (res) {
+                    $("#grid-data").html(res);
+                });
+            },
+            openCreateModal: function() {
+                $("#project-id").val(0);
+                $("#project-name").val("");
+                $("#project-description").val("");
+                
+                $("#modal-create-project .modal-title").text("Tạo công việc mới");
+                $("#modal-create-project .btn-primary").text("Tạo mới");
+                $('#modal-create-project').modal('show');
+            },
+            editProject: function(element) {
+                var btn = $(element);
+                var id = btn.attr("data-id");
+                var name = btn.attr("data-name");
+                var desc = btn.attr("data-desc");
+
+                $("#project-id").val(id);
+                $("#project-name").val(name);
+                $("#project-description").val(desc);
+                
+                $("#modal-create-project .modal-title").text("Sửa công việc");
+                $("#modal-create-project .btn-primary").text("Cập nhật");
+                $('#modal-create-project').modal('show');
+            },
+            seedData: function() {
+                if(confirm("Bạn có muốn tạo dữ liệu mẫu để test không?")) {
+                    $.post("/Project/SeedData", {}, function (res) {
+                        if (res.isSuccess) {
+                            toastr.success("Đã tạo dữ liệu mẫu thành công");
+                            project.search();
+                        } else {
+                            toastr.error(res.message || "Lỗi khi tạo dữ liệu mẫu");
+                        }
+                    });
+                }
+            },
+            saveProject: function() {
+                var id = $("#project-id").val();
+                var name = $("#project-name").val();
+                var desc = $("#project-description").val();
+
+                if (!name) {
+                    toastr.error("Vui lòng nhập tên công việc");
+                    return;
+                }
+
+                var data = {
+                    Id: parseInt(id) || 0,
+                    ProjectName: name,
+                    Description: desc
+                };
+
+                var url = data.Id > 0 ? "/Project/Update" : "/Project/Create";
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.isSuccess) {
+                            toastr.success(data.Id > 0 ? "Cập nhật công việc thành công" : "Tạo công việc thành công");
+                            $('#modal-create-project').modal('hide');
+                            project.search();
+                        } else {
+                            toastr.error(res.message || (data.Id > 0 ? "Lỗi khi cập nhật công việc" : "Lỗi khi tạo công việc"));
+                        }
+                    }
+                });
+            }
+        };
+
+        $(document).ready(function() {
+            project.init();
+        });
+    </script>
+}

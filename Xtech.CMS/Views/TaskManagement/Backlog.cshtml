@@ -1,0 +1,285 @@
+@using Entities.Models
+@{
+    Layout = null;
+    var sprints = ViewBag.Sprints as List<Sprint>;
+    var backlogTasks = ViewBag.BacklogTasks as List<ProjectTask>;
+}
+
+<div class="row-main-container px-4">
+    <div class="backlog-container">
+        <!-- Sprints -->
+        <div id="sprint-list">
+            @if (sprints != null && sprints.Count>0)
+            {
+                foreach (var sprint in sprints)
+                {
+                    <div class="sprint-item mb-4" data-id="@sprint.Id">
+                        <div class="sprint-header flex justify-between items-center p-3 bg-gray-100 rounded-t">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="sprint-select-all mr-3 cursor-pointer" data-target=".task-list[data-sprint-id='@sprint.Id'] .task-checkbox" />
+                                <i class="bi bi-chevron-down mr-2 cursor-pointer"></i>
+                                <span class="font-bold">@sprint.SprintName</span>
+                                <span class="ml-2 text-gray-500 text-sm">(@(sprint.StartDate?.ToString("dd/MM/yyyy") ?? "") - @(sprint.EndDate?.ToString("dd/MM/yyyy") ?? ""))</span>
+                            </div>
+                            <div class="flex items-center">
+                                @if (sprint.Status == 0)
+                                {
+                                    <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id)">Start Sprint</button>
+                                }
+                                else if (sprint.Status == 1)
+                                {
+                                    <span class="badge bg-success mr-2">Active</span>
+                                }
+                                <div class="dropdown">
+                                    <i class="bi bi-three-dots ml-3 cursor-pointer" data-toggle="dropdown"></i>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editSprint(@sprint.Id)">Edit sprint</a>
+                                        <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteSprint(@sprint.Id)">Delete sprint</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sprint-tasks p-2 border border-t-0 rounded-b min-h-[40px] task-list" data-sprint-id="@sprint.Id">
+                            @if (ViewBag.SprintTasks != null && ((Dictionary<long, List<ProjectTask>>)ViewBag.SprintTasks).ContainsKey(sprint.Id))
+                            {
+                                var tasks = ((Dictionary<long, List<ProjectTask>>)ViewBag.SprintTasks)[sprint.Id];
+                                foreach (var task in tasks)
+                                {
+                                    <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move flex justify-between items-center" data-id="@task.Id">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" class="task-checkbox mr-3 cursor-pointer" />
+                                           
+                                            <span>@task.Title</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="badge @(task.StatusId == 0 ? "bg-secondary" : task.StatusId == 1 ? "bg-info" : "bg-success") mr-2">
+                                                @(task.StatusId == 0 ? "To Do" : task.StatusId == 1 ? "In Progress" : "Done")
+                                            </span>
+                                            <div class="avatar-circle">US</div>
+                                            <div class="dropdown ml-2">
+                                                <i class="bi bi-three-dots cursor-pointer" data-toggle="dropdown"></i>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editTask(@task.Id)">Edit task</a>
+                                                    <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteTask(@task.Id)">Delete task</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Backlog -->
+        <div class="backlog-item mt-5">
+            <div class="backlog-header flex justify-between items-center p-3 bg-gray-200 rounded-t">
+                <div class="flex items-center">
+                    <input type="checkbox" class="sprint-select-all mr-3 cursor-pointer" data-target=".backlog-tasks .task-checkbox" />
+                    <span class="font-bold">Backlog</span>
+                </div>
+                <div>
+                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateSprintModal()">+ Create sprint</button>
+                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateTaskModal(null)">+ Create task</button>
+                </div>
+            </div>
+            <div class="backlog-tasks p-2 border border-t-0 rounded-b min-h-[100px] task-list" data-sprint-id="">
+                @if (backlogTasks != null && backlogTasks.Count > 0)
+                {
+                    foreach (var task in backlogTasks)
+                    {
+                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move flex justify-between items-center" data-id="@task.Id">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="task-checkbox mr-3 cursor-pointer" />
+                                <i class="bi bi-check-square mr-2 text-primary"></i>
+                                <span>@task.Title</span>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="badge @(task.StatusId == 0 ? "bg-secondary" : task.StatusId == 1 ? "bg-info" : "bg-success") mr-2">
+                                    @(task.StatusId == 0 ? "To Do" : task.StatusId == 1 ? "In Progress" : "Done")
+                                </span>
+                                <div class="avatar-circle">US</div>
+                                <div class="dropdown ml-2">
+                                    <i class="bi bi-three-dots cursor-pointer" data-toggle="dropdown"></i>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editTask(@task.Id)">Edit task</a>
+                                        <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteTask(@task.Id)">Delete task</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create Sprint -->
+<div id="modal-sprint" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Sprint</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Sprint Name *</label>
+                    <input type="text" id="sprint-name" class="form-control" />
+                </div>
+                <div class="form-group mt-3">
+                    <label>Duration</label>
+                    <select id="sprint-duration" class="form-control">
+                        <option value="1">1 week</option>
+                        <option value="2" selected>2 weeks</option>
+                        <option value="4">4 weeks</option>
+                        <option value="0">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3">
+                    <label>Start Date</label>
+                    <input type="date" id="sprint-start" class="form-control" />
+                </div>
+                <div class="form-group mt-3">
+                    <label>End Date</label>
+                    <input type="date" id="sprint-end" class="form-control" />
+                </div>
+                <div class="form-group mt-3">
+                    <label>Sprint Goal</label>
+                    <textarea id="sprint-goal" class="form-control"></textarea>
+                </div>
+                <input type="hidden" id="sprint-id-hidden" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="taskManagement.saveSprint()">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create Task -->
+<div id="modal-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Task</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Space *</label>
+                        <select id="task-project-id" class="form-control">
+                            <option value="">-- Choose Space --</option>
+                            @if (ViewBag.Projects != null)
+                            {
+                                foreach (var p in (List<Projects>)ViewBag.Projects)
+                                {
+                                    <option value="@p.Id" selected="@(ViewBag.ProjectId != null && (long)ViewBag.ProjectId == p.Id)">@p.ProjectName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Work type *</label>
+                        <select id="task-type" class="form-control">
+                            <option value="0">Task</option>
+                            <option value="1">Bug</option>
+                            <option value="2">Story</option>
+                            <option value="3">Epic</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Title *</label>
+                        <input type="text" id="task-title" class="form-control" placeholder="What needs to be done?" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Description</label>
+                        <textarea id="task-desc" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Assignee</label>
+                        <select id="task-assignee" class="form-control">
+                            <option value="">-- Unassigned --</option>
+                            @if (ViewBag.Users != null)
+                            {
+                                foreach (var u in (List<User>)ViewBag.Users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Reporter</label>
+                        <select id="task-reporter" class="form-control">
+                            <option value="">-- None --</option>
+                            @if (ViewBag.Users != null)
+                            {
+                                foreach (var u in (List<User>)ViewBag.Users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Priority</label>
+                        <select id="task-priority" class="form-control">
+                            <option value="0">Low</option>
+                            <option value="1" selected>Medium</option>
+                            <option value="2">High</option>
+                            <option value="3">Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Sprint</label>
+                        <select id="task-sprint-id-modal" class="form-control">
+                            <option value="">Backlog</option>
+                            @if (sprints != null)
+                            {
+                                foreach (var s in sprints)
+                                {
+                                    <option value="@s.Id">@s.SprintName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Story Point</label>
+                        <input type="number" id="task-story-point" class="form-control" min="0" step="1" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Due Date</label>
+                        <input type="date" id="task-due-date" class="form-control" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Label</label>
+                        <input type="text" id="task-label" class="form-control" placeholder="e.g. bug, enhancement" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Attachment</label>
+                        <input type="file" id="task-attachment" class="form-control" />
+                    </div>
+                </div>
+                <input type="hidden" id="task-id-hidden" />
+                <input type="hidden" id="task-status-hidden" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="taskManagement.saveTask()">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-move { cursor: move; }
+    .task-list { min-height: 50px; background: #fafafa; }
+    .task-card:hover { background: #f0f7ff !important; border-color: #0052cc !important; }
+    .avatar-circle { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+</style>

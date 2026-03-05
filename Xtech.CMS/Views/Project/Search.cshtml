@@ -1,0 +1,40 @@
+@model List<Entities.Models.Projects>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var item in Model)
+        {
+            <div class="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow p-5">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="bg-blue-100 p-2 rounded text-blue-600">
+                        <i class="bi bi-briefcase-fill text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-400">ID: #@item.Id</span>
+                </div>
+                <h3 class="font-bold text-lg mb-2">@item.ProjectName</h3>
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">@(string.IsNullOrEmpty(item.Description) ? "Không có mô tả" : item.Description)</p>
+                <div class="flex justify-between items-center pt-4 border-t">
+                    <div class="text-xs text-gray-500">
+                        <i class="bi bi-calendar3 mr-1"></i> @item.CreatedDate?.ToString("dd/MM/yyyy")
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="project.editProject(this)" data-id="@item.Id" data-name="@item.ProjectName" data-desc="@item.Description">
+                            <i class="bi bi-pencil"></i> Sửa
+                        </button>
+                        <a href="/TaskManagement/Index?projectId=@item.Id" class="btn btn-outline-primary btn-sm">
+                            Xem chi tiết <i class="bi bi-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-span-full border-2 border-dashed rounded-lg p-10 text-center bg-gray-50">
+            <i class="bi bi-folder2-open text-5xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">Chưa có công việc nào được tạo. Hãy tạo mới ngay!</p>
+        </div>
+    }
+</div>

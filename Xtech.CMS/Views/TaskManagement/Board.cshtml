@@ -1,0 +1,89 @@
+@using Entities.Models
+@{
+    Layout = null;
+    var activeSprint = ViewBag.ActiveSprint as Sprint;
+    var tasks = ViewBag.Tasks as List<ProjectTask>;
+}
+
+<div class="row-main-container px-4">
+    <div class="breadcrumbs text-sm text-gray-500 mb-4">
+        Projects / My Scrum Space / @(activeSprint?.SprintName ?? "No Active Sprint")
+    </div>
+
+    @if (activeSprint == null)
+    {
+        <div class="alert alert-info">
+            No active sprint. Please go to the <b>Backlog</b> tab and start a sprint.
+        </div>
+    }
+    else
+    {
+        <div class="board-container flex gap-4 overflow-x-auto">
+            <!-- TO DO -->
+            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="0">
+                <div class="column-header mb-3 flex justify-between items-center">
+                    <span class="font-bold text-gray-600">TO DO</span>
+                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 0) ?? 0)</span>
+                </div>
+                <div class="task-drop-zone h-full pb-20" data-status="0">
+                    @foreach (var task in tasks.Where(t => t.StatusId == 0))
+                    {
+                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move" data-id="@task.Id">
+                            <div class="text-sm mb-2">@task.Title</div>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="text-xs text-gray-400">#@task.Id</div>
+                                <div class="avatar-circle">US</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- IN PROGRESS -->
+            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="1">
+                <div class="column-header mb-3 flex justify-between items-center">
+                    <span class="font-bold text-gray-600">IN PROGRESS</span>
+                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 1) ?? 0)</span>
+                </div>
+                <div class="task-drop-zone h-full pb-20" data-status="1">
+                    @foreach (var task in tasks.Where(t => t.StatusId == 1))
+                    {
+                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move border-l-4 border-l-blue-500" data-id="@task.Id">
+                            <div class="text-sm mb-2">@task.Title</div>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="text-xs text-gray-400">#@task.Id</div>
+                                <div class="avatar-circle">US</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- DONE -->
+            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="2">
+                <div class="column-header mb-3 flex justify-between items-center">
+                    <span class="font-bold text-gray-600">DONE</span>
+                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 2) ?? 0)</span>
+                </div>
+                <div class="task-drop-zone h-full pb-20" data-status="2">
+                    @foreach (var task in tasks.Where(t => t.StatusId == 2))
+                    {
+                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move opacity-75" data-id="@task.Id">
+                            <div class="text-sm mb-2 line-through text-gray-500">@task.Title</div>
+                            <div class="flex justify-between items-center mt-2">
+                                <div class="text-xs text-gray-400">#@task.Id</div>
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .cursor-move { cursor: move; }
+    .task-card:hover { background: #f9fafb !important; }
+    .avatar-circle { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+</style>
