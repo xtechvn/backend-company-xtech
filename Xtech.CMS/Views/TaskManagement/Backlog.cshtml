@@ -24,11 +24,11 @@
                             <div class="flex items-center">
                                 @if (sprint.Status == 0)
                                 {
-                                    <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id)">Start Sprint</button>
+                                    <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id,1)">Start Sprint</button>
                                 }
                                 else if (sprint.Status == 1)
                                 {
-                                    <span class="badge bg-success mr-2">Active</span>
+                                    <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id,0)">Complete Sprint</button>
                                 }
                                 <div class="dropdown">
                                     <i class="bi bi-three-dots ml-3 cursor-pointer" data-toggle="dropdown"></i>
@@ -48,7 +48,7 @@
                                     <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move flex justify-between items-center" data-id="@task.Id">
                                         <div class="flex items-center">
                                             <input type="checkbox" class="task-checkbox mr-3 cursor-pointer" />
-                                           
+                                            <i class="bi bi-check-square mr-2 text-primary"></i>
                                             <span>@task.Title</span>
                                         </div>
                                         <div class="flex items-center">
@@ -172,7 +172,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label>Space *</label>
+                        <label>Dự án (Space)*</label>
                         <select id="task-project-id" class="form-control">
                             <option value="">-- Choose Space --</option>
                             @if (ViewBag.Projects != null)
@@ -185,7 +185,7 @@
                         </select>
                     </div>
                     <div class="col-md-6 form-group">
-                        <label>Work type *</label>
+                        <label>Loại công việc(Work type)</label>
                         <select id="task-type" class="form-control">
                             <option value="0">Task</option>
                             <option value="1">Bug</option>
@@ -194,17 +194,16 @@
                         </select>
                     </div>
                     <div class="col-md-12 form-group mt-3">
-                        <label>Title *</label>
+                        <label>Tên công việc (Title) *</label>
                         <input type="text" id="task-title" class="form-control" placeholder="What needs to be done?" />
                     </div>
                     <div class="col-md-12 form-group mt-3">
-                        <label>Description</label>
+                        <label>Mô tả (Description)</label>
                         <textarea id="task-desc" class="form-control" rows="4"></textarea>
                     </div>
                     <div class="col-md-6 form-group mt-3">
-                        <label>Assignee</label>
+                        <label>Người phụ trách (Assignee)</label>
                         <select id="task-assignee" class="form-control">
-                            <option value="">-- Unassigned --</option>
                             @if (ViewBag.Users != null)
                             {
                                 foreach (var u in (List<User>)ViewBag.Users)
@@ -215,9 +214,8 @@
                         </select>
                     </div>
                     <div class="col-md-6 form-group mt-3">
-                        <label>Reporter</label>
+                        <label>Người báo cáo (Reporter)</label>
                         <select id="task-reporter" class="form-control">
-                            <option value="">-- None --</option>
                             @if (ViewBag.Users != null)
                             {
                                 foreach (var u in (List<User>)ViewBag.Users)
@@ -228,7 +226,7 @@
                         </select>
                     </div>
                     <div class="col-md-4 form-group mt-3">
-                        <label>Priority</label>
+                        <label>Độ ưu tiên (Priority)</label>
                         <select id="task-priority" class="form-control">
                             <option value="0">Low</option>
                             <option value="1" selected>Medium</option>
@@ -237,7 +235,7 @@
                         </select>
                     </div>
                     <div class="col-md-4 form-group mt-3">
-                        <label>Sprint</label>
+                        <label>Khối lượng công việc (Sprint)</label>
                         <select id="task-sprint-id-modal" class="form-control">
                             <option value="">Backlog</option>
                             @if (sprints != null)
@@ -254,7 +252,7 @@
                         <input type="number" id="task-story-point" class="form-control" min="0" step="1" />
                     </div>
                     <div class="col-md-6 form-group mt-3">
-                        <label>Due Date</label>
+                        <label>Ngày hết hạn (Due Date)</label>
                         <input type="date" id="task-due-date" class="form-control" />
                     </div>
                     <div class="col-md-6 form-group mt-3">
@@ -262,7 +260,7 @@
                         <input type="text" id="task-label" class="form-control" placeholder="e.g. bug, enhancement" />
                     </div>
                     <div class="col-md-12 form-group mt-3">
-                        <label>Attachment</label>
+                        <label>File đính kèm (Attachment)</label>
                         <input type="file" id="task-attachment" class="form-control" />
                     </div>
                 </div>
@@ -278,7 +276,9 @@
 </div>
 
 <style>
-    .cursor-move { cursor: move; }
+    .cursor-move { cursor: grab; }
+    .cursor-move:active { cursor: grabbing; }
+    .task-card.ui-sortable-helper { cursor: grabbing !important; }
     .task-list { min-height: 50px; background: #fafafa; }
     .task-card:hover { background: #f0f7ff !important; border-color: #0052cc !important; }
     .avatar-circle { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }

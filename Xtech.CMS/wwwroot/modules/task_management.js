@@ -166,7 +166,7 @@ var taskManagement = {
             success: function (res) {
                 if (res.isSuccess) {
                     taskManagement.loadContent("backlog");
-                    $("#modal-sprint").modal("hide");
+                    $.magnificPopup.close();
                     toastr.success("Sprint saved successfully");
                 } else {
                     toastr.error("Failed to save sprint");
@@ -332,7 +332,7 @@ var taskManagement = {
         });
     },
 
-    startSprint: function (sprintId) {
+    startSprint: function (sprintId,status) {
         Swal.fire({
             title: 'Start Sprint?',
             text: "This will set the sprint as active.",
@@ -340,8 +340,8 @@ var taskManagement = {
             showCancelButton: true,
             confirmButtonText: 'Yes, start it!'
         }).then((result) => {
-            if (result.isConfirmed) {
-                $.post("/TaskManagement/StartSprint", { sprintId: sprintId }, function (res) {
+            if (result.isConfirmed || result.value) {
+                $.post("/TaskManagement/StartSprint", { sprintId: sprintId, status: status }, function (res) {
                     if (res.isSuccess) {
                         toastr.success("Sprint started");
                         location.reload();
@@ -354,7 +354,7 @@ var taskManagement = {
     updateStatus: function (taskId, status) {
         $.post("/TaskManagement/UpdateTaskStatus", { taskId: taskId, status: status }, function (res) {
             if (res.isSuccess) {
-                toastr.success("Status updated");
+               // toastr.success("Status updated");
             } else {
                 toastr.error("Failed to update status");
             }

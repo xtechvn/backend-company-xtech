@@ -76,6 +76,7 @@ builder.Services.AddTransient<ITicketRepository, TicketRepository>();
 builder.Services.AddTransient<ISprintRepository, SprintRepository>();
 builder.Services.AddTransient<IProjectTaskRepository, ProjectTaskRepository>();
 builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+builder.Services.AddTransient<ITaskCommentRepository, TaskCommentRepository>();
 
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();

@@ -1726,7 +1726,7 @@ namespace Entities.Models
 
             modelBuilder.Entity<TaskComment>(entity =>
             {
-                entity.ToTable("TaskComment");
+                entity.ToTable("TaskComments");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             });

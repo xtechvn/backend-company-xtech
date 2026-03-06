@@ -2,12 +2,20 @@
 @{
     Layout = null;
     var activeSprint = ViewBag.ActiveSprint as Sprint;
-    var tasks = ViewBag.Tasks as List<ProjectTask>;
+    var sprints = ViewBag.Sprints as List<Sprint>;
+    var sprintTasks = ViewBag.SprintTasks as Dictionary<long, List<ProjectTask>>;
+    var users = ViewBag.Users as List<User>;
 }
 
 <div class="row-main-container px-4">
-    <div class="breadcrumbs text-sm text-gray-500 mb-4">
-        Projects / My Scrum Space / @(activeSprint?.SprintName ?? "No Active Sprint")
+    <div class="breadcrumbs text-sm text-gray-500 mb-4 flex justify-between items-center">
+        <span>Projects / My Scrum Space / Board</span>
+        @if (activeSprint != null)
+        {
+            <button class="btn btn-primary btn-sm" onclick="boardTaskManagement.showCreateTaskModal()">
+                <i class="bi bi-plus"></i> Create task
+            </button>
+        }
     </div>
 
     @if (activeSprint == null)
@@ -16,74 +24,244 @@
             No active sprint. Please go to the <b>Backlog</b> tab and start a sprint.
         </div>
     }
+    else if (sprints == null || !sprints.Any())
+    {
+        <div class="alert alert-info">
+            No sprints found. Please go to the <b>Backlog</b> tab to create sprints.
+        </div>
+    }
     else
     {
-        <div class="board-container flex gap-4 overflow-x-auto">
-            <!-- TO DO -->
-            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="0">
-                <div class="column-header mb-3 flex justify-between items-center">
-                    <span class="font-bold text-gray-600">TO DO</span>
-                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 0) ?? 0)</span>
-                </div>
-                <div class="task-drop-zone h-full pb-20" data-status="0">
-                    @foreach (var task in tasks.Where(t => t.StatusId == 0))
-                    {
-                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move" data-id="@task.Id">
-                            <div class="text-sm mb-2">@task.Title</div>
-                            <div class="flex justify-between items-center mt-2">
-                                <div class="text-xs text-gray-400">#@task.Id</div>
-                                <div class="avatar-circle">US</div>
-                            </div>
+        @foreach (var sprint in sprints.OrderByDescending(s => s.Status).ThenByDescending(s => s.StartDate))
+        {
+            var tasks = sprintTasks != null && sprintTasks.ContainsKey(sprint.Id) ? sprintTasks[sprint.Id] : new List<ProjectTask>();
+            var statusBadge = sprint.Status == 1 ? "badge-success" : (sprint.Status == 2 ? "badge-secondary" : "badge-warning");
+            var statusText = sprint.Status == 1 ? "Active" : (sprint.Status == 2 ? "Completed" : "Future");
+            
+            <div class="sprint-section mb-5">
+                <div class="sprint-header mb-3 p-3 bg-white border rounded">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h5 class="mb-1">
+                                @sprint.SprintName
+                                <span class="badge @statusBadge ml-2">@statusText</span>
+                            </h5>
+                            <small class="text-muted">
+                                @if (sprint.StartDate.HasValue && sprint.EndDate.HasValue)
+                                {
+                                    <span>@sprint.StartDate.Value.ToString("dd/MM/yyyy") - @sprint.EndDate.Value.ToString("dd/MM/yyyy")</span>
+                                }
+                            </small>
                         </div>
-                    }
+                        <div class="text-muted">
+                            <small>@tasks.Count task(s)</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- IN PROGRESS -->
-            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="1">
-                <div class="column-header mb-3 flex justify-between items-center">
-                    <span class="font-bold text-gray-600">IN PROGRESS</span>
-                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 1) ?? 0)</span>
-                </div>
-                <div class="task-drop-zone h-full pb-20" data-status="1">
-                    @foreach (var task in tasks.Where(t => t.StatusId == 1))
-                    {
-                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move border-l-4 border-l-blue-500" data-id="@task.Id">
-                            <div class="text-sm mb-2">@task.Title</div>
-                            <div class="flex justify-between items-center mt-2">
-                                <div class="text-xs text-gray-400">#@task.Id</div>
-                                <div class="avatar-circle">US</div>
-                            </div>
+                <div class="board-container flex gap-4 overflow-x-auto">
+                    <!-- TO DO -->
+                    <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[400px]" data-status="0" data-sprint="@sprint.Id">
+                        <div class="column-header mb-3 flex justify-between items-center">
+                            <span class="font-bold text-gray-600">TO DO</span>
+                            <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 0) ?? 0)</span>
                         </div>
-                    }
-                </div>
-            </div>
+                        <div class="task-drop-zone h-full pb-20" data-status="0" data-sprint="@sprint.Id">
+                            @foreach (var task in tasks.Where(t => t.StatusId == 0))
+                            {
+                                var assignee = users?.FirstOrDefault(u => u.Id == task.AssigneeId);
+                                var initials = assignee != null ? (assignee.FullName?.Length > 0 ? assignee.FullName.Substring(0, Math.Min(2, assignee.FullName.Length)).ToUpper() : "U") : "U";
+                                <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move" data-id="@task.Id" data-sprint="@sprint.Id">
+                                    <div class="text-sm mb-2">@task.Title</div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <div class="text-xs text-gray-400">#@task.Id</div>
+                                        <div class="avatar-circle" title="@(assignee?.FullName ?? "Unassigned")">@initials</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
 
-            <!-- DONE -->
-            <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[500px]" data-status="2">
-                <div class="column-header mb-3 flex justify-between items-center">
-                    <span class="font-bold text-gray-600">DONE</span>
-                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 2) ?? 0)</span>
-                </div>
-                <div class="task-drop-zone h-full pb-20" data-status="2">
-                    @foreach (var task in tasks.Where(t => t.StatusId == 2))
-                    {
-                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move opacity-75" data-id="@task.Id">
-                            <div class="text-sm mb-2 line-through text-gray-500">@task.Title</div>
-                            <div class="flex justify-between items-center mt-2">
-                                <div class="text-xs text-gray-400">#@task.Id</div>
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                            </div>
+                    <!-- IN PROGRESS -->
+                    <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[400px]" data-status="1" data-sprint="@sprint.Id">
+                        <div class="column-header mb-3 flex justify-between items-center">
+                            <span class="font-bold text-gray-600">IN PROGRESS</span>
+                            <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 1) ?? 0)</span>
                         </div>
-                    }
+                        <div class="task-drop-zone h-full pb-20" data-status="1" data-sprint="@sprint.Id">
+                            @foreach (var task in tasks.Where(t => t.StatusId == 1))
+                            {
+                                var assignee = users?.FirstOrDefault(u => u.Id == task.AssigneeId);
+                                var initials = assignee != null ? (assignee.FullName?.Length > 0 ? assignee.FullName.Substring(0, Math.Min(2, assignee.FullName.Length)).ToUpper() : "U") : "U";
+                                <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move border-l-4 border-l-blue-500" data-id="@task.Id" data-sprint="@sprint.Id">
+                                    <div class="text-sm mb-2">@task.Title</div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <div class="text-xs text-gray-400">#@task.Id</div>
+                                        <div class="avatar-circle" title="@(assignee?.FullName ?? "Unassigned")">@initials</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- DONE -->
+                    <div class="board-column w-80 bg-gray-100 rounded-lg p-3 min-h-[400px]" data-status="2" data-sprint="@sprint.Id">
+                        <div class="column-header mb-3 flex justify-between items-center">
+                            <span class="font-bold text-gray-600">DONE</span>
+                            <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@(tasks?.Count(t => t.StatusId == 2) ?? 0)</span>
+                        </div>
+                        <div class="task-drop-zone h-full pb-20" data-status="2" data-sprint="@sprint.Id">
+                            @foreach (var task in tasks.Where(t => t.StatusId == 2))
+                            {
+                                var assignee = users?.FirstOrDefault(u => u.Id == task.AssigneeId);
+                                var initials = assignee != null ? (assignee.FullName?.Length > 0 ? assignee.FullName.Substring(0, Math.Min(2, assignee.FullName.Length)).ToUpper() : "U") : "U";
+                                <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move opacity-75" data-id="@task.Id" data-sprint="@sprint.Id">
+                                    <div class="text-sm mb-2 line-through text-gray-500">@task.Title</div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <div class="text-xs text-gray-400">#@task.Id</div>
+                                        <div class="avatar-circle" title="@(assignee?.FullName ?? "Unassigned")">@initials</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     }
 </div>
 
+<!-- Modal Create Task -->
+<div id="modal-create-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Task</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Dự án (Space)*</label>
+                        <select id="task-project-id" class="form-control">
+                            <option value="">-- Choose Space --</option>
+                            @if (ViewBag.Projects != null)
+                            {
+                                foreach (var p in (List<Projects>)ViewBag.Projects)
+                                {
+                                    <option value="@p.Id" selected="@(ViewBag.ProjectId != null && (long)ViewBag.ProjectId == p.Id)">@p.ProjectName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Loại công việc(Work type)</label>
+                        <select id="task-type" class="form-control">
+                            <option value="0">Task</option>
+                            <option value="1">Bug</option>
+                            <option value="2">Story</option>
+                            <option value="3">Epic</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Tên công việc (Title) *</label>
+                        <input type="text" id="task-title-create" class="form-control" placeholder="What needs to be done?" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Mô tả (Description)</label>
+                        <textarea id="task-desc" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Người phụ trách (Assignee)</label>
+                        <select id="task-assignee-create" class="form-control">
+                            <option value="">Unassigned</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Người báo cáo (Reporter)</label>
+                        <select id="task-reporter-create" class="form-control">
+                            <option value="">Unassigned</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Độ ưu tiên (Priority)</label>
+                        <select id="task-priority" class="form-control">
+                            <option value="0">Low</option>
+                            <option value="1" selected>Medium</option>
+                            <option value="2">High</option>
+                            <option value="3">Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Trạng thái (Status)</label>
+                        <select id="task-status-create" class="form-control">
+                            <option value="0">TO DO</option>
+                            <option value="1">IN PROGRESS</option>
+                            <option value="2">DONE</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Story Point</label>
+                        <input type="number" id="task-story-point" class="form-control" min="0" step="1" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Ngày hết hạn (Due Date)</label>
+                        <input type="date" id="task-due-date" class="form-control" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Label</label>
+                        <input type="text" id="task-label" class="form-control" placeholder="e.g. bug, enhancement" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>File đính kèm (Attachment)</label>
+                        <input type="file" id="task-attachment" class="form-control" />
+                    </div>
+                </div>
+                <input type="hidden" id="task-sprint-id" value="@(activeSprint?.Id ?? 0)" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="boardTaskManagement.saveTask()">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-    .cursor-move { cursor: move; }
-    .task-card:hover { background: #f9fafb !important; }
-    .avatar-circle { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+    #modal-task-detail { max-width: 1200px !important; margin: 0 auto; }
+    .grid-border-right { border-right: 1px solid #ddd; padding-right: 15px; }
+    .comment-list .comment-item { border-bottom: 1px solid #f1f1f1; padding: 10px 0; }
+    .comment-list .comment-item:last-child { border-bottom: none; }
+    .task-card { transition: background-color 0.2s, box-shadow 0.2s; }
+    .task-card:hover { background: #f9fafb !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    .avatar-circle { width: 32px; height: 32px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500;}
+    .avatar-circle-sm { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+    .cursor-move { cursor: grab; }
+    .cursor-move:active { cursor: grabbing; }
+    .task-card.ui-sortable-helper { cursor: grabbing !important; }
+    .task-placeholder { background: #e3f2fd; border: 2px dashed #2196f3; height: 80px; margin-bottom: 8px; border-radius: 4px; }
+    .task-card.dragging { opacity: 0.5; transform: rotate(2deg); cursor: grabbing !important; }
+    .task-drop-zone { min-height: 100px; }
+    .white-popup { max-width: 1200px !important; }
+    .sprint-section { border-left: 4px solid #0052cc; padding-left: 10px; }
+    .sprint-header { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .badge-success { background-color: #28a745; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
+    .badge-warning { background-color: #ffc107; color: #333; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
+    .badge-secondary { background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
 </style>
+
+<script src="~/modules/board_management.js"></script>

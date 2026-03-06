@@ -23,14 +23,16 @@ namespace WEB.CMS.Controllers.WorkManagement
         private readonly IProjectTaskRepository _projectTaskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ITaskCommentRepository _taskCommentRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public TaskManagementController(ISprintRepository sprintRepository, IProjectTaskRepository projectTaskRepository, IProjectRepository projectRepository, IUserRepository userRepository, IWebHostEnvironment webHostEnvironment)
+        public TaskManagementController(ISprintRepository sprintRepository, IProjectTaskRepository projectTaskRepository, IProjectRepository projectRepository, IUserRepository userRepository, ITaskCommentRepository taskCommentRepository, IWebHostEnvironment webHostEnvironment)
         {
             _sprintRepository = sprintRepository;
             _projectTaskRepository = projectTaskRepository;
             _projectRepository = projectRepository;
             _userRepository = userRepository;
+            _taskCommentRepository = taskCommentRepository;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -70,13 +72,83 @@ namespace WEB.CMS.Controllers.WorkManagement
         public async Task<IActionResult> Board(long? projectId)
         {
             var activeSprint = (await _sprintRepository.GetAllSprints(projectId)).FirstOrDefault(s => s.Status == 1); // Active
-            var tasks = activeSprint != null ? await _projectTaskRepository.GetTasksBySprint(activeSprint.Id, projectId) : new List<ProjectTask>();
+            var allSprints = await _sprintRepository.GetAllSprints(projectId);
+            
+            // Get tasks for each sprint
+            var sprintTasks = new Dictionary<long, List<ProjectTask>>();
+            if (allSprints != null)
+            {
+                foreach (var sprint in allSprints)
+                {
+                    var tasks = await _projectTaskRepository.GetTasksBySprint(sprint.Id, projectId);
+                    sprintTasks[sprint.Id] = tasks;
+                }
+            }
+            
             var users = _userRepository.GetAll();
+            var projects = await _projectRepository.GetAllProjects();
             ViewBag.ProjectId = projectId;
             ViewBag.ActiveSprint = activeSprint;
-            ViewBag.Tasks = tasks;
+            ViewBag.Sprints = allSprints;
+            ViewBag.SprintTasks = sprintTasks;
             ViewBag.Users = users;
+            ViewBag.Projects = projects;
             return PartialView();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TaskDetail(long id)
+        {
+            var task = await _projectTaskRepository.GetById(id);
+            var users = _userRepository.GetAll();
+            var comments = await _taskCommentRepository.GetCommentsByTaskId(id);
+            ViewBag.Task = task;
+            ViewBag.Users = users;
+            ViewBag.Comments = comments;
+            return PartialView();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddComment([FromBody] TaskComment model)
+        {
+            try
+            {
+                var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                model.UserId = userId;
+                model.CreatedDate = DateTime.Now;
+                
+                var id = await _taskCommentRepository.CreateComment(model);
+                
+                // Get user info for response
+                var user = _userRepository.GetAll().FirstOrDefault(u => u.Id == userId);
+                
+                return Json(new { 
+                    isSuccess = id > 0, 
+                    id = id,
+                    userName = user?.FullName ?? "User",
+                    createdDate = model.CreatedDate?.ToString("dd/MM/yyyy HH:mm")
+                });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("AddComment - TaskManagementController: " + ex);
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(long id)
+        {
+            try
+            {
+                var success = await _taskCommentRepository.DeleteComment(id);
+                return Json(new { isSuccess = success });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("DeleteComment - TaskManagementController: " + ex);
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
@@ -223,11 +295,11 @@ namespace WEB.CMS.Controllers.WorkManagement
         }
 
         [HttpPost]
-        public async Task<IActionResult> StartSprint(long sprintId)
+        public async Task<IActionResult> StartSprint(long sprintId,int status)
         {
             try
             {
-                var success = await _sprintRepository.UpdateStatus(sprintId, 1);
+                var success = await _sprintRepository.UpdateStatus(sprintId, status);
                 return Json(new { isSuccess = success });
             }
             catch (Exception ex)

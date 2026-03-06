@@ -23,6 +23,11 @@ namespace Repositories.Repositories
             return await _projectTaskDAL.GetTasksBySprint(sprintId, projectId);
         }
 
+        public async Task<List<ProjectTask>> GetTasksBySprints(List<long> sprintIds, long? projectId = null)
+        {
+            return await _projectTaskDAL.GetTasksBySprints(sprintIds, projectId);
+        }
+
         public async Task<long> Upsert(ProjectTask model)
         {
             return await _projectTaskDAL.Upsert(model);

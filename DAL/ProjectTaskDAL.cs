@@ -35,6 +35,26 @@ namespace DAL
             }
         }
 
+        public async System.Threading.Tasks.Task<List<ProjectTask>> GetTasksBySprints(List<long> sprintIds, long? projectId = null)
+        {
+            try
+            {
+                using (var _DbContext = new EntityDataContext(_connection))
+                {
+                    var query = _DbContext.ProjectTasks.AsQueryable();
+                    if (projectId != null) query = query.Where(t => t.ProjectId == projectId);
+                    query = query.Where(t => t.SprintId.HasValue && sprintIds.Contains(t.SprintId.Value));
+                    
+                    return await query.OrderBy(t => t.TaskOrder).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("GetTasksBySprints - ProjectTaskDAL: " + ex);
+                return new List<ProjectTask>();
+            }
+        }
+
         public async System.Threading.Tasks.Task<long> Upsert(ProjectTask model)
         {
             try
