@@ -46,7 +46,7 @@ namespace WEB.CMS.Controllers.WorkManagement
         {
             var sprints = await _sprintRepository.GetAllSprints(projectId);
             var backlogTasks = await _projectTaskRepository.GetTasksBySprint(null, projectId);
-            
+
             // Fetch tasks for each sprint
             var sprintTasks = new Dictionary<long, List<ProjectTask>>();
             if (sprints != null)
@@ -73,7 +73,10 @@ namespace WEB.CMS.Controllers.WorkManagement
         {
             var activeSprint = (await _sprintRepository.GetAllSprints(projectId)).FirstOrDefault(s => s.Status == 1); // Active
             var allSprints = await _sprintRepository.GetAllSprints(projectId);
-            
+            if (allSprints != null && allSprints.Count > 0)
+            {
+                allSprints = allSprints.Where(s => s.Status == (int)SprintStatus.start).ToList();
+            }
             // Get tasks for each sprint
             var sprintTasks = new Dictionary<long, List<ProjectTask>>();
             if (allSprints != null)
@@ -84,7 +87,7 @@ namespace WEB.CMS.Controllers.WorkManagement
                     sprintTasks[sprint.Id] = tasks;
                 }
             }
-            
+
             var users = _userRepository.GetAll();
             var projects = await _projectRepository.GetAllProjects();
             ViewBag.ProjectId = projectId;
@@ -116,14 +119,15 @@ namespace WEB.CMS.Controllers.WorkManagement
                 var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                 model.UserId = userId;
                 model.CreatedDate = DateTime.Now;
-                
+
                 var id = await _taskCommentRepository.CreateComment(model);
-                
+
                 // Get user info for response
                 var user = _userRepository.GetAll().FirstOrDefault(u => u.Id == userId);
-                
-                return Json(new { 
-                    isSuccess = id > 0, 
+
+                return Json(new
+                {
+                    isSuccess = id > 0,
                     id = id,
                     userName = user?.FullName ?? "User",
                     createdDate = model.CreatedDate?.ToString("dd/MM/yyyy HH:mm")
@@ -197,7 +201,7 @@ namespace WEB.CMS.Controllers.WorkManagement
             try
             {
                 var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                
+
                 var task = new ProjectTask
                 {
                     Id = model.Id ?? 0,
@@ -295,7 +299,7 @@ namespace WEB.CMS.Controllers.WorkManagement
         }
 
         [HttpPost]
-        public async Task<IActionResult> StartSprint(long sprintId,int status)
+        public async Task<IActionResult> StartSprint(long sprintId, int status)
         {
             try
             {
@@ -323,6 +327,45 @@ namespace WEB.CMS.Controllers.WorkManagement
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaskDetails([FromBody] UpdateTaskDetailsModel model)
+        {
+            try
+            {
+                var task = await _projectTaskRepository.GetById(model.TaskId);
+                if (task == null)
+                {
+                    return Json(new { isSuccess = false, message = "Task not found" });
+                }
+
+                var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                task.Title = model.Title ?? task.Title;
+                task.Description = model.Description ?? task.Description;
+                task.AssigneeId = model.AssigneeId.HasValue ? (int?)model.AssigneeId.Value : task.AssigneeId;
+                task.ReporterId = model.ReporterId.HasValue ? (int?)model.ReporterId.Value : task.ReporterId;
+                task.ModifiedBy = (int?)userId;
+                task.ModifiedDate = DateTime.Now;
+
+                var id = await _projectTaskRepository.Upsert(task);
+                return Json(new { isSuccess = id > 0 });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("UpdateTaskDetails - TaskManagementController: " + ex);
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+    }
+
+    public class UpdateTaskDetailsModel
+    {
+        public long TaskId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public long? AssigneeId { get; set; }
+        public long? ReporterId { get; set; }
     }
 
     public class ProjectTaskViewModel

@@ -165,12 +165,26 @@ var taskManagement = {
             data: JSON.stringify(data),
             success: function (res) {
                 if (res.isSuccess) {
-                    taskManagement.loadContent("backlog");
-                    $.magnificPopup.close();
-                    toastr.success("Sprint saved successfully");
+                    // Close modal first
+                    $("#modal-sprint").modal("hide");
+                    
+                    // Wait for modal to close, then clean up and reload
+                    setTimeout(function() {
+                        // Force remove all backdrops and modal-open class
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        // Reload content
+                        taskManagement.loadContent("backlog");
+                        toastr.success("Sprint saved successfully");
+                        location.reload();
+                    }, 300);
                 } else {
                     toastr.error("Failed to save sprint");
                 }
+            },
+            error: function() {
+                toastr.error("An error occurred while saving sprint");
             }
         });
     },
@@ -246,12 +260,26 @@ var taskManagement = {
             contentType: false,
             success: function (res) {
                 if (res.isSuccess) {
-                    taskManagement.loadContent("backlog");
-                    $.magnificPopup.close();
-                    toastr.success("Task saved successfully");
+                    // Close modal first
+                    $("#modal-task").modal("hide");
+                    
+                    // Wait for modal to close, then clean up and reload
+                    setTimeout(function() {
+                        // Force remove all backdrops and modal-open class
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        // Reload content
+                        taskManagement.loadContent("backlog");
+                        toastr.success("Task saved successfully");
+                        location.reload();
+                    }, 300);
                 } else {
                     toastr.error(res.message || "Failed to save task");
                 }
+            },
+            error: function() {
+                toastr.error("An error occurred while saving task");
             }
         });
     },

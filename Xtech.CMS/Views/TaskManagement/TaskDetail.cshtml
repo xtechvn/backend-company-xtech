@@ -10,16 +10,20 @@
     <div class="col-md-8 grid-border-right" style="max-height: 75vh; overflow-y: auto;">
         <div>
             <input type="text" class="form-control mb20" id="detail-task-title" style="font-size: 20px; font-weight: bold; height: auto;" placeholder="Task Title Here" value="@task?.Title" />
+            <div class="mt5 mb20" id="title-actions" style="display: none; gap: 8px;">
+                <button class="btn btn-primary btn-sm" id="btn-save-title" style="min-width: 70px;">Save</button>
+                <button class="btn btn-default btn-sm" id="btn-cancel-title" style="min-width: 70px;">Cancel</button>
+            </div>
             
             <div class="mb20">
                 <label class="lbl" style="font-size: 16px;">Description</label>
-                <textarea class="form-control" rows="4" placeholder="Add a description...">@task?.Description</textarea>
-                <div class="mt5" id="desc-actions" style="display: none;">
-                    <button class="btn btn-primary btn-sm">Save</button>
-                    <button class="btn btn-default btn-sm">Cancel</button>
+                <textarea class="form-control" rows="4" placeholder="Add a description..." id="detail-description">@task?.Description</textarea>
+                <div class="mt5" id="desc-actions" style="display: none; gap: 8px;">
+                    <button class="btn btn-primary btn-sm" id="btn-save-description" style="min-width: 70px;">Save</button>
+                    <button class="btn btn-default btn-sm" id="btn-cancel-description" style="min-width: 70px;">Cancel</button>
                 </div>
             </div>
-            
+            <!-- 
             <div class="mb20">
                 <label class="lbl" style="font-size: 16px;">Subtasks</label>
                 <div class="mb10">
@@ -33,7 +37,7 @@
                     <button class="btn btn-default btn-sm"><i class="bi bi-plus"></i> Add linked issue</button>
                 </div>
             </div>
-
+            -->
             <!-- Activity / Comments -->
             <div class="mt20">
                 <div style="display: flex; justify-content: space-between; align-items: center;" class="mb10">
@@ -234,6 +238,15 @@
     .comment-list .comment-item:last-child { border-bottom: none; }
     .avatar-circle-sm { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
     
+    /* Saving indicator */
+    .saving-indicator {
+        display: inline-block;
+        margin-left: 10px;
+        color: #0052cc;
+        font-size: 12px;
+        font-style: italic;
+    }
+    
     /* Large popup styling */
     .mfp-task-detail .mfp-content {
         max-width: 1400px !important;
@@ -318,147 +331,14 @@
     }
 </style>
 
+<script src="~/modules/task_detail.js"></script>
 <script>
     $(document).ready(function() {
         var taskId = $("#detail-status").data("task-id");
+        var title = $("#detail-task-title").val();
+        var description = $("#detail-description").val();
         
-        // Handle Status Change
-        $("#detail-status").on("change", function() {
-            var newStatus = parseInt($(this).val());
-            
-            if(!taskId) {
-                toastr.error("Task ID not found!");
-                return;
-            }
-            
-            $.ajax({
-                url: '/TaskManagement/UpdateTaskStatus',
-                type: 'POST',
-                data: {
-                    taskId: taskId,
-                    status: newStatus
-                },
-                success: function(response) {
-                    if(response.isSuccess) {
-                         toastr.success("Status updated successfully!"); // Removed notification
-                        
-                        // Close popup and reload board
-                        setTimeout(() => {
-                            $.magnificPopup.close();
-                            location.reload();
-                        }, 1000);
-                       
-                    } else {
-                        toastr.error(response.message || "Failed to update status!");
-                    }
-                },
-                error: function() {
-                    toastr.error("An error occurred while updating status!");
-                }
-            });
-        });
-
-        // Comment Input Interactions
-        $("#comment-input").focus(function() {
-            $(this).attr("rows", "3");
-            $("#comment-actions").css("display", "flex");
-        });
-
-        $("#btn-cancel-comment").click(function() {
-            $("#comment-input").val("");
-            $("#comment-input").attr("rows", "1");
-            $("#comment-actions").css("display", "none");
-        });
-
-        // "Add Comment" functionality
-        $("#btn-save-comment").click(function() {
-            var val = $("#comment-input").val().trim();
-            if(!val) return;
-            
-            if(!taskId) {
-                toastr.error("Task ID not found!");
-                return;
-            }
-            
-            $.ajax({
-                url: '/TaskManagement/AddComment',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    TaskId: taskId,
-                    Content: val
-                }),
-                success: function(response) {
-                    if(response.isSuccess) {
-                        var newComment = `
-                            <div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="${response.id}">
-                                <div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">U</div>
-                                <div style="flex: 1;">
-                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                        <span style="font-weight: bold; font-size: 14px; color: #333;">${response.userName}</span>
-                                        <span style="font-size: 12px; color: #999;">${response.createdDate}</span>
-                                    </div>
-                                    <div style="font-size: 14px; color: #555; white-space: pre-wrap;">${val}</div>
-                                    <div style="font-size: 12px; color: #999; margin-top: 5px; font-weight: 500; cursor: pointer;">
-                                        <span class="delete-comment" data-id="${response.id}">Delete</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Remove empty state message if exists
-                        var list = $("#task-comments-list");
-                        if(list.find(".italic").length) list.empty();
-
-                        list.prepend(newComment);
-                        
-                        // Reset input
-                        $("#btn-cancel-comment").click();
-                        toastr.success("Comment added!");
-                    } else {
-                        toastr.error(response.message || "Failed to add comment!");
-                    }
-                },
-                error: function() {
-                    toastr.error("An error occurred while adding comment!");
-                }
-            });
-        });
-        
-        // Delete comment
-        $(document).on("click", ".delete-comment", function() {
-            var commentId = $(this).data("id");
-            var commentItem = $(this).closest(".comment-item");
-            
-            if(!confirm("Are you sure you want to delete this comment?")) {
-                return;
-            }
-            
-            $.ajax({
-                url: '/TaskManagement/DeleteComment',
-                type: 'POST',
-                data: {
-                    id: commentId
-                },
-                success: function(response) {
-                    if(response.isSuccess) {
-                        commentItem.fadeOut(300, function() {
-                            $(this).remove();
-                            
-                            // Show empty message if no comments left
-                            if($("#task-comments-list .comment-item").length === 0) {
-                                $("#task-comments-list").html('<div style="font-size: 13px; color: #999; font-style: italic;">No comments yet.</div>');
-                            }
-                        });
-                        toastr.success("Comment deleted!");
-                    } else {
-                        toastr.error(response.message || "Failed to delete comment!");
-                    }
-                },
-                error: function() {
-                    toastr.error("An error occurred while deleting comment!");
-                }
-            });
-        });
+        taskDetailManagement.init(taskId, title, description);
     });
 </script>
+
