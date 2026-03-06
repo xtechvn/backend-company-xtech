@@ -50,23 +50,8 @@
                     <li class="nav-item"><a class="nav-link active" style="padding: 5px 15px; font-weight: bold; border-bottom: 2px solid #0052cc; color: #0052cc; cursor: pointer;">Comments</a></li>
                 </ul>
                 
-                <!-- Comment Box -->
-                <div class="d-flex mb20" style="display: flex; gap: 10px;">
-                    <div class="avatar-circle-sm" style="width: 32px; height: 32px; font-size: 14px; flex-shrink: 0;">U</div>
-                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
-                        <textarea class="form-control" style="border: none; box-shadow: none; padding: 5px; resize: none;" id="comment-input" rows="1" placeholder="Add a comment..."></textarea>
-                        <div class="mt5" id="comment-actions" style="display: none; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 12px; color: #999;">Pro tip: press <b style="background: #eee; padding: 1px 4px; border-radius: 3px; color: #333;">M</b> to comment</div>
-                            <div style="display: flex; gap: 8px;">
-                                <button class="btn btn-primary btn-sm" id="btn-save-comment" style="min-width: 70px;">Save</button>
-                                <button class="btn btn-default btn-sm" id="btn-cancel-comment" style="min-width: 70px;">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Existing Comments Placeholder -->
-                <div class="comment-list" id="task-comments-list">
+                <!-- Existing Comments List -->
+                <div class="comment-list mb20" id="task-comments-list">
                     @if (comments != null && comments.Count > 0)
                     {
                         foreach (var comment in comments)
@@ -91,6 +76,21 @@
                     {
                         <div style="font-size: 13px; color: #999; font-style: italic;">No comments yet.</div>
                     }
+                </div>
+
+                <!-- Comment Input Box -->
+                <div class="d-flex" style="display: flex; gap: 10px;">
+                    <div class="avatar-circle-sm" style="width: 32px; height: 32px; font-size: 14px; flex-shrink: 0;">U</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                        <textarea class="form-control" style="border: none; box-shadow: none; padding: 5px; resize: none;" id="comment-input" rows="1" placeholder="Add a comment..."></textarea>
+                        <div class="mt5" id="comment-actions" style="display: none; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 12px; color: #999;">Pro tip: press <b style="background: #eee; padding: 1px 4px; border-radius: 3px; color: #333;">M</b> to comment</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary btn-sm" id="btn-save-comment" style="min-width: 70px;">Save</button>
+                                <button class="btn btn-default btn-sm" id="btn-cancel-comment" style="min-width: 70px;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

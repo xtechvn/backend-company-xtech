@@ -23,7 +23,7 @@ namespace DAL
                 {
                     return await _DbContext.TaskComments
                         .Where(c => c.TaskId == taskId)
-                        .OrderByDescending(c => c.CreatedDate)
+                        .OrderBy(c => c.CreatedDate)
                         .ToListAsync();
                 }
             }

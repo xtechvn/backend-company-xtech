@@ -214,7 +214,7 @@ var taskDetailManagement = {
                         var list = $("#task-comments-list");
                         if(list.find(".italic").length) list.empty();
 
-                        list.prepend(newComment);
+                        list.append(newComment);
                         
                         $("#btn-cancel-comment").click();
                         $btn.prop('disabled', false).text('Save');
