@@ -379,6 +379,49 @@ var taskManagement = {
         });
     },
 
+    showCompleteSprintModal: function(sprintId) {
+        $("#complete-sprint-id").val(sprintId);
+        $("#complete-sprint-target").val("");
+        $("#modal-complete-sprint").modal("show");
+    },
+
+    completeSprint: function() {
+        var sprintId = $("#complete-sprint-id").val();
+        var targetSprintId = $("#complete-sprint-target").val() || null;
+        
+        if (!sprintId) {
+            toastr.error("Sprint ID not found");
+            return;
+        }
+
+        $.ajax({
+            url: "/TaskManagement/CompleteSprint",
+            type: "POST",
+            data: {
+                sprintId: sprintId,
+                targetSprintId: targetSprintId
+            },
+            success: function(res) {
+                if (res.isSuccess) {
+                    $("#modal-complete-sprint").modal("hide");
+                    
+                    setTimeout(function() {
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        toastr.success("Sprint completed successfully");
+                        location.reload();
+                    }, 300);
+                } else {
+                    toastr.error(res.message || "Failed to complete sprint");
+                }
+            },
+            error: function() {
+                toastr.error("An error occurred while completing sprint");
+            }
+        });
+    },
+
     updateStatus: function (taskId, status) {
         $.post("/TaskManagement/UpdateTaskStatus", { taskId: taskId, status: status }, function (res) {
             if (res.isSuccess) {

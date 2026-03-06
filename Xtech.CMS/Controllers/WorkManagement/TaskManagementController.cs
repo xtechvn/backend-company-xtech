@@ -324,6 +324,33 @@ namespace WEB.CMS.Controllers.WorkManagement
         }
 
         [HttpPost]
+        public async Task<IActionResult> CompleteSprint(long sprintId, long? targetSprintId)
+        {
+            try
+            {
+                // Get all tasks in the sprint that are not completed (status != 5)
+                var tasks = await _projectTaskRepository.GetTasksBySprint(sprintId, null);
+                var incompleteTasks = tasks.Where(t => t.StatusId != 5).Select(t => t.Id).ToList();
+
+                // Move incomplete tasks to target sprint or backlog
+                if (incompleteTasks.Count > 0)
+                {
+                    await _projectTaskRepository.UpdateSprints(incompleteTasks, targetSprintId);
+                }
+
+                // Update sprint status to completed (2)
+                var success = await _sprintRepository.UpdateStatus(sprintId, 2);
+                
+                return Json(new { isSuccess = success });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("CompleteSprint - TaskManagementController: " + ex);
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateTaskStatus(long taskId, int status)
         {
             try

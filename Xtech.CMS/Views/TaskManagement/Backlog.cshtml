@@ -37,7 +37,7 @@
                                 }
                                 else if (sprint.Status == 1)
                                 {
-                                    <button class="btn btn-success btn-sm" onclick="taskManagement.startSprint(@sprint.Id,2)">Complete Sprint</button>
+                                    <button class="btn btn-success btn-sm" onclick="taskManagement.showCompleteSprintModal(@sprint.Id)">Complete Sprint</button>
                                 }
                                 <div class="dropdown">
                                     <i class="bi bi-three-dots ml-3 cursor-pointer" data-toggle="dropdown"></i>
@@ -172,6 +172,39 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="taskManagement.saveSprint()">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Complete Sprint -->
+<div id="modal-complete-sprint" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Complete Sprint</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Các task chưa hoàn thành (status != 5) sẽ được chuyển sang sprint/backlog bạn chọn:</p>
+                <div class="form-group">
+                    <label>Chuyển task chưa hoàn thành sang *</label>
+                    <select id="complete-sprint-target" class="form-control">
+                        <option value="">Backlog</option>
+                        @if (sprints != null)
+                        {
+                            foreach (var s in sprints.Where(x => x.Status != 1))
+                            {
+                                <option value="@s.Id">@s.SprintName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <input type="hidden" id="complete-sprint-id" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="taskManagement.completeSprint()">Complete Sprint</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
