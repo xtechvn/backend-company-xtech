@@ -1,0 +1,97 @@
+@model List<Entities.Models.Projects>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th style="width: 25%;">Tên dự án</th>
+                <th style="width: 40%;">Mô tả</th>
+                <th style="width: 120px;">Ngày tạo</th>
+                <th style="width: 200px;" class="text-center">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="align-middle">
+                            <span class="badge badge-secondary">#@item.Id</span>
+                        </td>
+                        <td class="align-middle">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-blue-100 p-2 rounded text-blue-600 mr-2" style="background-color: #e3f2fd; color: #1976d2;">
+                                    <i class="bi bi-briefcase-fill"></i>
+                                </div>
+                                <strong>@item.ProjectName</strong>
+                            </div>
+                        </td>
+                        <td class="align-middle">
+                            <span class="text-muted">@(string.IsNullOrEmpty(item.Description) ? "Không có mô tả" : item.Description)</span>
+                        </td>
+                        <td class="align-middle">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 mr-1"></i>@item.CreatedDate?.ToString("dd/MM/yyyy")
+                            </small>
+                        </td>
+                        <td class="align-middle text-center">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="project.editProject(this)" data-id="@item.Id" data-name="@item.ProjectName" data-desc="@item.Description" title="Sửa">
+                                    <i class="bi bi-pencil"></i> Sửa
+                                </button>
+                                <a href="/TaskManagement/Index?projectId=@item.Id" class="btn btn-outline-primary btn-sm" title="Xem chi tiết">
+                                    <i class="bi bi-arrow-right"></i> Chi tiết
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="py-4">
+                            <i class="bi bi-folder2-open text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3 mb-0">Chưa có dự án nào được tạo. Hãy tạo mới ngay!</p>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .table tbody tr {
+        transition: background-color 0.2s;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .bg-blue-100 {
+        background-color: #e3f2fd;
+        color: #1976d2;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+    
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+</style>

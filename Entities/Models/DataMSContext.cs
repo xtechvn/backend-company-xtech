@@ -104,6 +104,19 @@ namespace Entities.Models
         public virtual DbSet<TicketMessage> TicketMessage { get; set; }
         public virtual DbSet<TicketStatusHistory> TicketStatusHistory { get; set; }
         public virtual DbSet<DepartmentsTicket> DepartmentsTicket { get; set; }
+        public virtual DbSet<ProjectTask> ProjectTasks { get; set; }
+        public virtual DbSet<Projects> Projects { get; set; }
+        public virtual DbSet<Sprint> Sprints { get; set; }
+        public virtual DbSet<Board> Boards { get; set; }
+        public virtual DbSet<Workspace> Workspaces { get; set; }
+        public virtual DbSet<Priority> Priorities { get; set; }
+        public virtual DbSet<TaskStatus> TaskStatuses { get; set; }
+        public virtual DbSet<TaskComment> TaskComments { get; set; }
+        public virtual DbSet<TaskHistory> TaskHistories { get; set; }
+        public virtual DbSet<TaskLabel> TaskLabels { get; set; }
+
+
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -1634,6 +1647,101 @@ namespace Entities.Models
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime")
                     .HasColumnName("start_date");
+            });
+
+            modelBuilder.Entity<ProjectTask>(entity =>
+            {
+                entity.ToTable("ProjectTask");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Attachment).HasMaxLength(500);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.DueDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Title).HasMaxLength(500);
+
+                entity.Property(e => e.TaskOrder);
+
+                entity.Property(e => e.Description);
+                entity.Property(e => e.StoryPoint);
+                entity.Property(e => e.Label);
+                entity.Property(e => e.TaskType);
+                entity.Property(e => e.AssigneeId);
+                entity.Property(e => e.ReporterId);
+                entity.Property(e => e.PriorityId);
+                entity.Property(e => e.StatusId);
+                entity.Property(e => e.ProjectId);
+                entity.Property(e => e.SprintId);
+                entity.Property(e => e.CreatedBy);
+                entity.Property(e => e.ModifiedBy);
+           
+            });
+
+            modelBuilder.Entity<Projects>(entity =>
+            {
+                entity.ToTable("Projects");
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<Sprint>(entity =>
+            {
+                entity.ToTable("Sprints");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Board>(entity =>
+            {
+                entity.ToTable("Boards");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Workspace>(entity =>
+            {
+                entity.ToTable("Workspaces");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Priority>(entity =>
+            {
+                entity.ToTable("Priority");
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<TaskStatus>(entity =>
+            {
+                entity.ToTable("TaskStatus");
+                entity.HasKey(e => e.Id);
+            });
+
+            modelBuilder.Entity<TaskComment>(entity =>
+            {
+                entity.ToTable("TaskComments");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<TaskHistory>(entity =>
+            {
+                entity.ToTable("TaskHistory");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ChangedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<TaskLabel>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToTable("TaskLabel");
             });
 
             modelBuilder.Entity<VoucherLogActivity>(entity =>

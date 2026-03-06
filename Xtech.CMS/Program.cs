@@ -73,6 +73,10 @@ builder.Services.AddTransient<IDepositHistoryRepository, DepositHistoryRepositor
 builder.Services.AddTransient<IDebtGuaranteeRepository, DebtGuaranteeRepository>();
 builder.Services.AddTransient<ISupplierRepository, SupplierRepository>();
 builder.Services.AddTransient<ITicketRepository, TicketRepository>();
+builder.Services.AddTransient<ISprintRepository, SprintRepository>();
+builder.Services.AddTransient<IProjectTaskRepository, ProjectTaskRepository>();
+builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+builder.Services.AddTransient<ITaskCommentRepository, TaskCommentRepository>();
 
 //-- API:
 builder.Services.AddTransient< IArticleAPIRepository, ArticleAPIRepository> ();

@@ -1,0 +1,344 @@
+@using Entities.Models
+@{
+    var task = ViewBag.Task as ProjectTask;
+    var users = ViewBag.Users as List<User>;
+    var comments = ViewBag.Comments as List<TaskComment>;
+}
+
+<div class="row">
+    <!-- Left Content -->
+    <div class="col-md-8 grid-border-right" style="max-height: 75vh; overflow-y: auto;">
+        <div>
+            <input type="text" class="form-control mb20" id="detail-task-title" style="font-size: 20px; font-weight: bold; height: auto;" placeholder="Task Title Here" value="@task?.Title" />
+            <div class="mt5 mb20" id="title-actions" style="display: none; gap: 8px;">
+                <button class="btn btn-primary btn-sm" id="btn-save-title" style="min-width: 70px;">Save</button>
+                <button class="btn btn-default btn-sm" id="btn-cancel-title" style="min-width: 70px;">Cancel</button>
+            </div>
+            
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Description</label>
+                <textarea class="form-control" rows="4" placeholder="Add a description..." id="detail-description">@task?.Description</textarea>
+                <div class="mt5" id="desc-actions" style="display: none; gap: 8px;">
+                    <button class="btn btn-primary btn-sm" id="btn-save-description" style="min-width: 70px;">Save</button>
+                    <button class="btn btn-default btn-sm" id="btn-cancel-description" style="min-width: 70px;">Cancel</button>
+                </div>
+            </div>
+            <!-- 
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Subtasks</label>
+                <div class="mb10">
+                    <button class="btn btn-default btn-sm"><i class="bi bi-plus"></i> Add subtask</button>
+                </div>
+            </div>
+
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Linked work items</label>
+                <div class="mb10">
+                    <button class="btn btn-default btn-sm"><i class="bi bi-plus"></i> Add linked issue</button>
+                </div>
+            </div>
+            -->
+            <!-- Activity / Comments -->
+            <div class="mt20">
+                <div style="display: flex; justify-content: space-between; align-items: center;" class="mb10">
+                    <label class="lbl" style="font-size: 16px; margin: 0;">Activity</label>
+                    <span style="font-size: 13px; color: #666;">Show: <span style="background: #f1f1f1; padding: 2px 5px; border-radius: 3px;">Comments</span></span>
+                </div>
+                
+                <ul class="nav nav-tabs mb10" style="border-bottom: 1px solid #ddd;">
+                    <li class="nav-item"><a class="nav-link" style="padding: 5px 15px; color: #666; cursor: pointer;">All</a></li>
+                    <li class="nav-item"><a class="nav-link active" style="padding: 5px 15px; font-weight: bold; border-bottom: 2px solid #0052cc; color: #0052cc; cursor: pointer;">Comments</a></li>
+                </ul>
+                
+                <!-- Existing Comments List -->
+                <div class="comment-list mb20" id="task-comments-list">
+                    @if (comments != null && comments.Count > 0)
+                    {
+                        foreach (var comment in comments)
+                        {
+                            var commentUser = users?.FirstOrDefault(u => u.Id == comment.UserId);
+                            <div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="@comment.Id">
+                                <div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">@(commentUser?.FullName?.Substring(0, 1).ToUpper() ?? "U")</div>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                        <span style="font-weight: bold; font-size: 14px; color: #333;">@(commentUser?.FullName ?? "User")</span>
+                                        <span style="font-size: 12px; color: #999;">@comment.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                    <div style="font-size: 14px; color: #555; white-space: pre-wrap;">@comment.Content</div>
+                                    <div style="font-size: 12px; color: #999; margin-top: 5px; font-weight: 500; cursor: pointer;">
+                                        <span class="delete-comment" data-id="@comment.Id">Delete</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="font-size: 13px; color: #999; font-style: italic;">No comments yet.</div>
+                    }
+                </div>
+
+                <!-- Comment Input Box -->
+                <div class="d-flex" style="display: flex; gap: 10px;">
+                    <div class="avatar-circle-sm" style="width: 32px; height: 32px; font-size: 14px; flex-shrink: 0;">U</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                        <textarea class="form-control" style="border: none; box-shadow: none; padding: 5px; resize: none;" id="comment-input" rows="1" placeholder="Add a comment..."></textarea>
+                        <div class="mt5" id="comment-actions" style="display: none; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 12px; color: #999;">Pro tip: press <b style="background: #eee; padding: 1px 4px; border-radius: 3px; color: #333;">M</b> to comment</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary btn-sm" id="btn-save-comment" style="min-width: 70px;">Save</button>
+                                <button class="btn btn-default btn-sm" id="btn-cancel-comment" style="min-width: 70px;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar details -->
+    <div class="col-md-4" style="max-height: 75vh; overflow-y: auto;">
+        <div class="border pd10" style="background-color: #fcfcfc; border-radius: 4px;">
+            <div class="lb-form mb10" style="font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px; cursor: pointer;" data-toggle="collapse" data-target="#collapseDetails">
+                Details <i class="bi bi-chevron-down" style="float: right; color: #999;"></i>
+            </div>
+            
+            <div class="collapse show" id="collapseDetails">
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Status</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-status" data-task-id="@task?.Id">
+                            @if (task?.StatusId == 0)
+                            {
+                                <option value="0" selected>TO DO</option>
+                            }
+                            else
+                            {
+                                <option value="0">TO DO</option>
+                            }
+                            
+                            @if (task?.StatusId == 1)
+                            {
+                                <option value="1" selected>IN PROGRESS</option>
+                            }
+                            else
+                            {
+                                <option value="1">IN PROGRESS</option>
+                            }
+                            
+                            @if (task?.StatusId == 2)
+                            {
+                                <option value="2" selected>DONE</option>
+                            }
+                            else
+                            {
+                                <option value="2">DONE</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Assignee</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-assignee">
+                            <option value="">Unassigned</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    if (task?.AssigneeId == u.Id)
+                                    {
+                                        <option value="@u.Id" selected>@u.FullName (@u.UserName)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Reporter</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-reporter">
+                            <option value="">Unassigned</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    if (task?.ReporterId == u.Id)
+                                    {
+                                        <option value="@u.Id" selected>@u.FullName (@u.UserName)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Watchers</label></div>
+                    <div class="col-md-8">
+                        <span style="background: #eee; padding: 2px 8px; border-radius: 10px; font-size: 12px; color: #333;">1 <i class="bi bi-eye"></i></span>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Sprint</label></div>
+                    <div class="col-md-8">
+                        <span style="color: #0052cc; font-size: 13px; text-decoration: underline; cursor: pointer;">Active Sprint</span>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Story Point</label></div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" placeholder="None" id="detail-story-point" value="@task?.StoryPoint">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Start Date</label></div>
+                    <div class="col-md-8">
+                        <input type="date" class="form-control" id="detail-start-date" value="@task?.CreatedDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Due Date</label></div>
+                    <div class="col-md-8">
+                        <input type="date" class="form-control" id="detail-due-date" value="@task?.DueDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Team</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-team">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Parent</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-parent">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .grid-border-right { border-right: 1px solid #ddd; padding-right: 15px; }
+    .comment-list .comment-item { border-bottom: 1px solid #f1f1f1; padding: 10px 0; }
+    .comment-list .comment-item:last-child { border-bottom: none; }
+    .avatar-circle-sm { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+    
+    /* Saving indicator */
+    .saving-indicator {
+        display: inline-block;
+        margin-left: 10px;
+        color: #0052cc;
+        font-size: 12px;
+        font-style: italic;
+    }
+    
+    /* Large popup styling */
+    .mfp-task-detail .mfp-content {
+        max-width: 1400px !important;
+        width: 95% !important;
+    }
+    
+    /* Responsive for tablets and smaller */
+    @@media (max-width: 991px) {
+        .grid-border-right {
+            border-right: none;
+            border-bottom: 1px solid #ddd;
+            padding-right: 0;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .col-md-8, .col-md-4 {
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+        
+        .mfp-task-detail .mfp-content {
+            width: 98% !important;
+        }
+    }
+    
+    /* Responsive for mobile */
+    @@media (max-width: 767px) {
+        .row.mb10 {
+            margin-bottom: 8px !important;
+        }
+        
+        .col-md-4 label {
+            font-size: 13px !important;
+        }
+        
+        .form-control {
+            font-size: 14px !important;
+        }
+        
+        #detail-task-title {
+            font-size: 18px !important;
+        }
+        
+        .lbl {
+            font-size: 14px !important;
+        }
+        
+        .comment-list, .comment-item {
+            font-size: 13px !important;
+        }
+        
+        .mfp-task-detail .mfp-content {
+            width: 100% !important;
+            margin: 10px;
+        }
+        
+        .mfp-task-detail .content_lightbox {
+            padding: 10px !important;
+        }
+    }
+    
+    /* Extra small screens */
+    @@media (max-width: 576px) {
+        .row.mb10 .col-md-4,
+        .row.mb10 .col-md-8 {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        
+        .border.pd10 {
+            padding: 8px !important;
+        }
+        
+        .mb20 {
+            margin-bottom: 15px !important;
+        }
+        
+        .mt20 {
+            margin-top: 15px !important;
+        }
+    }
+</style>
+
+<script src="~/modules/task_detail.js"></script>
+<script>
+    $(document).ready(function() {
+        var taskId = $("#detail-status").data("task-id");
+        var title = $("#detail-task-title").val();
+        var description = $("#detail-description").val();
+        
+        taskDetailManagement.init(taskId, title, description);
+    });
+</script>
+
