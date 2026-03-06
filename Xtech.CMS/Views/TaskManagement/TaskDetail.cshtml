@@ -3,6 +3,7 @@
     var task = ViewBag.Task as ProjectTask;
     var users = ViewBag.Users as List<User>;
     var comments = ViewBag.Comments as List<TaskComment>;
+    var taskStatuses = ViewBag.TaskStatuses as List<AllCode>;
 }
 
 <div class="row">
@@ -108,31 +109,19 @@
                     <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Status</label></div>
                     <div class="col-md-8">
                         <select class="form-control" id="detail-status" data-task-id="@task?.Id">
-                            @if (task?.StatusId == 0)
+                            @if (taskStatuses != null)
                             {
-                                <option value="0" selected>TO DO</option>
-                            }
-                            else
-                            {
-                                <option value="0">TO DO</option>
-                            }
-                            
-                            @if (task?.StatusId == 1)
-                            {
-                                <option value="1" selected>IN PROGRESS</option>
-                            }
-                            else
-                            {
-                                <option value="1">IN PROGRESS</option>
-                            }
-                            
-                            @if (task?.StatusId == 2)
-                            {
-                                <option value="2" selected>DONE</option>
-                            }
-                            else
-                            {
-                                <option value="2">DONE</option>
+                                foreach (var status in taskStatuses.OrderBy(s => s.OrderNo))
+                                {
+                                    if (task?.StatusId == status.CodeValue)
+                                    {
+                                        <option value="@status.CodeValue" selected>@status.Description</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@status.CodeValue">@status.Description</option>
+                                    }
+                                }
                             }
                         </select>
                     </div>

@@ -13,6 +13,8 @@ using Utilities;
 using WEB.CMS.Customize;
 using Ultilities.Constants;
 using Entities.ViewModels;
+using Nest;
+using Repositories.Repositories;
 
 namespace WEB.CMS.Controllers.WorkManagement
 {
@@ -25,8 +27,10 @@ namespace WEB.CMS.Controllers.WorkManagement
         private readonly IUserRepository _userRepository;
         private readonly ITaskCommentRepository _taskCommentRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IAllCodeRepository _allCodeRepository;
 
-        public TaskManagementController(ISprintRepository sprintRepository, IProjectTaskRepository projectTaskRepository, IProjectRepository projectRepository, IUserRepository userRepository, ITaskCommentRepository taskCommentRepository, IWebHostEnvironment webHostEnvironment)
+        public TaskManagementController(ISprintRepository sprintRepository, IProjectTaskRepository projectTaskRepository, IProjectRepository projectRepository, 
+            IUserRepository userRepository, ITaskCommentRepository taskCommentRepository, IWebHostEnvironment webHostEnvironment, IAllCodeRepository allCodeRepository)
         {
             _sprintRepository = sprintRepository;
             _projectTaskRepository = projectTaskRepository;
@@ -34,6 +38,7 @@ namespace WEB.CMS.Controllers.WorkManagement
             _userRepository = userRepository;
             _taskCommentRepository = taskCommentRepository;
             _webHostEnvironment = webHostEnvironment;
+            _allCodeRepository = allCodeRepository;
         }
 
         public IActionResult Index(long? projectId)
@@ -60,12 +65,14 @@ namespace WEB.CMS.Controllers.WorkManagement
 
             var projects = await _projectRepository.GetAllProjects();
             var users = _userRepository.GetAll();
+            var taskStatuses = _allCodeRepository.GetListByType("TASK_STATUS");
             ViewBag.ProjectId = projectId;
             ViewBag.BacklogTasks = backlogTasks;
             ViewBag.Sprints = sprints;
             ViewBag.SprintTasks = sprintTasks;
             ViewBag.Projects = projects;
             ViewBag.Users = users;
+            ViewBag.TaskStatuses = taskStatuses;
             return PartialView();
         }
 
@@ -87,7 +94,7 @@ namespace WEB.CMS.Controllers.WorkManagement
                     sprintTasks[sprint.Id] = tasks;
                 }
             }
-
+            var taskStatuses = _allCodeRepository.GetListByType("TASK_STATUS");
             var users = _userRepository.GetAll();
             var projects = await _projectRepository.GetAllProjects();
             ViewBag.ProjectId = projectId;
@@ -96,6 +103,7 @@ namespace WEB.CMS.Controllers.WorkManagement
             ViewBag.SprintTasks = sprintTasks;
             ViewBag.Users = users;
             ViewBag.Projects = projects;
+            ViewBag.TaskStatuses = taskStatuses;
             return PartialView();
         }
 
@@ -105,9 +113,11 @@ namespace WEB.CMS.Controllers.WorkManagement
             var task = await _projectTaskRepository.GetById(id);
             var users = _userRepository.GetAll();
             var comments = await _taskCommentRepository.GetCommentsByTaskId(id);
+            var taskStatuses = _allCodeRepository.GetByType("TASK_STATUS");
             ViewBag.Task = task;
             ViewBag.Users = users;
             ViewBag.Comments = comments;
+            ViewBag.TaskStatuses = taskStatuses;
             return PartialView();
         }
 
