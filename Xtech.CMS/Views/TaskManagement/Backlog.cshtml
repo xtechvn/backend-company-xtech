@@ -6,6 +6,8 @@
     var taskStatuses = ViewBag.TaskStatuses as List<AllCode>;
 }
 
+<link href="~/css/task-management.css" rel="stylesheet" />
+
 <div class="row-main-container px-4">
     <div class="backlog-container">
         <!-- Sprints -->
@@ -24,7 +26,7 @@
                                 <span class="ml-2 text-gray-500 text-sm">(@(sprint.StartDate?.ToString("dd/MM/yyyy") ?? "") - @(sprint.EndDate?.ToString("dd/MM/yyyy") ?? ""))</span>
                             </div>
                             <div class="flex items-center">
-                                @if (sprint.Status == 0)
+                                @if (sprint.Status == 0 || sprint.Status == 2)
                                 {
                                     if (!hasActiveSprint)
                                     {
@@ -40,8 +42,8 @@
                                     <button class="btn btn-success btn-sm" onclick="taskManagement.showCompleteSprintModal(@sprint.Id)">Complete Sprint</button>
                                 }
                                 <div class="dropdown">
-                                    <i class="bi bi-three-dots ml-3 cursor-pointer" data-toggle="dropdown"></i>
-                                    <div class="dropdown-menu dropdown-menu-right">
+                                    <i class="bi bi-three-dots ml-3 cursor-pointer dropdown-toggle-custom" onclick="taskManagement.toggleDropdown(this)"></i>
+                                    <div class="dropdown-menu-custom" style="display: none;">
                                         <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editSprint(@sprint.Id)">Edit sprint</a>
                                         <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteSprint(@sprint.Id)">Delete sprint</a>
                                     </div>
@@ -69,9 +71,9 @@
                                                 @(statusInfo?.Description ?? "Unknown")
                                             </span>
                                             <div class="avatar-circle">US</div>
-                                            <div class="dropdown ml-2">
-                                                <i class="bi bi-three-dots cursor-pointer" data-toggle="dropdown"></i>
-                                                <div class="dropdown-menu dropdown-menu-right">
+                                            <div class="dropdown">
+                                                <i class="bi bi-three-dots cursor-pointer dropdown-toggle-custom" onclick="taskManagement.toggleDropdown(this)"></i>
+                                                <div class="dropdown-menu-custom" style="display: none;">
                                                     <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editTask(@task.Id)">Edit task</a>
                                                     <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteTask(@task.Id)">Delete task</a>
                                                 </div>
@@ -119,8 +121,8 @@
                                 </span>
                                 <div class="avatar-circle">US</div>
                                 <div class="dropdown ml-2">
-                                    <i class="bi bi-three-dots cursor-pointer" data-toggle="dropdown"></i>
-                                    <div class="dropdown-menu dropdown-menu-right">
+                                    <i class="bi bi-three-dots cursor-pointer dropdown-toggle-custom" onclick="taskManagement.toggleDropdown(this)"></i>
+                                    <div class="dropdown-menu-custom" style="display: none;">
                                         <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editTask(@task.Id)">Edit task</a>
                                         <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteTask(@task.Id)">Delete task</a>
                                     </div>
@@ -187,7 +189,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p class="mb-3">Các task chưa hoàn thành (status != 5) sẽ được chuyển sang sprint/backlog bạn chọn:</p>
+                <p class="mb-3">Các task chưa hoàn thành sẽ được chuyển sang sprint/backlog bạn chọn:</p>
                 <div class="form-group">
                     <label>Chuyển task chưa hoàn thành sang *</label>
                     <select id="complete-sprint-target" class="form-control">
@@ -324,12 +326,3 @@
         </div>
     </div>
 </div>
-
-<style>
-    .cursor-move { cursor: grab; }
-    .cursor-move:active { cursor: grabbing; }
-    .task-card.ui-sortable-helper { cursor: grabbing !important; }
-    .task-list { min-height: 50px; background: #fafafa; }
-    .task-card:hover { background: #f0f7ff !important; border-color: #0052cc !important; }
-    .avatar-circle { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-</style>

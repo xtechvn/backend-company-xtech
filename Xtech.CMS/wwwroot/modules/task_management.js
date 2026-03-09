@@ -422,12 +422,71 @@ var taskManagement = {
         });
     },
 
+    toggleDropdown: function(element) {
+        var dropdown = $(element).siblings('.dropdown-menu-custom');
+        var isVisible = dropdown.is(':visible');
+        
+        // Close all other dropdowns
+        $('.dropdown-menu-custom').hide();
+        
+        // Toggle current dropdown
+        if (!isVisible) {
+            dropdown.show();
+            
+            // Close dropdown when clicking outside
+            $(document).one('click', function(e) {
+                if (!$(e.target).closest('.dropdown').length) {
+                    dropdown.hide();
+                }
+            });
+        }
+        
+        return false;
+    },
+
     updateStatus: function (taskId, status) {
         $.post("/TaskManagement/UpdateTaskStatus", { taskId: taskId, status: status }, function (res) {
             if (res.isSuccess) {
                // toastr.success("Status updated");
             } else {
                 toastr.error("Failed to update status");
+            }
+        });
+    },
+
+    changeProject: function(projectId) {
+        if (!projectId) {
+            toastr.warning("Vui lòng chọn dự án");
+            return;
+        }
+        
+        // Reload page with new projectId
+        window.location.href = "/TaskManagement/Index?projectId=" + projectId;
+    },
+
+    setDefaultProject: function(projectId) {
+        if (!projectId) {
+            toastr.warning("Không có dự án để đặt mặc định");
+            return;
+        }
+
+        console.log("Setting default project:", projectId);
+
+        $.ajax({
+            url: "/TaskManagement/SetDefaultProject",
+            type: "POST",
+            data: { projectId: projectId },
+            success: function(res) {
+                console.log("SetDefaultProject response:", res);
+                if (res.isSuccess) {
+                    toastr.success("Đã đặt dự án này làm mặc định. Lần sau vào menu 'Quản lý công việc' sẽ tự động mở dự án này.");
+                } else {
+                    toastr.error(res.message || "Không thể đặt dự án mặc định");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("SetDefaultProject error:", error);
+                toastr.error("Đã xảy ra lỗi khi đặt dự án mặc định");
             }
         });
     }

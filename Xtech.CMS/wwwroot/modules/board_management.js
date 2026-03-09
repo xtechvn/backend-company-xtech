@@ -2,6 +2,48 @@ var boardTaskManagement = {
     init: function() {
         this.initDragDrop();
         this.initEventHandlers();
+        this.initHorizontalScroll();
+    },
+
+    initHorizontalScroll: function() {
+        // Enable horizontal scroll by dragging
+        $('.board-container').each(function() {
+            const slider = this;
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            $(slider).on('mousedown', function(e) {
+                // Only start drag if clicking on the container itself, not on task cards
+                if ($(e.target).closest('.task-card, .task-drop-zone').length) {
+                    return;
+                }
+                
+                isDown = true;
+                slider.classList.add('active-scroll');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+                e.preventDefault();
+            });
+
+            $(slider).on('mouseleave', function() {
+                isDown = false;
+                slider.classList.remove('active-scroll');
+            });
+
+            $(slider).on('mouseup', function() {
+                isDown = false;
+                slider.classList.remove('active-scroll');
+            });
+
+            $(slider).on('mousemove', function(e) {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2; // Scroll speed multiplier
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        });
     },
 
     initDragDrop: function() {
@@ -185,6 +227,49 @@ var boardTaskManagement = {
             },
             error: function() {
                 toastr.error("An error occurred while creating task!");
+            }
+        });
+    },
+
+    showCompleteSprintModal: function(sprintId) {
+        $("#complete-sprint-id").val(sprintId);
+        $("#complete-sprint-target").val("");
+        $("#modal-complete-sprint").modal("show");
+    },
+
+    completeSprint: function() {
+        var sprintId = $("#complete-sprint-id").val();
+        var targetSprintId = $("#complete-sprint-target").val() || null;
+        
+        if (!sprintId) {
+            toastr.error("Sprint ID not found");
+            return;
+        }
+
+        $.ajax({
+            url: "/TaskManagement/CompleteSprint",
+            type: "POST",
+            data: {
+                sprintId: sprintId,
+                targetSprintId: targetSprintId
+            },
+            success: function(res) {
+                if (res.isSuccess) {
+                    $("#modal-complete-sprint").modal("hide");
+                    
+                    setTimeout(function() {
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        toastr.success("Sprint completed successfully");
+                        location.reload();
+                    }, 300);
+                } else {
+                    toastr.error(res.message || "Failed to complete sprint");
+                }
+            },
+            error: function() {
+                toastr.error("An error occurred while completing sprint");
             }
         });
     }

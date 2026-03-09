@@ -41,11 +41,71 @@ namespace WEB.CMS.Controllers.WorkManagement
             _allCodeRepository = allCodeRepository;
         }
 
-        public IActionResult Index(long? projectId)
+        public async Task<IActionResult> Index(long? projectId)
         {
+            // Get all projects for dropdown
+            var projects = await _projectRepository.GetAllProjects();
+            ViewBag.Projects = projects;
+
+            // If no projectId provided, try to get from session (default project)
+            if (!projectId.HasValue)
+            {
+                var defaultProjectId = HttpContext.Session.GetInt32("DefaultProjectId");
+                
+                // Log to verify
+                System.Diagnostics.Debug.WriteLine($"Reading DefaultProjectId from Session: {defaultProjectId}");
+                
+                if (defaultProjectId.HasValue)
+                {
+                    projectId = defaultProjectId.Value;
+                    System.Diagnostics.Debug.WriteLine($"Using default project from Session: {projectId}");
+                }
+                else if (projects != null && projects.Any())
+                {
+                    // If no default project in session, use first project
+                    projectId = projects.First().Id;
+                    System.Diagnostics.Debug.WriteLine($"No default project in Session, using first project: {projectId}");
+                }
+                
+                // Redirect to Index with the selected project
+                if (projectId.HasValue)
+                {
+                    return RedirectToAction("Index", new { projectId = projectId });
+                }
+            }
+
             ViewBag.ProjectId = projectId;
+
+            // Get current project details if projectId is provided
+            if (projectId.HasValue)
+            {
+                var currentProject = projects.FirstOrDefault(p => p.Id == projectId.Value);
+                ViewBag.CurrentProject = currentProject;
+            }
+
             return View();
         }
+
+        [HttpPost]
+        public IActionResult SetDefaultProject(long projectId)
+        {
+            try
+            {
+                // Save default project to session
+                HttpContext.Session.SetInt32("DefaultProjectId", (int)projectId);
+                
+                // Log to verify
+                System.Diagnostics.Debug.WriteLine($"Saved DefaultProjectId to Session: {projectId}");
+                
+                return Json(new { isSuccess = true, message = "Đã đặt dự án mặc định" });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving DefaultProjectId: {ex.Message}");
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
 
         public async Task<IActionResult> Backlog(long? projectId)
         {

@@ -6,6 +6,8 @@
     var taskStatuses = ViewBag.TaskStatuses as List<AllCode>;
 }
 
+<link href="~/css/task-management.css" rel="stylesheet" />
+
 <div class="row">
     <!-- Left Content -->
     <div class="col-md-8 grid-border-right" style="max-height: 75vh; overflow-y: auto;">
@@ -220,105 +222,6 @@
         </div>
     </div>
 </div>
-
-<style>
-    .grid-border-right { border-right: 1px solid #ddd; padding-right: 15px; }
-    .comment-list .comment-item { border-bottom: 1px solid #f1f1f1; padding: 10px 0; }
-    .comment-list .comment-item:last-child { border-bottom: none; }
-    .avatar-circle-sm { width: 24px; height: 24px; background: #0052cc; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-    
-    /* Saving indicator */
-    .saving-indicator {
-        display: inline-block;
-        margin-left: 10px;
-        color: #0052cc;
-        font-size: 12px;
-        font-style: italic;
-    }
-    
-    /* Large popup styling */
-    .mfp-task-detail .mfp-content {
-        max-width: 1400px !important;
-        width: 95% !important;
-    }
-    
-    /* Responsive for tablets and smaller */
-    @@media (max-width: 991px) {
-        .grid-border-right {
-            border-right: none;
-            border-bottom: 1px solid #ddd;
-            padding-right: 0;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .col-md-8, .col-md-4 {
-            max-width: 100% !important;
-            flex: 0 0 100% !important;
-        }
-        
-        .mfp-task-detail .mfp-content {
-            width: 98% !important;
-        }
-    }
-    
-    /* Responsive for mobile */
-    @@media (max-width: 767px) {
-        .row.mb10 {
-            margin-bottom: 8px !important;
-        }
-        
-        .col-md-4 label {
-            font-size: 13px !important;
-        }
-        
-        .form-control {
-            font-size: 14px !important;
-        }
-        
-        #detail-task-title {
-            font-size: 18px !important;
-        }
-        
-        .lbl {
-            font-size: 14px !important;
-        }
-        
-        .comment-list, .comment-item {
-            font-size: 13px !important;
-        }
-        
-        .mfp-task-detail .mfp-content {
-            width: 100% !important;
-            margin: 10px;
-        }
-        
-        .mfp-task-detail .content_lightbox {
-            padding: 10px !important;
-        }
-    }
-    
-    /* Extra small screens */
-    @@media (max-width: 576px) {
-        .row.mb10 .col-md-4,
-        .row.mb10 .col-md-8 {
-            padding-left: 10px !important;
-            padding-right: 10px !important;
-        }
-        
-        .border.pd10 {
-            padding: 8px !important;
-        }
-        
-        .mb20 {
-            margin-bottom: 15px !important;
-        }
-        
-        .mt20 {
-            margin-top: 15px !important;
-        }
-    }
-</style>
 
 <script src="~/modules/task_detail.js"></script>
 <script>
