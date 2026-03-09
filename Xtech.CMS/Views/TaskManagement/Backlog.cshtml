@@ -30,22 +30,22 @@
                                 {
                                     if (!hasActiveSprint)
                                     {
-                                        <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id,1)">Start Sprint</button>
+                                        <button class="btn btn-primary btn-sm" onclick="taskManagement.startSprint(@sprint.Id,1)">Bắt đầu Sprint</button>
                                     }
                                     else
                                     {
-                                        <span class="text-muted text-sm">Waiting</span>
+                                        <span class="text-muted text-sm">Đang chờ</span>
                                     }
                                 }
                                 else if (sprint.Status == 1)
                                 {
-                                    <button class="btn btn-success btn-sm" onclick="taskManagement.showCompleteSprintModal(@sprint.Id)">Complete Sprint</button>
+                                    <button class="btn btn-success btn-sm" onclick="taskManagement.showCompleteSprintModal(@sprint.Id)">Hoàn thành Sprint</button>
                                 }
                                 <div class="dropdown">
                                     <i class="bi bi-three-dots ml-3 cursor-pointer dropdown-toggle-custom" onclick="taskManagement.toggleDropdown(this)"></i>
                                     <div class="dropdown-menu-custom" style="display: none;">
-                                        <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editSprint(@sprint.Id)">Edit sprint</a>
-                                        <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteSprint(@sprint.Id)">Delete sprint</a>
+                                        <a class="dropdown-item" href="javascript:;" onclick="taskManagement.editSprint(@sprint.Id)">Sửa sprint</a>
+                                        <a class="dropdown-item text-danger" href="javascript:;" onclick="taskManagement.deleteSprint(@sprint.Id)">Xóa sprint</a>
                                     </div>
                                 </div>
                             </div>
@@ -96,8 +96,8 @@
                     <span class="font-bold">Backlog</span>
                 </div>
                 <div>
-                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateSprintModal()">+ Create sprint</button>
-                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateTaskModal(null)">+ Create task</button>
+                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateSprintModal()">+ Tạo sprint</button>
+                    <button class="btn btn-link py-0" onclick="taskManagement.showCreateTaskModal(null)">+ Tạo task</button>
                 </div>
             </div>
             <div class="backlog-tasks p-2 border border-t-0 rounded-b min-h-[100px] task-list" data-sprint-id="">
@@ -141,40 +141,40 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Create Sprint</h4>
+                <h4 class="modal-title">Tạo Sprint</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Sprint Name *</label>
+                    <label>Tên Sprint *</label>
                     <input type="text" id="sprint-name" class="form-control" />
                 </div>
                 <div class="form-group mt-3">
-                    <label>Duration</label>
+                    <label>Thời lượng</label>
                     <select id="sprint-duration" class="form-control">
-                        <option value="1" selected>1 week</option>
-                        <option value="2">2 weeks</option>
-                        <option value="4">4 weeks</option>
-                        <option value="0">Custom</option>
+                        <option value="1" selected>1 tuần</option>
+                        <option value="2">2 tuần</option>
+                        <option value="4">4 tuần</option>
+                        <option value="0">Tùy chỉnh</option>
                     </select>
                 </div>
                 <div class="form-group mt-3">
-                    <label>Start Date</label>
-                    <input type="date" id="sprint-start" class="form-control" />
+                    <label>Ngày bắt đầu</label>
+                    <input type="date" id="sprint-start" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                 </div>
                 <div class="form-group mt-3">
-                    <label>End Date</label>
+                    <label>Ngày kết thúc</label>
                     <input type="date" id="sprint-end" class="form-control" />
                 </div>
                 <div class="form-group mt-3">
-                    <label>Sprint Goal</label>
+                    <label>Mục tiêu Sprint</label>
                     <textarea id="sprint-goal" class="form-control"></textarea>
                 </div>
                 <input type="hidden" id="sprint-id-hidden" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="taskManagement.saveSprint()">Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="taskManagement.saveSprint()">Lưu</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
             </div>
         </div>
     </div>
@@ -185,7 +185,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Complete Sprint</h4>
+                <h4 class="modal-title">Hoàn thành Sprint</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -206,8 +206,8 @@
                 <input type="hidden" id="complete-sprint-id" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="taskManagement.completeSprint()">Complete Sprint</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="taskManagement.completeSprint()">Hoàn thành Sprint</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
             </div>
         </div>
     </div>
@@ -218,7 +218,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Create Task</h4>
+                <h4 class="modal-title">Tạo Task</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
@@ -226,7 +226,7 @@
                     <div class="col-md-6 form-group">
                         <label>Dự án (Space)*</label>
                         <select id="task-project-id" class="form-control">
-                            <option value="">-- Choose Space --</option>
+                            <option value="">-- Chọn dự án --</option>
                             @if (ViewBag.Projects != null)
                             {
                                 foreach (var p in (List<Projects>)ViewBag.Projects)
@@ -237,7 +237,7 @@
                         </select>
                     </div>
                     <div class="col-md-6 form-group">
-                        <label>Loại công việc(Work type)</label>
+                        <label>Loại công việc (Work type)</label>
                         <select id="task-type" class="form-control">
                             <option value="0">Task</option>
                             <option value="1">Bug</option>
@@ -247,7 +247,7 @@
                     </div>
                     <div class="col-md-12 form-group mt-3">
                         <label>Tên công việc (Title) *</label>
-                        <input type="text" id="task-title" class="form-control" placeholder="What needs to be done?" />
+                        <input type="text" id="task-title" class="form-control" placeholder="Cần làm gì?" />
                     </div>
                     <div class="col-md-12 form-group mt-3">
                         <label>Mô tả (Description)</label>
@@ -280,14 +280,14 @@
                     <div class="col-md-4 form-group mt-3">
                         <label>Độ ưu tiên (Priority)</label>
                         <select id="task-priority" class="form-control">
-                            <option value="0">Low</option>
-                            <option value="1" selected>Medium</option>
-                            <option value="2">High</option>
-                            <option value="3">Critical</option>
+                            <option value="0">Thấp</option>
+                            <option value="1" selected>Trung bình</option>
+                            <option value="2">Cao</option>
+                            <option value="3">Khẩn cấp</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group mt-3">
-                        <label>Khối lượng công việc (Sprint)</label>
+                        <label>Sprint</label>
                         <select id="task-sprint-id-modal" class="form-control">
                             <option value="">Backlog</option>
                             @if (sprints != null)
@@ -305,11 +305,11 @@
                     </div>
                     <div class="col-md-6 form-group mt-3">
                         <label>Ngày hết hạn (Due Date)</label>
-                        <input type="date" id="task-due-date" class="form-control" />
+                        <input type="date" id="task-due-date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                     </div>
                     <div class="col-md-6 form-group mt-3">
-                        <label>Label</label>
-                        <input type="text" id="task-label" class="form-control" placeholder="e.g. bug, enhancement" />
+                        <label>Nhãn (Label)</label>
+                        <input type="text" id="task-label" class="form-control" placeholder="vd: bug, enhancement" />
                     </div>
                     <div class="col-md-12 form-group mt-3">
                         <label>File đính kèm (Attachment)</label>
@@ -320,8 +320,8 @@
                 <input type="hidden" id="task-status-hidden" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="taskManagement.saveTask()">Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="taskManagement.saveTask()">Lưu</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
             </div>
         </div>
     </div>

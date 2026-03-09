@@ -117,10 +117,12 @@ var taskManagement = {
     showCreateSprintModal: function () {
         $("#sprint-id-hidden").val("");
         $("#sprint-name").val("");
-        $("#sprint-start").val("");
+        // Đặt ngày bắt đầu là ngày hiện tại
+        var today = new Date().toISOString().split('T')[0];
+        $("#sprint-start").val(today);
         $("#sprint-end").val("");
         $("#sprint-goal").val("");
-        $("#modal-sprint .modal-title").text("Create Sprint");
+        $("#modal-sprint .modal-title").text("Tạo Sprint");
         $("#modal-sprint").modal("show");
     },
 
@@ -134,7 +136,9 @@ var taskManagement = {
         $("#task-priority").val("1");
         $("#task-sprint-id-modal").val(sprintId || "");
         $("#task-story-point").val("");
-        $("#task-due-date").val("");
+        // Đặt ngày hết hạn là ngày hiện tại
+        var today = new Date().toISOString().split('T')[0];
+        $("#task-due-date").val(today);
         $("#task-label").val("");
         $("#task-project-id").val(this.projectId || "");
         $("#task-type").val("0");
