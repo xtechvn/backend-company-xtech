@@ -8,6 +8,7 @@ namespace Ultilities.Constants
 {
     public enum SprintStatus
     {
+        Complete = 2,
         start = 1,
         end = 0
     }

@@ -1,0 +1,362 @@
+/* Task Management Styles */
+
+/* Common Styles */
+.cursor-move { 
+    cursor: grab; 
+}
+
+.cursor-move:active { 
+    cursor: grabbing; 
+}
+
+.task-card { 
+    transition: background-color 0.2s, box-shadow 0.2s; 
+}
+
+.task-card:hover { 
+    background: #f0f7ff !important; 
+    border-color: #0052cc !important; 
+}
+
+.task-card.ui-sortable-helper { 
+    cursor: grabbing !important; 
+}
+
+.task-card.dragging { 
+    opacity: 0.5; 
+    transform: rotate(2deg); 
+    cursor: grabbing !important; 
+}
+
+.avatar-circle { 
+    width: 32px; 
+    height: 32px; 
+    background: #0052cc; 
+    color: white; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 14px; 
+    font-weight: 500;
+}
+
+.avatar-circle-sm { 
+    width: 24px; 
+    height: 24px; 
+    background: #0052cc; 
+    color: white; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 10px; 
+}
+
+/* Backlog Styles */
+.task-list { 
+    min-height: 50px; 
+    background: #fafafa; 
+}
+
+/* Custom Dropdown Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle-custom {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.dropdown-toggle-custom:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-menu-custom {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    min-width: 150px;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.dropdown-menu-custom .dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-menu-custom .dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-menu-custom .dropdown-item.text-danger {
+    color: #dc3545;
+}
+
+.dropdown-menu-custom .dropdown-item.text-danger:hover {
+    background-color: #fff5f5;
+}
+
+/* Board Styles */
+.board-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    cursor: grab;
+}
+
+.board-container.active-scroll {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.board-container.active-scroll .task-card {
+    pointer-events: none;
+}
+
+/* Custom scrollbar for board container */
+.board-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.board-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.board-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.board-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.board-column {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%) !important;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 400px;
+    flex: 0 0 320px;
+    min-width: 320px;
+    max-width: 320px;
+}
+
+.board-column .column-header {
+    color: #495057;
+    font-weight: 600;
+}
+
+.board-column .column-header .bg-gray-200 {
+    background-color: #dee2e6 !important;
+    color: #495057;
+    font-weight: 500;
+}
+
+.task-drop-zone { 
+    min-height: 100px; 
+}
+
+.task-placeholder { 
+    background: #e3f2fd; 
+    border: 2px dashed #2196f3; 
+    height: 80px; 
+    margin-bottom: 8px; 
+    border-radius: 4px; 
+}
+
+.sprint-section { 
+    border-left: 4px solid #0052cc; 
+    padding-left: 10px; 
+}
+
+.sprint-header { 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+}
+
+.badge-success { 
+    background-color: #28a745; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+}
+
+.badge-warning { 
+    background-color: #ffc107; 
+    color: #333; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+}
+
+.badge-secondary { 
+    background-color: #6c757d; 
+    color: white; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 11px; 
+}
+
+/* Task Detail Styles */
+.grid-border-right { 
+    border-right: 1px solid #ddd; 
+    padding-right: 15px; 
+}
+
+.comment-list .comment-item { 
+    border-bottom: 1px solid #f1f1f1; 
+    padding: 10px 0; 
+}
+
+.comment-list .comment-item:last-child { 
+    border-bottom: none; 
+}
+
+.saving-indicator {
+    display: inline-block;
+    margin-left: 10px;
+    color: #0052cc;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Modal Styles */
+#modal-task-detail { 
+    max-width: 1200px !important; 
+    margin: 0 auto; 
+}
+
+.white-popup { 
+    max-width: 1200px !important; 
+}
+
+.mfp-task-detail .mfp-content {
+    max-width: 1400px !important;
+    width: 95% !important;
+}
+
+/* Responsive Styles */
+
+/* Board - Màn hình nhỏ hơn 768px */
+@media (max-width: 768px) {
+    .board-column {
+        flex: 0 0 280px;
+        min-width: 280px;
+        max-width: 280px;
+    }
+}
+
+/* Board - Màn hình từ 769px đến 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .board-column {
+        flex: 0 0 300px;
+        min-width: 300px;
+        max-width: 300px;
+    }
+}
+
+/* Board - Màn hình lớn hơn 1024px */
+@media (min-width: 1025px) {
+    .board-column {
+        flex: 0 0 320px;
+        min-width: 320px;
+        max-width: 320px;
+    }
+}
+
+/* Task Detail - Tablets and smaller */
+@media (max-width: 991px) {
+    .grid-border-right {
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+        padding-right: 0;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .col-md-8, .col-md-4 {
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    
+    .mfp-task-detail .mfp-content {
+        width: 98% !important;
+    }
+}
+
+/* Task Detail - Mobile */
+@media (max-width: 767px) {
+    .row.mb10 {
+        margin-bottom: 8px !important;
+    }
+    
+    .col-md-4 label {
+        font-size: 13px !important;
+    }
+    
+    .form-control {
+        font-size: 14px !important;
+    }
+    
+    #detail-task-title {
+        font-size: 18px !important;
+    }
+    
+    .lbl {
+        font-size: 14px !important;
+    }
+    
+    .comment-list, .comment-item {
+        font-size: 13px !important;
+    }
+    
+    .mfp-task-detail .mfp-content {
+        width: 100% !important;
+        margin: 10px;
+    }
+    
+    .mfp-task-detail .content_lightbox {
+        padding: 10px !important;
+    }
+}
+
+/* Task Detail - Extra small screens */
+@media (max-width: 576px) {
+    .row.mb10 .col-md-4,
+    .row.mb10 .col-md-8 {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    .border.pd10 {
+        padding: 8px !important;
+    }
+    
+    .mb20 {
+        margin-bottom: 15px !important;
+    }
+    
+    .mt20 {
+        margin-top: 15px !important;
+    }
+}

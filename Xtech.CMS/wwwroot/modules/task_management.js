@@ -10,8 +10,8 @@ var taskManagement = {
             taskManagement.loadContent(target);
         });
 
-        // Load default tab
-        taskManagement.loadContent("backlog");
+        // Load tab mặc định (Board)
+        taskManagement.loadContent("board");
     },
 
     loadContent: function (tab) {
@@ -27,7 +27,7 @@ var taskManagement = {
     },
 
     initBacklog: function () {
-        // Multi-select logic using Checkboxes
+        // Logic chọn nhiều task bằng Checkbox
         $(document).off("change", ".task-checkbox").on("change", ".task-checkbox", function (e) {
             var card = $(this).closest(".task-card");
             if ($(this).is(":checked")) {
@@ -36,7 +36,7 @@ var taskManagement = {
                 card.removeClass("border-primary bg-blue-50 selected-task");
             }
 
-            // Sync "Select All" checkbox state
+            // Đồng bộ trạng thái checkbox "Chọn tất cả"
             var list = card.closest('.task-list');
             var allCheckboxes = list.find('.task-checkbox');
             var checkedCheckboxes = list.find('.task-checkbox:checked');
@@ -46,7 +46,7 @@ var taskManagement = {
             }
         });
 
-        // "Select All" logic
+        // Logic "Chọn tất cả"
         $(document).off("change", ".sprint-select-all").on("change", ".sprint-select-all", function (e) {
             var isChecked = $(this).is(":checked");
             var targetWrap = $(this).closest('.backlog-item, .sprint-item');
@@ -379,12 +379,114 @@ var taskManagement = {
         });
     },
 
+    showCompleteSprintModal: function(sprintId) {
+        $("#complete-sprint-id").val(sprintId);
+        $("#complete-sprint-target").val("");
+        $("#modal-complete-sprint").modal("show");
+    },
+
+    completeSprint: function() {
+        var sprintId = $("#complete-sprint-id").val();
+        var targetSprintId = $("#complete-sprint-target").val() || null;
+        
+        if (!sprintId) {
+            toastr.error("Sprint ID not found");
+            return;
+        }
+
+        $.ajax({
+            url: "/TaskManagement/CompleteSprint",
+            type: "POST",
+            data: {
+                sprintId: sprintId,
+                targetSprintId: targetSprintId
+            },
+            success: function(res) {
+                if (res.isSuccess) {
+                    $("#modal-complete-sprint").modal("hide");
+                    
+                    setTimeout(function() {
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        toastr.success("Sprint completed successfully");
+                        location.reload();
+                    }, 300);
+                } else {
+                    toastr.error(res.message || "Failed to complete sprint");
+                }
+            },
+            error: function() {
+                toastr.error("An error occurred while completing sprint");
+            }
+        });
+    },
+
+    toggleDropdown: function(element) {
+        var dropdown = $(element).siblings('.dropdown-menu-custom');
+        var isVisible = dropdown.is(':visible');
+        
+        // Close all other dropdowns
+        $('.dropdown-menu-custom').hide();
+        
+        // Toggle current dropdown
+        if (!isVisible) {
+            dropdown.show();
+            
+            // Close dropdown when clicking outside
+            $(document).one('click', function(e) {
+                if (!$(e.target).closest('.dropdown').length) {
+                    dropdown.hide();
+                }
+            });
+        }
+        
+        return false;
+    },
+
     updateStatus: function (taskId, status) {
         $.post("/TaskManagement/UpdateTaskStatus", { taskId: taskId, status: status }, function (res) {
             if (res.isSuccess) {
                // toastr.success("Status updated");
             } else {
                 toastr.error("Failed to update status");
+            }
+        });
+    },
+
+    changeProject: function(projectId) {
+        if (!projectId) {
+            toastr.warning("Vui lòng chọn dự án");
+            return;
+        }
+        
+        // Tải lại trang với projectId mới
+        window.location.href = "/TaskManagement/Index?projectId=" + projectId;
+    },
+
+    setDefaultProject: function(projectId) {
+        if (!projectId) {
+            toastr.warning("Không có dự án để đặt mặc định");
+            return;
+        }
+
+        console.log("Đang đặt dự án mặc định:", projectId);
+
+        $.ajax({
+            url: "/TaskManagement/SetDefaultProject",
+            type: "POST",
+            data: { projectId: projectId },
+            success: function(res) {
+                console.log("Kết quả SetDefaultProject:", res);
+                if (res.isSuccess) {
+                    toastr.success("Đã đặt dự án này làm mặc định. Lần sau vào menu 'Quản lý công việc' sẽ tự động mở dự án này.");
+                } else {
+                    toastr.error(res.message || "Không thể đặt dự án mặc định");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Lỗi SetDefaultProject:", error);
+                toastr.error("Đã xảy ra lỗi khi đặt dự án mặc định");
             }
         });
     }

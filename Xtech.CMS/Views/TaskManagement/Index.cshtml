@@ -1,17 +1,52 @@
 @{
     ViewData["Title"] = "Quản lý công việc";
+    var projects = ViewBag.Projects as List<Entities.Models.Projects>;
+    var currentProject = ViewBag.CurrentProject as Entities.Models.Projects;
+    var projectId = ViewBag.ProjectId as long?;
 }
 
 <div class="row-main-container">
     <div class="header-control p-4 border-b">
-        <h2 class="title text-2xl font-bold mb-4">Quản lý công việc</h2>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-3">
+                <a href="/Project/Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <h2 class="title text-2xl font-bold mb-0">Quản lý công việc</h2>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="mb-0 font-medium">Dự án:</label>
+                <select id="projectSelector" class="form-control" style="width: 300px;" onchange="taskManagement.changeProject(this.value)">                   
+                    @if (projects != null)
+                    {
+                        foreach (var project in projects)
+                        {
+                            if (projectId.HasValue && project.Id == projectId.Value)
+                            {
+                                <option value="@project.Id" selected>@project.ProjectName</option>
+                            }
+                            else
+                            {
+                                <option value="@project.Id">@project.ProjectName</option>
+                            }
+                        }
+                    }
+                </select>
+                @if (projectId.HasValue)
+                {
+                    <button class="btn btn-outline-primary btn-sm" onclick="taskManagement.setDefaultProject(@projectId)" title="Đặt làm dự án mặc định">
+                        <i class="bi bi-star"></i> Đặt mặc định
+                    </button>
+                }
+            </div>
+        </div>
         <ul class="nav nav-tabs task-tabs border-none" id="taskTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active font-medium border-none border-b-2 border-transparent active:border-primary active:text-primary px-4 py-2 cursor-pointer" 
+                <a class="nav-link font-medium border-none border-b-2 border-transparent hover:text-primary px-4 py-2 cursor-pointer" 
                    id="backlog-tab" data-target="backlog" role="tab">Backlog</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link font-medium border-none border-b-2 border-transparent hover:text-primary px-4 py-2 cursor-pointer" 
+                <a class="nav-link active font-medium border-none border-b-2 border-transparent active:border-primary active:text-primary px-4 py-2 cursor-pointer" 
                    id="board-tab" data-target="board" role="tab">Board</a>
             </li>
         </ul>
@@ -19,11 +54,20 @@
 
     <div class="tab-content mt-4" id="taskManagementContent">
         <!-- Content will be loaded here via AJAX -->
-        <div class="text-center p-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="sr-only">Loading...</span>
+        @if (!projectId.HasValue)
+        {
+            <div class="alert alert-info m-4">
+                <i class="bi bi-info-circle"></i> Vui lòng chọn dự án để bắt đầu quản lý công việc.
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -33,7 +77,9 @@
     <script>
         $(document).ready(function() {
             var projectId = $("#currentProjectId").val();
-            taskManagement.initTabs(projectId);
+            if (projectId) {
+                taskManagement.initTabs(projectId);
+            }
         });
     </script>
 }
@@ -42,4 +88,18 @@
     .task-tabs .nav-link { color: #5e6c84; }
     .task-tabs .nav-link.active { color: #0052cc; border-bottom: 2px solid #0052cc !important; }
     .task-tabs .nav-link:hover { color: #0052cc; }
+    
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .mb-0 { margin-bottom: 0 !important; }
+
+    
+    #projectSelector:focus {
+        border-color: #0052cc;
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(0, 82, 204, 0.25);
+    }
 </style>

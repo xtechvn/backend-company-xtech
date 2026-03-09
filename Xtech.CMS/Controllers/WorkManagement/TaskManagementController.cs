@@ -41,11 +41,75 @@ namespace WEB.CMS.Controllers.WorkManagement
             _allCodeRepository = allCodeRepository;
         }
 
-        public IActionResult Index(long? projectId)
+        public async Task<IActionResult> Index(long? projectId)
         {
+            // Lấy danh sách tất cả dự án cho dropdown
+            var projects = await _projectRepository.GetAllProjects();
+            ViewBag.Projects = projects;
+
+            // Nếu không có dự án nào, chuyển về trang Project/Index
+            if (projects == null || !projects.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("Không tìm thấy dự án nào, chuyển hướng về /Project/Index");
+                return RedirectToAction("Index", "Project");
+            }
+
+            // Nếu không có projectId, thử lấy từ session (dự án mặc định)
+            if (!projectId.HasValue)
+            {
+                var defaultProjectId = HttpContext.Session.GetInt32("DefaultProjectId");
+                
+                // Log để kiểm tra
+                System.Diagnostics.Debug.WriteLine($"Đọc DefaultProjectId từ Session: {defaultProjectId}");
+                
+                if (defaultProjectId.HasValue)
+                {
+                    projectId = defaultProjectId.Value;
+                    System.Diagnostics.Debug.WriteLine($"Sử dụng dự án mặc định từ Session: {projectId}");
+                }
+                else
+                {
+                    // Nếu không có dự án mặc định trong session, dùng dự án đầu tiên
+                    projectId = projects.First().Id;
+                    System.Diagnostics.Debug.WriteLine($"Không có dự án mặc định trong Session, dùng dự án đầu tiên: {projectId}");
+                }
+                
+                // Chuyển hướng về Index với projectId đã chọn
+                return RedirectToAction("Index", new { projectId = projectId });
+            }
+
             ViewBag.ProjectId = projectId;
+
+            // Lấy thông tin chi tiết dự án hiện tại nếu có projectId
+            if (projectId.HasValue)
+            {
+                var currentProject = projects.FirstOrDefault(p => p.Id == projectId.Value);
+                ViewBag.CurrentProject = currentProject;
+            }
+
             return View();
         }
+
+        [HttpPost]
+        public IActionResult SetDefaultProject(long projectId)
+        {
+            try
+            {
+                // Lưu dự án mặc định vào session
+                HttpContext.Session.SetInt32("DefaultProjectId", (int)projectId);
+                
+                // Log để kiểm tra
+                System.Diagnostics.Debug.WriteLine($"Đã lưu DefaultProjectId vào Session: {projectId}");
+                
+                return Json(new { isSuccess = true, message = "Đã đặt dự án mặc định" });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Lỗi khi lưu DefaultProjectId: {ex.Message}");
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
 
         public async Task<IActionResult> Backlog(long? projectId)
         {
@@ -319,6 +383,33 @@ namespace WEB.CMS.Controllers.WorkManagement
             catch (Exception ex)
             {
                 LogHelper.InsertLogTelegram("StartSprint - TaskManagementController: " + ex);
+                return Json(new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CompleteSprint(long sprintId, long? targetSprintId)
+        {
+            try
+            {
+                // Get all tasks in the sprint that are not completed (status != 5)
+                var tasks = await _projectTaskRepository.GetTasksBySprint(sprintId, null);
+                var incompleteTasks = tasks.Where(t => t.StatusId != 5).Select(t => t.Id).ToList();
+
+                // Move incomplete tasks to target sprint or backlog
+                if (incompleteTasks.Count > 0)
+                {
+                    await _projectTaskRepository.UpdateSprints(incompleteTasks, targetSprintId);
+                }
+
+                // Update sprint status to completed (2)
+                var success = await _sprintRepository.UpdateStatus(sprintId, 2);
+                
+                return Json(new { isSuccess = success });
+            }
+            catch (Exception ex)
+            {
+                LogHelper.InsertLogTelegram("CompleteSprint - TaskManagementController: " + ex);
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }
