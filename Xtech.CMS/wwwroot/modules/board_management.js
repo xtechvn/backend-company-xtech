@@ -167,7 +167,9 @@ var boardTaskManagement = {
         $("#task-priority").val("1");
         $("#task-status-create").val("0");
         $("#task-story-point").val("");
-        $("#task-due-date").val("");
+        // Đặt ngày hết hạn là ngày hiện tại
+        var today = new Date().toISOString().split('T')[0];
+        $("#task-due-date").val(today);
         $("#task-label").val("");
         $("#task-attachment").val("");
         
