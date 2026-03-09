@@ -43,40 +43,44 @@ namespace WEB.CMS.Controllers.WorkManagement
 
         public async Task<IActionResult> Index(long? projectId)
         {
-            // Get all projects for dropdown
+            // Lấy danh sách tất cả dự án cho dropdown
             var projects = await _projectRepository.GetAllProjects();
             ViewBag.Projects = projects;
 
-            // If no projectId provided, try to get from session (default project)
+            // Nếu không có dự án nào, chuyển về trang Project/Index
+            if (projects == null || !projects.Any())
+            {
+                System.Diagnostics.Debug.WriteLine("Không tìm thấy dự án nào, chuyển hướng về /Project/Index");
+                return RedirectToAction("Index", "Project");
+            }
+
+            // Nếu không có projectId, thử lấy từ session (dự án mặc định)
             if (!projectId.HasValue)
             {
                 var defaultProjectId = HttpContext.Session.GetInt32("DefaultProjectId");
                 
-                // Log to verify
-                System.Diagnostics.Debug.WriteLine($"Reading DefaultProjectId from Session: {defaultProjectId}");
+                // Log để kiểm tra
+                System.Diagnostics.Debug.WriteLine($"Đọc DefaultProjectId từ Session: {defaultProjectId}");
                 
                 if (defaultProjectId.HasValue)
                 {
                     projectId = defaultProjectId.Value;
-                    System.Diagnostics.Debug.WriteLine($"Using default project from Session: {projectId}");
+                    System.Diagnostics.Debug.WriteLine($"Sử dụng dự án mặc định từ Session: {projectId}");
                 }
-                else if (projects != null && projects.Any())
+                else
                 {
-                    // If no default project in session, use first project
+                    // Nếu không có dự án mặc định trong session, dùng dự án đầu tiên
                     projectId = projects.First().Id;
-                    System.Diagnostics.Debug.WriteLine($"No default project in Session, using first project: {projectId}");
+                    System.Diagnostics.Debug.WriteLine($"Không có dự án mặc định trong Session, dùng dự án đầu tiên: {projectId}");
                 }
                 
-                // Redirect to Index with the selected project
-                if (projectId.HasValue)
-                {
-                    return RedirectToAction("Index", new { projectId = projectId });
-                }
+                // Chuyển hướng về Index với projectId đã chọn
+                return RedirectToAction("Index", new { projectId = projectId });
             }
 
             ViewBag.ProjectId = projectId;
 
-            // Get current project details if projectId is provided
+            // Lấy thông tin chi tiết dự án hiện tại nếu có projectId
             if (projectId.HasValue)
             {
                 var currentProject = projects.FirstOrDefault(p => p.Id == projectId.Value);
@@ -91,17 +95,17 @@ namespace WEB.CMS.Controllers.WorkManagement
         {
             try
             {
-                // Save default project to session
+                // Lưu dự án mặc định vào session
                 HttpContext.Session.SetInt32("DefaultProjectId", (int)projectId);
                 
-                // Log to verify
-                System.Diagnostics.Debug.WriteLine($"Saved DefaultProjectId to Session: {projectId}");
+                // Log để kiểm tra
+                System.Diagnostics.Debug.WriteLine($"Đã lưu DefaultProjectId vào Session: {projectId}");
                 
                 return Json(new { isSuccess = true, message = "Đã đặt dự án mặc định" });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error saving DefaultProjectId: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Lỗi khi lưu DefaultProjectId: {ex.Message}");
                 return Json(new { isSuccess = false, message = ex.Message });
             }
         }

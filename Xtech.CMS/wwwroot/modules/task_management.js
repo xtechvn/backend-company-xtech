@@ -10,8 +10,8 @@ var taskManagement = {
             taskManagement.loadContent(target);
         });
 
-        // Load default tab
-        taskManagement.loadContent("backlog");
+        // Load tab mặc định (Board)
+        taskManagement.loadContent("board");
     },
 
     loadContent: function (tab) {
@@ -27,7 +27,7 @@ var taskManagement = {
     },
 
     initBacklog: function () {
-        // Multi-select logic using Checkboxes
+        // Logic chọn nhiều task bằng Checkbox
         $(document).off("change", ".task-checkbox").on("change", ".task-checkbox", function (e) {
             var card = $(this).closest(".task-card");
             if ($(this).is(":checked")) {
@@ -36,7 +36,7 @@ var taskManagement = {
                 card.removeClass("border-primary bg-blue-50 selected-task");
             }
 
-            // Sync "Select All" checkbox state
+            // Đồng bộ trạng thái checkbox "Chọn tất cả"
             var list = card.closest('.task-list');
             var allCheckboxes = list.find('.task-checkbox');
             var checkedCheckboxes = list.find('.task-checkbox:checked');
@@ -46,7 +46,7 @@ var taskManagement = {
             }
         });
 
-        // "Select All" logic
+        // Logic "Chọn tất cả"
         $(document).off("change", ".sprint-select-all").on("change", ".sprint-select-all", function (e) {
             var isChecked = $(this).is(":checked");
             var targetWrap = $(this).closest('.backlog-item, .sprint-item');
@@ -460,7 +460,7 @@ var taskManagement = {
             return;
         }
         
-        // Reload page with new projectId
+        // Tải lại trang với projectId mới
         window.location.href = "/TaskManagement/Index?projectId=" + projectId;
     },
 
@@ -470,14 +470,14 @@ var taskManagement = {
             return;
         }
 
-        console.log("Setting default project:", projectId);
+        console.log("Đang đặt dự án mặc định:", projectId);
 
         $.ajax({
             url: "/TaskManagement/SetDefaultProject",
             type: "POST",
             data: { projectId: projectId },
             success: function(res) {
-                console.log("SetDefaultProject response:", res);
+                console.log("Kết quả SetDefaultProject:", res);
                 if (res.isSuccess) {
                     toastr.success("Đã đặt dự án này làm mặc định. Lần sau vào menu 'Quản lý công việc' sẽ tự động mở dự án này.");
                 } else {
@@ -485,7 +485,7 @@ var taskManagement = {
                 }
             },
             error: function(xhr, status, error) {
-                console.error("SetDefaultProject error:", error);
+                console.error("Lỗi SetDefaultProject:", error);
                 toastr.error("Đã xảy ra lỗi khi đặt dự án mặc định");
             }
         });

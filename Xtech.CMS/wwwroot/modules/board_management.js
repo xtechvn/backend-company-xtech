@@ -6,7 +6,7 @@ var boardTaskManagement = {
     },
 
     initHorizontalScroll: function() {
-        // Enable horizontal scroll by dragging
+        // Bật tính năng cuộn ngang bằng cách kéo chuột
         $('.board-container').each(function() {
             const slider = this;
             let isDown = false;
@@ -14,7 +14,7 @@ var boardTaskManagement = {
             let scrollLeft;
 
             $(slider).on('mousedown', function(e) {
-                // Only start drag if clicking on the container itself, not on task cards
+                // Chỉ bắt đầu kéo nếu click vào container, không phải task card
                 if ($(e.target).closest('.task-card, .task-drop-zone').length) {
                     return;
                 }
@@ -40,14 +40,14 @@ var boardTaskManagement = {
                 if (!isDown) return;
                 e.preventDefault();
                 const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 2; // Scroll speed multiplier
+                const walk = (x - startX) * 2; // Tốc độ cuộn
                 slider.scrollLeft = scrollLeft - walk;
             });
         });
     },
 
     initDragDrop: function() {
-        // Initialize Drag & Drop with jQuery UI Sortable for each sprint separately
+        // Khởi tạo Drag & Drop với jQuery UI Sortable cho từng sprint riêng biệt
         $(".task-drop-zone").each(function() {
             var sprintId = $(this).data("sprint");
             
@@ -68,13 +68,13 @@ var boardTaskManagement = {
                     ui.item.removeClass("dragging");
                 },
                 update: function(event, ui) {
-                    // Only trigger on the receiving list
+                    // Chỉ kích hoạt trên danh sách nhận
                     if (this === ui.item.parent()[0]) {
                         var taskId = ui.item.data("id");
                         var newStatus = parseInt($(this).data("status"));
                         var oldStatus = ui.sender ? parseInt(ui.sender.data("status")) : newStatus;
                         
-                        // Only update if status actually changed
+                        // Chỉ cập nhật nếu trạng thái thực sự thay đổi
                         if (oldStatus !== newStatus) {
                             boardTaskManagement.updateTaskStatus(taskId, newStatus, ui.item);
                         }
@@ -85,9 +85,9 @@ var boardTaskManagement = {
     },
 
     initEventHandlers: function() {
-        // Task card click event
+        // Sự kiện click vào task card
         $(document).off("click", ".task-card").on("click", ".task-card", function(e) {
-            // Prevent opening modal when dragging or clicking action buttons
+            // Ngăn mở modal khi đang kéo hoặc click vào nút action
             if($(e.target).closest('.avatar-circle, button').length || $(this).hasClass('ui-sortable-helper')) return;
             
             var taskId = $(this).data("id");
@@ -106,45 +106,45 @@ var boardTaskManagement = {
             },
             success: function(response) {
                 if(response.isSuccess) {
-                    toastr.success("Task moved successfully!");
+                    toastr.success("Đã chuyển task thành công!");
                     
-                    // Update card styling based on new status
+                    // Cập nhật style của card dựa trên trạng thái mới
                     taskCard.removeClass('border-l-4 border-l-blue-500 opacity-75');
                     taskCard.find('.text-sm.mb-2').removeClass('line-through text-gray-500');
                     taskCard.find('.bi-check-circle-fill').remove();
                     
                     if(newStatus === 1) {
-                        // IN PROGRESS styling
+                        // Style cho IN PROGRESS
                         taskCard.addClass('border-l-4 border-l-blue-500');
                         if(!taskCard.find('.avatar-circle').length) {
                             taskCard.find('.flex.justify-between .text-xs').next().replaceWith('<div class="avatar-circle">US</div>');
                         }
                     } else if(newStatus === 2) {
-                        // DONE styling
+                        // Style cho DONE
                         taskCard.addClass('opacity-75');
                         taskCard.find('.text-sm.mb-2').addClass('line-through text-gray-500');
                         taskCard.find('.avatar-circle').replaceWith('<i class="bi bi-check-circle-fill text-success"></i>');
                     } else {
-                        // TO DO styling (default)
+                        // Style cho TO DO (mặc định)
                         if(!taskCard.find('.avatar-circle').length) {
                             taskCard.find('.flex.justify-between .text-xs').next().replaceWith('<div class="avatar-circle">US</div>');
                         }
                     }
                     
-                    // Update column counts
+                    // Cập nhật số lượng task trong mỗi cột
                     $('.board-column').each(function() {
                         var count = $(this).find('.task-card').length;
                         $(this).find('.column-header span.bg-gray-200').text(count);
                     });
                 } else {
-                    toastr.error(response.message || "Failed to update task status!");
-                    // Revert the move on failure
+                    toastr.error(response.message || "Không thể cập nhật trạng thái task!");
+                    // Hoàn tác thao tác khi thất bại
                     location.reload();
                 }
             },
             error: function() {
-                toastr.error("An error occurred while updating task!");
-                // Revert the move on error
+                toastr.error("Đã xảy ra lỗi khi cập nhật task!");
+                // Hoàn tác thao tác khi có lỗi
                 location.reload();
             }
         });
@@ -171,7 +171,7 @@ var boardTaskManagement = {
         $("#task-label").val("");
         $("#task-attachment").val("");
         
-        // Show modal
+        // Hiển thị modal
         $("#modal-create-task").modal("show");
     },
     
