@@ -142,8 +142,19 @@ var taskManagement = {
         $("#task-label").val("");
         $("#task-project-id").val(this.projectId || "");
         $("#task-type").val("0");
-        $("#modal-task .modal-title").text("Create Task");
+        $("#modal-task .modal-title").text("Tạo Task");
+        
+        // Hiển thị modal trước, sau đó khởi tạo TinyMCE
         $("#modal-task").modal("show");
+        
+        // Đợi modal hiển thị xong rồi mới khởi tạo TinyMCE
+        $("#modal-task").on('shown.bs.modal', function () {
+            if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
+                _common.tinyMce('#task-desc');
+            }
+            // Xóa event listener sau khi đã khởi tạo
+            $(this).off('shown.bs.modal');
+        });
     },
 
     saveSprint: function () {
@@ -231,10 +242,18 @@ var taskManagement = {
     },
 
     saveTask: function () {
+        // Lấy nội dung từ TinyMCE editor
+        var description = "";
+        if (typeof tinymce !== 'undefined' && tinymce.get('task-desc')) {
+            description = tinymce.get('task-desc').getContent();
+        } else {
+            description = $("#task-desc").val();
+        }
+
         var formData = new FormData();
         formData.append("Id", $("#task-id-hidden").val() || "");
         formData.append("Title", $("#task-title").val());
-        formData.append("Description", $("#task-desc").val());
+        formData.append("Description", description);
         formData.append("AssigneeId", $("#task-assignee").val() || "");
         formData.append("ReporterId", $("#task-reporter").val() || "");
         formData.append("Priority", $("#task-priority").val());
@@ -247,12 +266,12 @@ var taskManagement = {
         formData.append("Status", $("#task-status-hidden").val() || 0);
 
         var fileInput = document.getElementById('task-attachment');
-        if (fileInput.files.length > 0) {
+        if (fileInput && fileInput.files.length > 0) {
             formData.append("AttachmentFile", fileInput.files[0]);
         }
 
         if (!$("#task-title").val()) {
-            toastr.error("Please enter task title");
+            toastr.error("Vui lòng nhập tên công việc");
             return;
         }
 
@@ -264,26 +283,31 @@ var taskManagement = {
             contentType: false,
             success: function (res) {
                 if (res.isSuccess) {
-                    // Close modal first
+                    // Đóng modal trước
                     $("#modal-task").modal("hide");
                     
-                    // Wait for modal to close, then clean up and reload
+                    // Đợi modal đóng xong, sau đó dọn dẹp và tải lại
                     setTimeout(function() {
-                        // Force remove all backdrops and modal-open class
+                        // Xóa backdrop và class modal-open
                         $(".modal-backdrop").remove();
                         $("body").removeClass("modal-open").css("padding-right", "");
                         
-                        // Reload content
+                        // Hủy TinyMCE instance nếu tồn tại
+                        if (typeof tinymce !== 'undefined' && tinymce.get('task-desc')) {
+                            tinymce.get('task-desc').remove();
+                        }
+                        
+                        // Tải lại nội dung
                         taskManagement.loadContent("backlog");
-                        toastr.success("Task saved successfully");
+                        toastr.success("Lưu task thành công");
                         location.reload();
                     }, 300);
                 } else {
-                    toastr.error(res.message || "Failed to save task");
+                    toastr.error(res.message || "Không thể lưu task");
                 }
             },
             error: function() {
-                toastr.error("An error occurred while saving task");
+                toastr.error("Đã xảy ra lỗi khi lưu task");
             }
         });
     },
@@ -311,8 +335,25 @@ var taskManagement = {
                 $("#task-label").val(d.label);
                 $("#task-project-id").val(d.projectId || "");
                 $("#task-type").val(d.taskType || 0);
-                $("#modal-task .modal-title").text("Edit Task");
+                $("#modal-task .modal-title").text("Sửa Task");
+                
+                // Hiển thị modal trước
                 $("#modal-task").modal("show");
+                
+                // Đợi modal hiển thị xong rồi mới khởi tạo TinyMCE với nội dung
+                $("#modal-task").on('shown.bs.modal', function () {
+                    if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
+                        _common.tinyMce('#task-desc');
+                        // Đợi TinyMCE khởi tạo xong rồi set nội dung
+                        setTimeout(function() {
+                            if (typeof tinymce !== 'undefined' && tinymce.get('task-desc')) {
+                                tinymce.get('task-desc').setContent(d.description || "");
+                            }
+                        }, 500);
+                    }
+                    // Xóa event listener sau khi đã khởi tạo
+                    $(this).off('shown.bs.modal');
+                });
             }
         });
     },

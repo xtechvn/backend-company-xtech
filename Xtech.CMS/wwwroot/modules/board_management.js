@@ -173,8 +173,17 @@ var boardTaskManagement = {
         $("#task-label").val("");
         $("#task-attachment").val("");
         
-        // Hiển thị modal
+        // Hiển thị modal trước
         $("#modal-create-task").modal("show");
+        
+        // Đợi modal hiển thị xong rồi mới khởi tạo TinyMCE
+        $("#modal-create-task").on('shown.bs.modal', function () {
+            if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
+                _common.tinyMce('#task-desc');
+            }
+            // Xóa event listener sau khi đã khởi tạo
+            $(this).off('shown.bs.modal');
+        });
     },
     
     saveTask: function() {
@@ -183,18 +192,26 @@ var boardTaskManagement = {
         var sprintId = $("#task-sprint-id").val();
         
         if (!title) {
-            toastr.error("Please enter task title!");
+            toastr.error("Vui lòng nhập tên công việc!");
             return;
         }
         
         if (!projectId) {
-            toastr.error("Please select a project!");
+            toastr.error("Vui lòng chọn dự án!");
             return;
+        }
+        
+        // Lấy nội dung từ TinyMCE editor
+        var description = "";
+        if (typeof tinymce !== 'undefined' && tinymce.get('task-desc')) {
+            description = tinymce.get('task-desc').getContent();
+        } else {
+            description = $("#task-desc").val();
         }
         
         var formData = new FormData();
         formData.append("Title", title);
-        formData.append("Description", $("#task-desc").val());
+        formData.append("Description", description);
         formData.append("AssigneeId", $("#task-assignee-create").val() || "");
         formData.append("ReporterId", $("#task-reporter-create").val() || "");
         formData.append("Priority", $("#task-priority").val());
@@ -207,7 +224,7 @@ var boardTaskManagement = {
         formData.append("TaskType", $("#task-type").val());
         
         var fileInput = document.getElementById("task-attachment");
-        if (fileInput.files.length > 0) {
+        if (fileInput && fileInput.files.length > 0) {
             formData.append("AttachmentFile", fileInput.files[0]);
         }
         
@@ -219,16 +236,28 @@ var boardTaskManagement = {
             contentType: false,
             success: function(response) {
                 if (response.isSuccess) {
-                    toastr.success("Task created successfully!");
+                    toastr.success("Tạo task thành công!");
                     $("#modal-create-task").modal("hide");
-                    // Reload page to show new task
-                    location.reload();
+                    
+                    // Đợi modal đóng xong
+                    setTimeout(function() {
+                        $(".modal-backdrop").remove();
+                        $("body").removeClass("modal-open").css("padding-right", "");
+                        
+                        // Hủy TinyMCE instance nếu tồn tại
+                        if (typeof tinymce !== 'undefined' && tinymce.get('task-desc')) {
+                            tinymce.get('task-desc').remove();
+                        }
+                        
+                        // Tải lại trang để hiển thị task mới
+                        location.reload();
+                    }, 300);
                 } else {
-                    toastr.error(response.message || "Failed to create task!");
+                    toastr.error(response.message || "Không thể tạo task!");
                 }
             },
             error: function() {
-                toastr.error("An error occurred while creating task!");
+                toastr.error("Đã xảy ra lỗi khi tạo task!");
             }
         });
     },
