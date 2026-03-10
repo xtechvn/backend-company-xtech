@@ -9,12 +9,37 @@ var taskDetailManagement = {
         this.originalTitle = title || "";
         this.originalDescription = description || "";
         
+        this.initTinyMCE(description);
         this.initTitleHandlers();
         this.initDescriptionHandlers();
         this.initAssigneeReporterHandlers();
         this.initStatusHandler();
         this.initCommentHandlers();
         this.initKeyboardShortcuts();
+    },
+
+    initTinyMCE: function(description) {
+        // Xóa tất cả TinyMCE instances cũ
+        if (typeof tinymce !== 'undefined') {
+            tinymce.remove();
+        }
+        
+        // Đợi một chút để đảm bảo instance cũ đã bị xóa hoàn toàn
+        setTimeout(function() {
+            // Khởi tạo TinyMCE mới
+            if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
+                _common.tinyMce('#detail-description');
+                
+                // Đợi TinyMCE khởi tạo xong rồi set nội dung
+                var checkTinyMCE = setInterval(function() {
+                    if (tinymce.get('detail-description')) {
+                        clearInterval(checkTinyMCE);
+                        // Set nội dung cho TinyMCE
+                        tinymce.get('detail-description').setContent(description || "");
+                    }
+                }, 100);
+            }
+        }, 100);
     },
 
     initTitleHandlers: function() {
@@ -58,29 +83,55 @@ var taskDetailManagement = {
     initDescriptionHandlers: function() {
         var self = this;
         
+        // Xử lý sự kiện focus cho TinyMCE editor
+        // Đợi TinyMCE khởi tạo xong
+        var checkTinyMCE = setInterval(function() {
+            if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
+                clearInterval(checkTinyMCE);
+                
+                // Lắng nghe sự kiện focus trên TinyMCE editor
+                tinymce.get('detail-description').on('focus', function() {
+                    $("#desc-actions").css("display", "flex");
+                });
+            }
+        }, 100);
+        
+        // Fallback cho trường hợp không có TinyMCE
         $("#detail-description").focus(function() {
             $("#desc-actions").css("display", "flex");
         });
         
         $("#btn-cancel-description").click(function() {
-            $("#detail-description").val(self.originalDescription);
+            // Khôi phục nội dung gốc
+            if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
+                tinymce.get('detail-description').setContent(self.originalDescription);
+            } else {
+                $("#detail-description").val(self.originalDescription);
+            }
             $("#desc-actions").css("display", "none");
         });
         
         $("#btn-save-description").click(function() {
-            var newDescription = $("#detail-description").val().trim();
+            // Lấy nội dung từ TinyMCE hoặc textarea
+            var newDescription = "";
+            if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
+                newDescription = tinymce.get('detail-description').getContent();
+            } else {
+                newDescription = $("#detail-description").val().trim();
+            }
+            
             var $btn = $(this);
             
             if(newDescription !== self.originalDescription && !self.isSaving) {
-                $btn.prop('disabled', true).text('Saving...');
+                $btn.prop('disabled', true).text('Đang lưu...');
                 
                 self.updateTaskField("Description", newDescription, function() {
                     self.originalDescription = newDescription;
                     $("#desc-actions").css("display", "none");
-                    $btn.prop('disabled', false).text('Save');
-                    toastr.success("Description updated!");
+                    $btn.prop('disabled', false).text('Lưu');
+                    toastr.success("Đã cập nhật mô tả!");
                 }, function() {
-                    $btn.prop('disabled', false).text('Save');
+                    $btn.prop('disabled', false).text('Lưu');
                 });
             } else {
                 $("#desc-actions").css("display", "none");
