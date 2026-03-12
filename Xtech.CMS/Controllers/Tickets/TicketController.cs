@@ -95,14 +95,18 @@ namespace Xtech.CMS.Controllers.Tickets
                 }
 
                 // 3) Publish Redis
-                var createdAtStr = dto.CreatedAt; 
+                var createdAtStr = dto.CreatedAt;
+                    
+
+                // ✅ Ưu tiên cmd.AgentId (User.Identity.Name) vì dto.SenderId có thể null
+                var displaySenderId = cmd.AgentId ?? dto.SenderId ?? "admin";
 
                 var payload = new
                 {
                     id = dto.Id,
                     ticketId = dto.TicketId,
                     senderType = dto.SenderType,
-                    senderId = dto.SenderId,
+                    senderId = displaySenderId,
                     content = dto.Content,
                     contentHtml = dto.ContentHtml,
                     createdAt = createdAtStr,
@@ -121,7 +125,7 @@ namespace Xtech.CMS.Controllers.Tickets
                         id = dto.Id,
                         ticketId = dto.TicketId,
                         senderType = dto.SenderType,
-                        senderId = dto.SenderId,
+                        senderId = displaySenderId,  // ✅ tên hiển thị đúng
                         content = dto.Content,
                         contentHtml = dto.ContentHtml,
                         createdAt = createdAtStr,

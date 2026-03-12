@@ -211,7 +211,7 @@ var ticketDetail = {
 
         var senderType = (m.senderType || '').toLowerCase();
         var isStaff = senderType === 'agent' || senderType === 'staff';
-        var senderTitle = isStaff ? ('Staff - ' + (m.senderId || '')) : 'Customer';
+        var senderTitle = m.senderId || (isStaff ? 'Nhân viên' : 'Khách hàng');
         var contentHtml = m.contentHtml
             ? m.contentHtml
             : this.escapeHtml(m.content || '').replace(/\n/g, '<br/>');
