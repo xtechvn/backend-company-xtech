@@ -1,0 +1,251 @@
+@using Entities.Models
+@{
+    var task = ViewBag.Task as ProjectTask;
+    var users = ViewBag.Users as List<User>;
+    var comments = ViewBag.Comments as List<TaskComment>;
+    var taskStatuses = ViewBag.TaskStatuses as List<AllCode>;
+}
+
+<link href="~/css/task-management.css" rel="stylesheet" />
+
+<style>
+    /* Fix TinyMCE dialog z-index trong modal */
+    .tox-tinymce-aux {
+        z-index: 9999 !important;
+    }
+    
+    .tox .tox-dialog-wrap {
+        z-index: 9999 !important;
+    }
+    
+    .tox .tox-dialog {
+        z-index: 9999 !important;
+    }
+</style>
+
+<div class="row">
+    <!-- Left Content -->
+    <div class="col-md-8 grid-border-right" style="max-height: 75vh; overflow-y: auto;">
+        <div>
+            <input type="text" class="form-control mb20" id="detail-task-title" style="font-size: 20px; font-weight: bold; height: auto;" placeholder="Tiêu đề task" value="@task?.Title" />
+            <div class="mt5 mb20" id="title-actions" style="display: none; gap: 8px;">
+                <button class="btn btn-primary btn-sm" id="btn-save-title" style="min-width: 70px;">Lưu</button>
+                <button class="btn btn-default btn-sm" id="btn-cancel-title" style="min-width: 70px;">Hủy</button>
+            </div>
+            
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Mô tả</label>
+                <textarea class="form-control" rows="4" placeholder="Thêm mô tả..." id="detail-description">@task?.Description</textarea>
+                <div class="mt5" id="desc-actions" style="display: none; gap: 8px;">
+                    <button class="btn btn-primary btn-sm" id="btn-save-description" style="min-width: 70px;">Lưu</button>
+                    <button class="btn btn-default btn-sm" id="btn-cancel-description" style="min-width: 70px;">Hủy</button>
+                </div>
+            </div>
+            <!-- 
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Subtasks</label>
+                <div class="mb10">
+                    <button class="btn btn-default btn-sm"><i class="bi bi-plus"></i> Add subtask</button>
+                </div>
+            </div>
+
+            <div class="mb20">
+                <label class="lbl" style="font-size: 16px;">Linked work items</label>
+                <div class="mb10">
+                    <button class="btn btn-default btn-sm"><i class="bi bi-plus"></i> Add linked issue</button>
+                </div>
+            </div>
+            -->
+            <!-- Activity / Comments -->
+            <div class="mt20">
+                <div style="display: flex; justify-content: space-between; align-items: center;" class="mb10">
+                    <label class="lbl" style="font-size: 16px; margin: 0;">Hoạt động</label>
+                    <span style="font-size: 13px; color: #666;">Hiển thị: <span style="background: #f1f1f1; padding: 2px 5px; border-radius: 3px;">Bình luận</span></span>
+                </div>
+                
+                <ul class="nav nav-tabs mb10" style="border-bottom: 1px solid #ddd;">
+                    <li class="nav-item"><a class="nav-link" style="padding: 5px 15px; color: #666; cursor: pointer;">Tất cả</a></li>
+                    <li class="nav-item"><a class="nav-link active" style="padding: 5px 15px; font-weight: bold; border-bottom: 2px solid #0052cc; color: #0052cc; cursor: pointer;">Bình luận</a></li>
+                </ul>
+                
+                <!-- Existing Comments List -->
+                <div class="comment-list mb20" id="task-comments-list">
+                    @if (comments != null && comments.Count > 0)
+                    {
+                        foreach (var comment in comments)
+                        {
+                            var commentUser = users?.FirstOrDefault(u => u.Id == comment.UserId);
+                            <div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="@comment.Id">
+                                <div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">@(commentUser?.FullName?.Substring(0, 1).ToUpper() ?? "U")</div>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                        <span style="font-weight: bold; font-size: 14px; color: #333;">@(commentUser?.FullName ?? "User")</span>
+                                        <span style="font-size: 12px; color: #999;">@comment.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                    <div style="font-size: 14px; color: #555; white-space: pre-wrap;">@comment.Content</div>
+                                    <div style="font-size: 12px; color: #999; margin-top: 5px; font-weight: 500; cursor: pointer;">
+                                        <span class="delete-comment" data-id="@comment.Id">Xóa</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div style="font-size: 13px; color: #999; font-style: italic;">Chưa có bình luận nào.</div>
+                    }
+                </div>
+
+                <!-- Comment Input Box -->
+                <div class="d-flex" style="display: flex; gap: 10px;">
+                    <div class="avatar-circle-sm" style="width: 32px; height: 32px; font-size: 14px; flex-shrink: 0;">U</div>
+                    <div style="flex: 1; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                        <textarea class="form-control" style="border: none; box-shadow: none; padding: 5px; resize: none;" id="comment-input" rows="1" placeholder="Thêm bình luận..."></textarea>
+                        <div class="mt5" id="comment-actions" style="display: none; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 12px; color: #999;">Mẹo: nhấn <b style="background: #eee; padding: 1px 4px; border-radius: 3px; color: #333;">M</b> để bình luận</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-primary btn-sm" id="btn-save-comment" style="min-width: 70px;">Lưu</button>
+                                <button class="btn btn-default btn-sm" id="btn-cancel-comment" style="min-width: 70px;">Hủy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar details -->
+    <div class="col-md-4" style="max-height: 75vh; overflow-y: auto;">
+        <div class="border pd10" style="background-color: #fcfcfc; border-radius: 4px;">
+            <div class="lb-form mb10" style="font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 5px; cursor: pointer;" data-toggle="collapse" data-target="#collapseDetails">
+                Chi tiết <i class="bi bi-chevron-down" style="float: right; color: #999;"></i>
+            </div>
+            
+            <div class="collapse show" id="collapseDetails">
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Trạng thái</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-status" data-task-id="@task?.Id">
+                            @if (taskStatuses != null)
+                            {
+                                foreach (var status in taskStatuses.OrderBy(s => s.OrderNo))
+                                {
+                                    if (task?.StatusId == status.CodeValue)
+                                    {
+                                        <option value="@status.CodeValue" selected>@status.Description</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@status.CodeValue">@status.Description</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Người phụ trách</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-assignee">
+                            <option value="">Chưa phân công</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    if (task?.AssigneeId == u.Id)
+                                    {
+                                        <option value="@u.Id" selected>@u.FullName (@u.UserName)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Người báo cáo</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-reporter">
+                            <option value="">Chưa phân công</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    if (task?.ReporterId == u.Id)
+                                    {
+                                        <option value="@u.Id" selected>@u.FullName (@u.UserName)</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Người theo dõi</label></div>
+                    <div class="col-md-8">
+                        <span style="background: #eee; padding: 2px 8px; border-radius: 10px; font-size: 12px; color: #333;">1 <i class="bi bi-eye"></i></span>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Sprint</label></div>
+                    <div class="col-md-8">
+                        <span style="color: #0052cc; font-size: 13px; text-decoration: underline; cursor: pointer;">Sprint đang hoạt động</span>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Story Point</label></div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" placeholder="Không có" id="detail-story-point" value="@task?.StoryPoint">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Ngày bắt đầu</label></div>
+                    <div class="col-md-8">
+                        <input type="date" class="form-control" id="detail-start-date" value="@task?.CreatedDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Ngày hết hạn</label></div>
+                    <div class="col-md-8">
+                        <input type="date" class="form-control" id="detail-due-date" value="@task?.DueDate?.ToString("yyyy-MM-dd")">
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Nhóm</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-team">
+                            <option value="">Không có</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb10 align-items-center">
+                    <div class="col-md-4"><label class="lbl mt5 mb0" style="color: #666; font-weight: normal;">Task cha</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="detail-parent">
+                            <option value="">Không có</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/modules/task_detail.js"></script>
+<script>
+    $(document).ready(function() {
+        var taskId = $("#detail-status").data("task-id");
+        var title = $("#detail-task-title").val();
+        var description = $("#detail-description").val();
+        
+        taskDetailManagement.init(taskId, title, description);
+    });
+</script>
+

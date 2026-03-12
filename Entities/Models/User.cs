@@ -9,6 +9,7 @@ namespace Entities.Models
         {
             UserAgents = new HashSet<UserAgent>();
             UserRoles = new HashSet<UserRole>();
+
         }
 
         public int Id { get; set; }
@@ -36,5 +37,6 @@ namespace Entities.Models
 
         public virtual ICollection<UserAgent> UserAgents { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
+
     }
 }

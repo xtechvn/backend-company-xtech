@@ -1,0 +1,255 @@
+@using Entities.Models
+@{
+    Layout = null;
+    var activeSprint = ViewBag.ActiveSprint as Sprint;
+    var sprints = ViewBag.Sprints as List<Sprint>;
+    var sprintsComplete = ViewBag.SprintsComplete as List<Sprint>;
+    var sprintTasks = ViewBag.SprintTasks as Dictionary<long, List<ProjectTask>>;
+    var users = ViewBag.Users as List<User>;
+    var taskStatuses = ViewBag.TaskStatuses as List<AllCode>;
+}
+
+<link href="~/css/task-management.css" rel="stylesheet" />
+
+<div class="row-main-container px-4">
+    <div class="breadcrumbs text-sm text-gray-500 mb-4 flex justify-between items-center">
+        <span>Dự án / My Scrum Space / Board</span>
+        @if (activeSprint != null)
+        {
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary btn-sm" onclick="boardTaskManagement.showCreateTaskModal()">
+                    <i class="bi bi-plus"></i> Tạo task
+                </button>
+                    <button class="btn btn-success btn-sm" onclick="boardTaskManagement.showCompleteSprintModal(@activeSprint.Id)">
+                    <i class="bi bi-check-circle"></i> Hoàn thành Sprint
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (activeSprint == null)
+    {
+        <div class="alert alert-info">
+            Không có sprint đang hoạt động. Vui lòng vào tab <b>Backlog</b> và bắt đầu một sprint.
+        </div>
+    }
+    else if (sprints == null || !sprints.Any())
+    {
+        <div class="alert alert-info">
+            Không tìm thấy sprint. Vui lòng vào tab <b>Backlog</b> để tạo sprint.
+        </div>
+    }
+    else
+    {
+        @foreach (var sprint in sprints.OrderByDescending(s => s.Status).ThenByDescending(s => s.StartDate))
+        {
+            var tasks = sprintTasks != null && sprintTasks.ContainsKey(sprint.Id) ? sprintTasks[sprint.Id] : new List<ProjectTask>();
+            var statusBadge = sprint.Status == 1 ? "badge-success" : (sprint.Status == 2 ? "badge-secondary" : "badge-warning");
+            var statusText = sprint.Status == 1 ? "Đang hoạt động" : (sprint.Status == 2 ? "Đã hoàn thành" : "Sắp tới");
+            
+            <div class="sprint-section mb-5">
+                <div class="sprint-header mb-3 p-3 bg-white border rounded">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h5 class="mb-1">
+                                @sprint.SprintName
+                                <span class="badge @statusBadge ml-2">@statusText</span>
+                            </h5>
+                            <small class="text-muted">
+                                @if (sprint.StartDate.HasValue && sprint.EndDate.HasValue)
+                                {
+                                    <span>@sprint.StartDate.Value.ToString("dd/MM/yyyy") - @sprint.EndDate.Value.ToString("dd/MM/yyyy")</span>
+                                }
+                            </small>
+                        </div>
+                        <div class="text-muted">
+                            <small>@tasks.Count task(s)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="board-container">
+                    @if (taskStatuses != null)
+                    {
+                        foreach (var status in taskStatuses.OrderBy(s => s.OrderNo))
+                        {
+                            var statusTasks = tasks.Where(t => t.StatusId == status.CodeValue).ToList();
+                            <div class="board-column" data-status="@status.CodeValue" data-sprint="@sprint.Id">
+                                <div class="column-header mb-3 flex justify-between items-center">
+                                    <span class="font-bold text-gray-600">@status.Description</span>
+                                    <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">@statusTasks.Count</span>
+                                </div>
+                                <div class="task-drop-zone h-full pb-20" data-status="@status.CodeValue" data-sprint="@sprint.Id">
+                                    @foreach (var task in statusTasks)
+                                    {
+                                        var assignee = users?.FirstOrDefault(u => u.Id == task.AssigneeId);
+                                        var initials = assignee != null ? (assignee.FullName?.Length > 0 ? assignee.FullName.Substring(0, Math.Min(2, assignee.FullName.Length)).ToUpper() : "U") : "U";
+                                        var borderClass = status.CodeValue == 1 ? "border-l-4 border-l-blue-500" : "";
+                                        var opacityClass = status.CodeValue == 2 ? "opacity-75" : "";
+                                        var textClass = status.CodeValue == 2 ? "line-through text-gray-500" : "";
+                                        <div class="task-card p-3 mb-2 bg-white border rounded shadow-sm cursor-move @borderClass @opacityClass" data-id="@task.Id" data-sprint="@sprint.Id">
+                                            <div class="text-sm mb-2 @textClass">@task.Title</div>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <div class="text-xs text-gray-400">#@task.Id</div>
+                                                <div class="avatar-circle" title="@(assignee?.FullName ?? "Unassigned")">@initials</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Modal Create Task -->
+<div id="modal-create-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Tạo Task</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label>Dự án (Space)*</label>
+                        <select id="task-project-id" class="form-control">
+                            <option value="">-- Chọn dự án --</option>
+                            @if (ViewBag.Projects != null)
+                            {
+                                foreach (var p in (List<Projects>)ViewBag.Projects)
+                                {
+                                    <option value="@p.Id" selected="@(ViewBag.ProjectId != null && (long)ViewBag.ProjectId == p.Id)">@p.ProjectName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>Loại công việc (Work type)</label>
+                        <select id="task-type" class="form-control">
+                            <option value="0">Task</option>
+                            <option value="1">Bug</option>
+                            <option value="2">Story</option>
+                            <option value="3">Epic</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Tên công việc (Title) *</label>
+                        <input type="text" id="task-title-create" class="form-control" placeholder="Cần làm gì?" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>Mô tả (Description)</label>
+                        <textarea id="task-desc" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Người phụ trách (Assignee)</label>
+                        <select id="task-assignee-create" class="form-control">
+                            <option value="">Chưa phân công</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Người báo cáo (Reporter)</label>
+                        <select id="task-reporter-create" class="form-control">
+                            <option value="">Chưa phân công</option>
+                            @if (users != null)
+                            {
+                                foreach (var u in users)
+                                {
+                                    <option value="@u.Id">@u.FullName (@u.UserName)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Độ ưu tiên (Priority)</label>
+                        <select id="task-priority" class="form-control">
+                            <option value="0">Thấp</option>
+                            <option value="1" selected>Trung bình</option>
+                            <option value="2">Cao</option>
+                            <option value="3">Khẩn cấp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Trạng thái (Status)</label>
+                        <select id="task-status-create" class="form-control">
+                            @if (taskStatuses != null)
+                            {
+                                foreach (var status in taskStatuses.OrderBy(s => s.OrderNo))
+                                {
+                                    <option value="@status.CodeValue">@status.Description</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group mt-3">
+                        <label>Story Point</label>
+                        <input type="number" id="task-story-point" class="form-control" min="0" step="1" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Ngày hết hạn (Due Date)</label>
+                        <input type="date" class="form-control" id="task-due-date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-6 form-group mt-3">
+                        <label>Nhãn (Label)</label>
+                        <input type="text" id="task-label" class="form-control" placeholder="vd: bug, enhancement" />
+                    </div>
+                    <div class="col-md-12 form-group mt-3">
+                        <label>File đính kèm (Attachment)</label>
+                        <input type="file" id="task-attachment" class="form-control" />
+                    </div>
+                </div>
+                <input type="hidden" id="task-sprint-id" value="@(activeSprint?.Id ?? 0)" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="boardTaskManagement.saveTask()">Lưu</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Complete Sprint -->
+<div id="modal-complete-sprint" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Hoàn thành Sprint</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Các task chưa hoàn thành sẽ được chuyển sang sprint/backlog bạn chọn:</p>
+                <div class="form-group">
+                    <label>Chuyển task chưa hoàn thành sang *</label>
+                    <select id="complete-sprint-target" class="form-control">
+                        <option value="">Backlog</option>
+                        @if (sprintsComplete != null)
+                        {
+                            foreach (var s in sprintsComplete.Where(x => x.Status != 1))
+                            {
+                                <option value="@s.Id">@s.SprintName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <input type="hidden" id="complete-sprint-id" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="boardTaskManagement.completeSprint()">Hoàn thành Sprint</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/modules/board_management.js"></script>
