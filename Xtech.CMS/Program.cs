@@ -7,6 +7,8 @@ using System.Text.Json;
 using Ultilities;
 using Ultilities.RedisWorker;
 using WEB.CMS.Customize;
+using Xtech.CMS.Services;
+using Xtech.CMS.Services.ServiceInterface;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
@@ -88,6 +90,7 @@ builder.Services.AddTransient<IOtherBookingPackageRepository, OtherBookingPackag
 builder.Services.AddTransient<IContractPayRepository, ContractPayRepository>();
 builder.Services.AddTransient<IPaymentRequestRepository, PaymentRequestRepository>();
 builder.Services.AddTransient<ITelegramRepository, TelegramRepository>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 
 // Setting Redis                     

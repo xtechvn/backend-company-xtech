@@ -4,11 +4,11 @@ var taskDetailManagement = {
     originalDescription: "",
     isSaving: false,
 
-    init: function(taskId, title, description) {
+    init: function (taskId, title, description) {
         this.taskId = taskId;
         this.originalTitle = title || "";
         this.originalDescription = description || "";
-        
+
         this.initTinyMCE(description);
         this.initTitleHandlers();
         this.initDescriptionHandlers();
@@ -18,60 +18,71 @@ var taskDetailManagement = {
         this.initKeyboardShortcuts();
     },
 
-    initTinyMCE: function(description) {
+    initTinyMCE: function (description) {
+        var self = this;
+
+        // Remove Magnific Popup's focus enforcement for TinyMCE
+        if ($.magnificPopup && $.magnificPopup.instance) {
+            var origOnFocusIn = $.magnificPopup.instance._onFocusIn;
+            $.magnificPopup.instance._onFocusIn = function (e) {
+                // Return true if the event target is inside the TinyMCE UI
+                if ($(e.target).closest('.tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root, .tox-dialog, .tox-dialog-wrap').length) {
+                    return true;
+                }
+                // Otherwise call original focus event
+                if (origOnFocusIn) {
+                    origOnFocusIn.call(this, e);
+                }
+            };
+        }
+
         // Xóa tất cả TinyMCE instances cũ
         if (typeof tinymce !== 'undefined') {
             tinymce.remove();
         }
-        
+
         // Đợi một chút để đảm bảo instance cũ đã bị xóa hoàn toàn
-        setTimeout(function() {
-            // Khởi tạo TinyMCE mới
+        setTimeout(function () {
+            // Đảm bảo textarea có nội dung trước khi khởi tạo TinyMCE
+            $('#detail-description').val(description || "");
+
+            // Khởi tạo TinyMCE mới - TinyMCE sẽ tự động lấy nội dung từ textarea
             if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
                 _common.tinyMce('#detail-description');
-                
-                // Đợi TinyMCE khởi tạo xong rồi set nội dung
-                var checkTinyMCE = setInterval(function() {
-                    if (tinymce.get('detail-description')) {
-                        clearInterval(checkTinyMCE);
-                        // Set nội dung cho TinyMCE
-                        tinymce.get('detail-description').setContent(description || "");
-                    }
-                }, 100);
             }
         }, 100);
     },
 
-    initTitleHandlers: function() {
+    initTitleHandlers: function () {
         var self = this;
-        
-        $("#detail-task-title").focus(function() {
+
+        $("#detail-task-title").focus(function () {
             $("#title-actions").css("display", "flex");
         });
-        
-        $("#btn-cancel-title").click(function() {
+
+        $("#btn-cancel-title").click(function () {
             $("#detail-task-title").val(self.originalTitle);
             $("#title-actions").css("display", "none");
         });
-        
-        $("#btn-save-title").click(function() {
+
+        $("#btn-save-title").click(function () {
             var newTitle = $("#detail-task-title").val().trim();
             var $btn = $(this);
-            
-            if(!newTitle) {
+
+            if (!newTitle) {
                 toastr.error("Title cannot be empty!");
                 return;
             }
-            
-            if(newTitle !== self.originalTitle && !self.isSaving) {
+
+            if (newTitle !== self.originalTitle && !self.isSaving) {
                 $btn.prop('disabled', true).text('Saving...');
-                
-                self.updateTaskField("Title", newTitle, function() {
+
+                self.updateTaskField("Title", newTitle, function () {
                     self.originalTitle = newTitle;
                     $("#title-actions").css("display", "none");
                     $btn.prop('disabled', false).text('Save');
                     toastr.success("Title updated!");
-                }, function() {
+                }, function () {
                     $btn.prop('disabled', false).text('Save');
                 });
             } else {
@@ -80,28 +91,28 @@ var taskDetailManagement = {
         });
     },
 
-    initDescriptionHandlers: function() {
+    initDescriptionHandlers: function () {
         var self = this;
-        
+
         // Xử lý sự kiện focus cho TinyMCE editor
         // Đợi TinyMCE khởi tạo xong
-        var checkTinyMCE = setInterval(function() {
+        var checkTinyMCE = setInterval(function () {
             if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
                 clearInterval(checkTinyMCE);
-                
+
                 // Lắng nghe sự kiện focus trên TinyMCE editor
-                tinymce.get('detail-description').on('focus', function() {
+                tinymce.get('detail-description').on('focus', function () {
                     $("#desc-actions").css("display", "flex");
                 });
             }
         }, 100);
-        
+
         // Fallback cho trường hợp không có TinyMCE
-        $("#detail-description").focus(function() {
+        $("#detail-description").focus(function () {
             $("#desc-actions").css("display", "flex");
         });
-        
-        $("#btn-cancel-description").click(function() {
+
+        $("#btn-cancel-description").click(function () {
             // Khôi phục nội dung gốc
             if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
                 tinymce.get('detail-description').setContent(self.originalDescription);
@@ -110,8 +121,8 @@ var taskDetailManagement = {
             }
             $("#desc-actions").css("display", "none");
         });
-        
-        $("#btn-save-description").click(function() {
+
+        $("#btn-save-description").click(function () {
             // Lấy nội dung từ TinyMCE hoặc textarea
             var newDescription = "";
             if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
@@ -119,18 +130,18 @@ var taskDetailManagement = {
             } else {
                 newDescription = $("#detail-description").val().trim();
             }
-            
+
             var $btn = $(this);
-            
-            if(newDescription !== self.originalDescription && !self.isSaving) {
+
+            if (newDescription !== self.originalDescription && !self.isSaving) {
                 $btn.prop('disabled', true).text('Đang lưu...');
-                
-                self.updateTaskField("Description", newDescription, function() {
+
+                self.updateTaskField("Description", newDescription, function () {
                     self.originalDescription = newDescription;
                     $("#desc-actions").css("display", "none");
                     $btn.prop('disabled', false).text('Lưu');
                     toastr.success("Đã cập nhật mô tả!");
-                }, function() {
+                }, function () {
                     $btn.prop('disabled', false).text('Lưu');
                 });
             } else {
@@ -139,51 +150,51 @@ var taskDetailManagement = {
         });
     },
 
-    initAssigneeReporterHandlers: function() {
+    initAssigneeReporterHandlers: function () {
         var self = this;
-        
-        $("#detail-assignee").on("change", function() {
+
+        $("#detail-assignee").on("change", function () {
             var newAssigneeId = $(this).val() ? parseInt($(this).val()) : null;
             var $this = $(this);
-            
-            if(!self.isSaving) {
+
+            if (!self.isSaving) {
                 $this.prop('disabled', true);
-                self.updateTaskField("AssigneeId", newAssigneeId, function() {
+                self.updateTaskField("AssigneeId", newAssigneeId, function () {
                     $this.prop('disabled', false);
                     toastr.success("Assignee updated!");
-                }, function() {
+                }, function () {
                     $this.prop('disabled', false);
                 });
             }
         });
-        
-        $("#detail-reporter").on("change", function() {
+
+        $("#detail-reporter").on("change", function () {
             var newReporterId = $(this).val() ? parseInt($(this).val()) : null;
             var $this = $(this);
-            
-            if(!self.isSaving) {
+
+            if (!self.isSaving) {
                 $this.prop('disabled', true);
-                self.updateTaskField("ReporterId", newReporterId, function() {
+                self.updateTaskField("ReporterId", newReporterId, function () {
                     $this.prop('disabled', false);
                     toastr.success("Reporter updated!");
-                }, function() {
+                }, function () {
                     $this.prop('disabled', false);
                 });
             }
         });
     },
 
-    initStatusHandler: function() {
+    initStatusHandler: function () {
         var self = this;
-        
-        $("#detail-status").on("change", function() {
+
+        $("#detail-status").on("change", function () {
             var newStatus = parseInt($(this).val());
-            
-            if(!self.taskId) {
+
+            if (!self.taskId) {
                 toastr.error("Task ID not found!");
                 return;
             }
-            
+
             $.ajax({
                 url: '/TaskManagement/UpdateTaskStatus',
                 type: 'POST',
@@ -191,10 +202,10 @@ var taskDetailManagement = {
                     taskId: self.taskId,
                     status: newStatus
                 },
-                success: function(response) {
-                    if(response.isSuccess) {
+                success: function (response) {
+                    if (response.isSuccess) {
                         toastr.success("Status updated successfully!");
-                        
+
                         setTimeout(() => {
                             $.magnificPopup.close();
                             location.reload();
@@ -203,39 +214,39 @@ var taskDetailManagement = {
                         toastr.error(response.message || "Failed to update status!");
                     }
                 },
-                error: function() {
+                error: function () {
                     toastr.error("An error occurred while updating status!");
                 }
             });
         });
     },
 
-    initCommentHandlers: function() {
+    initCommentHandlers: function () {
         var self = this;
-        
-        $("#comment-input").focus(function() {
+
+        $("#comment-input").focus(function () {
             $(this).attr("rows", "3");
             $("#comment-actions").css("display", "flex");
         });
 
-        $("#btn-cancel-comment").click(function() {
+        $("#btn-cancel-comment").click(function () {
             $("#comment-input").val("");
             $("#comment-input").attr("rows", "1");
             $("#comment-actions").css("display", "none");
         });
 
-        $("#btn-save-comment").click(function() {
+        $("#btn-save-comment").click(function () {
             var val = $("#comment-input").val().trim();
-            if(!val) return;
-            
-            if(!self.taskId) {
+            if (!val) return;
+
+            if (!self.taskId) {
                 toastr.error("Task ID not found!");
                 return;
             }
-            
+
             var $btn = $(this);
             $btn.prop('disabled', true).text('Saving...');
-            
+
             $.ajax({
                 url: '/TaskManagement/AddComment',
                 type: 'POST',
@@ -244,8 +255,8 @@ var taskDetailManagement = {
                     TaskId: self.taskId,
                     Content: val
                 }),
-                success: function(response) {
-                    if(response.isSuccess) {
+                success: function (response) {
+                    if (response.isSuccess) {
                         var newComment = `
                             <div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="${response.id}">
                                 <div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">U</div>
@@ -261,12 +272,12 @@ var taskDetailManagement = {
                                 </div>
                             </div>
                         `;
-                        
+
                         var list = $("#task-comments-list");
-                        if(list.find(".italic").length) list.empty();
+                        if (list.find(".italic").length) list.empty();
 
                         list.append(newComment);
-                        
+
                         $("#btn-cancel-comment").click();
                         $btn.prop('disabled', false).text('Save');
                         toastr.success("Comment added!");
@@ -275,33 +286,33 @@ var taskDetailManagement = {
                         toastr.error(response.message || "Failed to add comment!");
                     }
                 },
-                error: function() {
+                error: function () {
                     $btn.prop('disabled', false).text('Save');
                     toastr.error("An error occurred while adding comment!");
                 }
             });
         });
-        
-        $(document).on("click", ".delete-comment", function() {
+
+        $(document).on("click", ".delete-comment", function () {
             var commentId = $(this).data("id");
             var commentItem = $(this).closest(".comment-item");
-            
-            if(!confirm("Are you sure you want to delete this comment?")) {
+
+            if (!confirm("Are you sure you want to delete this comment?")) {
                 return;
             }
-            
+
             $.ajax({
                 url: '/TaskManagement/DeleteComment',
                 type: 'POST',
                 data: {
                     id: commentId
                 },
-                success: function(response) {
-                    if(response.isSuccess) {
-                        commentItem.fadeOut(300, function() {
+                success: function (response) {
+                    if (response.isSuccess) {
+                        commentItem.fadeOut(300, function () {
                             $(this).remove();
-                            
-                            if($("#task-comments-list .comment-item").length === 0) {
+
+                            if ($("#task-comments-list .comment-item").length === 0) {
                                 $("#task-comments-list").html('<div style="font-size: 13px; color: #999; font-style: italic;">No comments yet.</div>');
                             }
                         });
@@ -310,17 +321,17 @@ var taskDetailManagement = {
                         toastr.error(response.message || "Failed to delete comment!");
                     }
                 },
-                error: function() {
+                error: function () {
                     toastr.error("An error occurred while deleting comment!");
                 }
             });
         });
     },
 
-    initKeyboardShortcuts: function() {
-        $(document).on("keypress", function(e) {
-            if(e.which === 109 || e.which === 77) { // 'm' or 'M'
-                if(!$(e.target).is('input, textarea')) {
+    initKeyboardShortcuts: function () {
+        $(document).on("keypress", function (e) {
+            if (e.which === 109 || e.which === 77) { // 'm' or 'M'
+                if (!$(e.target).is('input, textarea')) {
                     e.preventDefault();
                     $("#comment-input").focus();
                 }
@@ -328,36 +339,36 @@ var taskDetailManagement = {
         });
     },
 
-    updateTaskField: function(fieldName, fieldValue, successCallback, errorCallback) {
+    updateTaskField: function (fieldName, fieldValue, successCallback, errorCallback) {
         var self = this;
-        
-        if(!this.taskId) {
+
+        if (!this.taskId) {
             toastr.error("Task ID not found!");
-            if(errorCallback) errorCallback();
+            if (errorCallback) errorCallback();
             return;
         }
-        
+
         var data = {
             TaskId: this.taskId
         };
         data[fieldName] = fieldValue;
-        
+
         $.ajax({
             url: '/TaskManagement/UpdateTaskDetails',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data),
-            success: function(response) {
-                if(response.isSuccess) {
-                    if(successCallback) successCallback();
+            success: function (response) {
+                if (response.isSuccess) {
+                    if (successCallback) successCallback();
                 } else {
                     toastr.error(response.message || "Failed to update " + fieldName + "!");
-                    if(errorCallback) errorCallback();
+                    if (errorCallback) errorCallback();
                 }
             },
-            error: function() {
+            error: function () {
                 toastr.error("An error occurred while updating " + fieldName + "!");
-                if(errorCallback) errorCallback();
+                if (errorCallback) errorCallback();
             }
         });
     }
