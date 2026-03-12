@@ -15,6 +15,8 @@ using Ultilities.Constants;
 using Entities.ViewModels;
 using Nest;
 using Repositories.Repositories;
+using Xtech.CMS.Services.ServiceInterface;
+using Xtech.CMS.Services;
 
 namespace WEB.CMS.Controllers.WorkManagement
 {
@@ -28,9 +30,10 @@ namespace WEB.CMS.Controllers.WorkManagement
         private readonly ITaskCommentRepository _taskCommentRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IAllCodeRepository _allCodeRepository;
+        private readonly IEmailService _emailService;
 
         public TaskManagementController(ISprintRepository sprintRepository, IProjectTaskRepository projectTaskRepository, IProjectRepository projectRepository, 
-            IUserRepository userRepository, ITaskCommentRepository taskCommentRepository, IWebHostEnvironment webHostEnvironment, IAllCodeRepository allCodeRepository)
+            IUserRepository userRepository, ITaskCommentRepository taskCommentRepository, IWebHostEnvironment webHostEnvironment, IAllCodeRepository allCodeRepository, IEmailService emailService)
         {
             _sprintRepository = sprintRepository;
             _projectTaskRepository = projectTaskRepository;
@@ -39,6 +42,7 @@ namespace WEB.CMS.Controllers.WorkManagement
             _taskCommentRepository = taskCommentRepository;
             _webHostEnvironment = webHostEnvironment;
             _allCodeRepository = allCodeRepository;
+            _emailService = emailService;
         }
 
         public async Task<IActionResult> Index(long? projectId)
@@ -185,6 +189,29 @@ namespace WEB.CMS.Controllers.WorkManagement
             return PartialView();
         }
 
+        // Action mới cho trang full page từ email
+        [HttpGet]
+        public async Task<IActionResult> TaskDetailPage(long id, long? projectId)
+        {
+            var task = await _projectTaskRepository.GetById(id);
+            if (task == null)
+            {
+                return RedirectToAction("Index", new { projectId = projectId });
+            }
+
+            var users = _userRepository.GetAll();
+            var comments = await _taskCommentRepository.GetCommentsByTaskId(id);
+            var taskStatuses = _allCodeRepository.GetByType("TASK_STATUS");
+            
+            ViewBag.Task = task;
+            ViewBag.Users = users;
+            ViewBag.Comments = comments;
+            ViewBag.TaskStatuses = taskStatuses;
+            ViewBag.ProjectId = projectId ?? task.ProjectId;
+            
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddComment([FromBody] TaskComment model)
         {
@@ -310,8 +337,9 @@ namespace WEB.CMS.Controllers.WorkManagement
                     }
                     task.Attachment = "/" + uploadFolder + "/" + fileName;
                 }
-
+              
                 var id = await _projectTaskRepository.Upsert(task);
+                _emailService.SendEmail(task.AssigneeId ?? 0,0, id);
                 return Json(new { isSuccess = id > 0, id = id });
             }
             catch (Exception ex)
@@ -439,7 +467,7 @@ namespace WEB.CMS.Controllers.WorkManagement
                 {
                     return Json(new { isSuccess = false, message = "Task not found" });
                 }
-
+                var old_AssigneeId = task.AssigneeId;
                 var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 task.Title = model.Title ?? task.Title;
@@ -450,6 +478,13 @@ namespace WEB.CMS.Controllers.WorkManagement
                 task.ModifiedDate = DateTime.Now;
 
                 var id = await _projectTaskRepository.Upsert(task);
+                
+                // Gửi email cho người được phân công (dùng task.AssigneeId đã được cập nhật)
+                if (task.AssigneeId.HasValue && task.AssigneeId.Value > 0)
+                {
+                    _emailService.SendEmail(task.AssigneeId.Value, (long)old_AssigneeId, id);
+                }
+                
                 return Json(new { isSuccess = id > 0 });
             }
             catch (Exception ex)

@@ -8,6 +8,21 @@
 
 <link href="~/css/task-management.css" rel="stylesheet" />
 
+<style>
+    /* Fix TinyMCE dialog z-index trong modal */
+    .tox-tinymce-aux {
+        z-index: 9999 !important;
+    }
+    
+    .tox .tox-dialog-wrap {
+        z-index: 9999 !important;
+    }
+    
+    .tox .tox-dialog {
+        z-index: 9999 !important;
+    }
+</style>
+
 <div class="row">
     <!-- Left Content -->
     <div class="col-md-8 grid-border-right" style="max-height: 75vh; overflow-y: auto;">
