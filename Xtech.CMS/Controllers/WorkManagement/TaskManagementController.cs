@@ -181,7 +181,7 @@ namespace WEB.CMS.Controllers.WorkManagement
             var task = await _projectTaskRepository.GetById(id);
             var users = _userRepository.GetAll();
             var comments = await _taskCommentRepository.GetCommentsByTaskId(id);
-            var taskStatuses = _allCodeRepository.GetByType("TASK_STATUS");
+            var taskStatuses = _allCodeRepository.GetListByType("TASK_STATUS");
             ViewBag.Task = task;
             ViewBag.Users = users;
             ViewBag.Comments = comments;

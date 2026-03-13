@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Chi tiết Task";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row-main-container px-4">
+    <div class="breadcrumbs text-sm text-gray-500 mb-4">
+        <span>Dự án / Quản lý công việc / Chi tiết Task</span>
+    </div>
+
+    @await Html.PartialAsync("TaskDetail")
+</div>

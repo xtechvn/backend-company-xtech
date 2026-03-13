@@ -1,4 +1,45 @@
 var boardTaskManagement = {
+    // Khởi tạo TinyMCE với hỗ trợ paste ảnh chụp màn hình
+    initTinyMCEWithPaste: function (selector, initialContent) {
+        var editorId = selector.replace('#', '');
+        if (typeof tinymce !== 'undefined' && tinymce.get(editorId)) {
+            tinymce.get(editorId).remove();
+        }
+
+        var useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        tinymce.init({
+            selector: selector,
+            plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+            menubar: 'file edit view insert format tools table help',
+            toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent | numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen preview save print | insertfile image media template link anchor codesample | ltr rtl',
+            toolbar_sticky: true,
+            height: 300,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image imagetools table',
+            skin: useDarkMode ? 'oxide-dark' : 'oxide',
+            content_css: useDarkMode ? 'dark' : 'default',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+
+            paste_data_images: true,
+            images_upload_handler: function (blobInfo, success, failure) {
+                var base64 = 'data:' + blobInfo.blob().type + ';base64,' + blobInfo.base64();
+                success(base64);
+            },
+
+            setup: function (editor) {
+                editor.on('init', function () {
+                    if (initialContent) {
+                        editor.setContent(initialContent);
+                    }
+                });
+            }
+        });
+    },
+
     init: function() {
         this.initDragDrop();
         this.initEventHandlers();
@@ -178,10 +219,7 @@ var boardTaskManagement = {
         
         // Đợi modal hiển thị xong rồi mới khởi tạo TinyMCE
         $("#modal-create-task").on('shown.bs.modal', function () {
-            if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
-                _common.tinyMce('#task-desc');
-            }
-            // Xóa event listener sau khi đã khởi tạo
+            boardTaskManagement.initTinyMCEWithPaste('#task-desc');
             $(this).off('shown.bs.modal');
         });
     },
