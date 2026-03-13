@@ -128,7 +128,7 @@
                         <select class="form-control" id="detail-status" data-task-id="@task?.Id">
                             @if (taskStatuses != null)
                             {
-                                foreach (var status in taskStatuses.OrderBy(s => s.OrderNo))
+                                foreach (var status in taskStatuses)
                                 {
                                     if (task?.StatusId == status.CodeValue)
                                     {

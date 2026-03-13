@@ -21,15 +21,13 @@ var taskDetailManagement = {
     initTinyMCE: function (description) {
         var self = this;
 
-        // Remove Magnific Popup's focus enforcement for TinyMCE
+        // Override Magnific Popup focus trap cho TinyMCE
         if ($.magnificPopup && $.magnificPopup.instance) {
             var origOnFocusIn = $.magnificPopup.instance._onFocusIn;
             $.magnificPopup.instance._onFocusIn = function (e) {
-                // Return true if the event target is inside the TinyMCE UI
                 if ($(e.target).closest('.tox-tinymce, .tox-tinymce-aux, .moxman-window, .tam-assetmanager-root, .tox-dialog, .tox-dialog-wrap').length) {
                     return true;
                 }
-                // Otherwise call original focus event
                 if (origOnFocusIn) {
                     origOnFocusIn.call(this, e);
                 }
@@ -43,13 +41,59 @@ var taskDetailManagement = {
 
         // Đợi một chút để đảm bảo instance cũ đã bị xóa hoàn toàn
         setTimeout(function () {
-            // Đảm bảo textarea có nội dung trước khi khởi tạo TinyMCE
             $('#detail-description').val(description || "");
 
-            // Khởi tạo TinyMCE mới - TinyMCE sẽ tự động lấy nội dung từ textarea
-            if (typeof _common !== 'undefined' && typeof _common.tinyMce === 'function') {
-                _common.tinyMce('#detail-description');
-            }
+            var useDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            tinymce.init({
+                selector: '#detail-description',
+                plugins: 'print preview paste importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap quickbars emoticons',
+                imagetools_cors_hosts: ['picsum.photos'],
+                menubar: 'file edit view insert format tools table help',
+                toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | ltr rtl',
+                toolbar_sticky: true,
+                autosave_ask_before_unload: false,
+                autosave_interval: '30s',
+                autosave_prefix: '{path}{query}-{id}-',
+                autosave_restore_when_empty: false,
+                autosave_retention: '2m',
+                image_advtab: true,
+                importcss_append: true,
+                height: 300,
+                image_caption: true,
+                quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+                noneditable_noneditable_class: 'mceNonEditable',
+                toolbar_mode: 'sliding',
+                contextmenu: 'link image imagetools table',
+                skin: useDarkMode ? 'oxide-dark' : 'oxide',
+                content_css: useDarkMode ? 'dark' : 'default',
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+
+                // ====== CHO PHÉP PASTE ẢNH CHỤP MÀN HÌNH ======
+                paste_data_images: true,
+
+                // Xử lý upload ảnh khi paste (chuyển blob thành base64 inline)
+                images_upload_handler: function (blobInfo, success, failure) {
+                    // Chuyển ảnh paste thành base64 để chèn trực tiếp
+                    var base64 = 'data:' + blobInfo.blob().type + ';base64,' + blobInfo.base64();
+                    success(base64);
+                },
+
+                // Sự kiện khi TinyMCE khởi tạo xong
+                setup: function (editor) {
+                    editor.on('focus', function () {
+                        $("#desc-actions").css("display", "flex");
+                    });
+
+                    // Thông báo khi paste ảnh thành công
+                    editor.on('PastePostProcess', function (e) {
+                        var imgs = e.node.querySelectorAll('img');
+                        if (imgs.length > 0) {
+                            toastr.info('Đã dán ' + imgs.length + ' ảnh vào mô tả');
+                        }
+                    });
+                }
+            });
         }, 100);
     },
 
@@ -70,20 +114,20 @@ var taskDetailManagement = {
             var $btn = $(this);
 
             if (!newTitle) {
-                toastr.error("Title cannot be empty!");
+                toastr.error("Tiêu đề không được để trống!");
                 return;
             }
 
             if (newTitle !== self.originalTitle && !self.isSaving) {
-                $btn.prop('disabled', true).text('Saving...');
+                $btn.prop('disabled', true).text('Đang lưu...');
 
                 self.updateTaskField("Title", newTitle, function () {
                     self.originalTitle = newTitle;
                     $("#title-actions").css("display", "none");
-                    $btn.prop('disabled', false).text('Save');
-                    toastr.success("Title updated!");
+                    $btn.prop('disabled', false).text('Lưu');
+                    toastr.success("Đã cập nhật tiêu đề!");
                 }, function () {
-                    $btn.prop('disabled', false).text('Save');
+                    $btn.prop('disabled', false).text('Lưu');
                 });
             } else {
                 $("#title-actions").css("display", "none");
@@ -93,19 +137,6 @@ var taskDetailManagement = {
 
     initDescriptionHandlers: function () {
         var self = this;
-
-        // Xử lý sự kiện focus cho TinyMCE editor
-        // Đợi TinyMCE khởi tạo xong
-        var checkTinyMCE = setInterval(function () {
-            if (typeof tinymce !== 'undefined' && tinymce.get('detail-description')) {
-                clearInterval(checkTinyMCE);
-
-                // Lắng nghe sự kiện focus trên TinyMCE editor
-                tinymce.get('detail-description').on('focus', function () {
-                    $("#desc-actions").css("display", "flex");
-                });
-            }
-        }, 100);
 
         // Fallback cho trường hợp không có TinyMCE
         $("#detail-description").focus(function () {
@@ -161,7 +192,7 @@ var taskDetailManagement = {
                 $this.prop('disabled', true);
                 self.updateTaskField("AssigneeId", newAssigneeId, function () {
                     $this.prop('disabled', false);
-                    toastr.success("Assignee updated!");
+                    toastr.success("Đã cập nhật người thực hiện!");
                 }, function () {
                     $this.prop('disabled', false);
                 });
@@ -176,7 +207,7 @@ var taskDetailManagement = {
                 $this.prop('disabled', true);
                 self.updateTaskField("ReporterId", newReporterId, function () {
                     $this.prop('disabled', false);
-                    toastr.success("Reporter updated!");
+                    toastr.success("Đã cập nhật người báo cáo!");
                 }, function () {
                     $this.prop('disabled', false);
                 });
@@ -191,7 +222,7 @@ var taskDetailManagement = {
             var newStatus = parseInt($(this).val());
 
             if (!self.taskId) {
-                toastr.error("Task ID not found!");
+                toastr.error("Không tìm thấy Task ID!");
                 return;
             }
 
@@ -204,18 +235,18 @@ var taskDetailManagement = {
                 },
                 success: function (response) {
                     if (response.isSuccess) {
-                        toastr.success("Status updated successfully!");
+                        toastr.success("Đã cập nhật trạng thái!");
 
-                        setTimeout(() => {
+                        setTimeout(function () {
                             $.magnificPopup.close();
                             location.reload();
                         }, 1000);
                     } else {
-                        toastr.error(response.message || "Failed to update status!");
+                        toastr.error(response.message || "Cập nhật trạng thái thất bại!");
                     }
                 },
                 error: function () {
-                    toastr.error("An error occurred while updating status!");
+                    toastr.error("Đã xảy ra lỗi khi cập nhật trạng thái!");
                 }
             });
         });
@@ -240,12 +271,12 @@ var taskDetailManagement = {
             if (!val) return;
 
             if (!self.taskId) {
-                toastr.error("Task ID not found!");
+                toastr.error("Không tìm thấy Task ID!");
                 return;
             }
 
             var $btn = $(this);
-            $btn.prop('disabled', true).text('Saving...');
+            $btn.prop('disabled', true).text('Đang lưu...');
 
             $.ajax({
                 url: '/TaskManagement/AddComment',
@@ -257,21 +288,19 @@ var taskDetailManagement = {
                 }),
                 success: function (response) {
                     if (response.isSuccess) {
-                        var newComment = `
-                            <div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="${response.id}">
-                                <div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">U</div>
-                                <div style="flex: 1;">
-                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                        <span style="font-weight: bold; font-size: 14px; color: #333;">${response.userName}</span>
-                                        <span style="font-size: 12px; color: #999;">${response.createdDate}</span>
-                                    </div>
-                                    <div style="font-size: 14px; color: #555; white-space: pre-wrap;">${val}</div>
-                                    <div style="font-size: 12px; color: #999; margin-top: 5px; font-weight: 500; cursor: pointer;">
-                                        <span class="delete-comment" data-id="${response.id}">Delete</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+                        var newComment = '<div class="d-flex mb10 comment-item" style="display: flex; gap: 10px;" data-comment-id="' + response.id + '">'
+                            + '<div class="avatar-circle-sm flex-shrink-0" style="width: 32px; height: 32px; font-size: 14px;">U</div>'
+                            + '<div style="flex: 1;">'
+                            + '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">'
+                            + '<span style="font-weight: bold; font-size: 14px; color: #333;">' + response.userName + '</span>'
+                            + '<span style="font-size: 12px; color: #999;">' + response.createdDate + '</span>'
+                            + '</div>'
+                            + '<div style="font-size: 14px; color: #555; white-space: pre-wrap;">' + val + '</div>'
+                            + '<div style="font-size: 12px; color: #999; margin-top: 5px; font-weight: 500; cursor: pointer;">'
+                            + '<span class="delete-comment" data-id="' + response.id + '">Xóa</span>'
+                            + '</div>'
+                            + '</div>'
+                            + '</div>';
 
                         var list = $("#task-comments-list");
                         if (list.find(".italic").length) list.empty();
@@ -279,16 +308,16 @@ var taskDetailManagement = {
                         list.append(newComment);
 
                         $("#btn-cancel-comment").click();
-                        $btn.prop('disabled', false).text('Save');
-                        toastr.success("Comment added!");
+                        $btn.prop('disabled', false).text('Lưu');
+                        toastr.success("Đã thêm bình luận!");
                     } else {
-                        $btn.prop('disabled', false).text('Save');
-                        toastr.error(response.message || "Failed to add comment!");
+                        $btn.prop('disabled', false).text('Lưu');
+                        toastr.error(response.message || "Thêm bình luận thất bại!");
                     }
                 },
                 error: function () {
-                    $btn.prop('disabled', false).text('Save');
-                    toastr.error("An error occurred while adding comment!");
+                    $btn.prop('disabled', false).text('Lưu');
+                    toastr.error("Đã xảy ra lỗi khi thêm bình luận!");
                 }
             });
         });
@@ -297,7 +326,7 @@ var taskDetailManagement = {
             var commentId = $(this).data("id");
             var commentItem = $(this).closest(".comment-item");
 
-            if (!confirm("Are you sure you want to delete this comment?")) {
+            if (!confirm("Bạn có chắc muốn xóa bình luận này?")) {
                 return;
             }
 
@@ -313,16 +342,16 @@ var taskDetailManagement = {
                             $(this).remove();
 
                             if ($("#task-comments-list .comment-item").length === 0) {
-                                $("#task-comments-list").html('<div style="font-size: 13px; color: #999; font-style: italic;">No comments yet.</div>');
+                                $("#task-comments-list").html('<div style="font-size: 13px; color: #999; font-style: italic;">Chưa có bình luận nào.</div>');
                             }
                         });
-                        toastr.success("Comment deleted!");
+                        toastr.success("Đã xóa bình luận!");
                     } else {
-                        toastr.error(response.message || "Failed to delete comment!");
+                        toastr.error(response.message || "Xóa bình luận thất bại!");
                     }
                 },
                 error: function () {
-                    toastr.error("An error occurred while deleting comment!");
+                    toastr.error("Đã xảy ra lỗi khi xóa bình luận!");
                 }
             });
         });
@@ -331,7 +360,7 @@ var taskDetailManagement = {
     initKeyboardShortcuts: function () {
         $(document).on("keypress", function (e) {
             if (e.which === 109 || e.which === 77) { // 'm' or 'M'
-                if (!$(e.target).is('input, textarea')) {
+                if (!$(e.target).is('input, textarea, [contenteditable]')) {
                     e.preventDefault();
                     $("#comment-input").focus();
                 }
@@ -343,7 +372,7 @@ var taskDetailManagement = {
         var self = this;
 
         if (!this.taskId) {
-            toastr.error("Task ID not found!");
+            toastr.error("Không tìm thấy Task ID!");
             if (errorCallback) errorCallback();
             return;
         }
@@ -362,12 +391,12 @@ var taskDetailManagement = {
                 if (response.isSuccess) {
                     if (successCallback) successCallback();
                 } else {
-                    toastr.error(response.message || "Failed to update " + fieldName + "!");
+                    toastr.error(response.message || "Cập nhật " + fieldName + " thất bại!");
                     if (errorCallback) errorCallback();
                 }
             },
             error: function () {
-                toastr.error("An error occurred while updating " + fieldName + "!");
+                toastr.error("Đã xảy ra lỗi khi cập nhật " + fieldName + "!");
                 if (errorCallback) errorCallback();
             }
         });
